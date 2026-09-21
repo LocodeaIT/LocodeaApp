@@ -46,7 +46,8 @@ Hubo una etapa en la que la app se montó como web normal sobre **Supabase**, pa
 evitar el coste de licencias de Power Apps. Se descartó a favor de Dataverse.
 
 Ese código está guardado en `Proyectos y Tareas/legacy/supabase-web/`
-(repositorio, cliente, esquema SQL y `.env.example`). Para revivirlo: reinstalar
+(cliente y `.env.example`). El esquema SQL se ha retirado del repositorio: si
+hiciera falta, esta en el historial, en el commit inicial. Para revivirlo: reinstalar
 `@supabase/supabase-js`, devolver esos archivos a `app/src/data/` y apuntar
 `main.tsx` a `repoSupabase`.
 
