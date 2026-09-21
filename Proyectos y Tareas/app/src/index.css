@@ -452,6 +452,38 @@ a { color: var(--acento); text-decoration: none; }
 .objetivo-card .avance { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--texto-3); }
 .objetivo-card .avance .progreso { flex: 1; }
 
+/* Barra de alta rapida de tareas. Discreta hasta que se usa: el foco la
+   destaca con el anillo de acento, igual que el resto de entradas rapidas. */
+.componer-tarea { display: flex; align-items: center; gap: 10px; margin: 14px 0 4px;
+  padding: 8px 10px 8px 12px; border-radius: var(--pill);
+  background: var(--paper); border: 1px solid var(--borde-suave); box-shadow: var(--sombra-1);
+  color: var(--texto-3); transition: box-shadow var(--rapido), border-color var(--rapido); }
+.componer-tarea:focus-within { border-color: var(--acento); box-shadow: 0 0 0 2px var(--acento-suave-2); }
+.componer-tarea input { flex: 1; border: none; background: transparent; color: var(--texto); font-size: 14px; }
+.componer-tarea input:focus { outline: none; }
+.componer-tarea .btn { flex: none; opacity: 0; transition: opacity var(--rapido); }
+.componer-tarea:focus-within .btn, .componer-tarea:hover .btn { opacity: 1; }
+@media (hover: none) { .componer-tarea .btn { opacity: 1; } }
+
+/* Columna General: los objetivos del equipo sin duenno. Se distingue por el
+   avatar y un fondo muy tenue, sin gritar: es una columna mas. */
+.avatar.general { width: 28px; height: 28px; border-radius: 50%; display: inline-grid; place-items: center; flex: none;
+  background: var(--acento-suave); color: var(--acento); border: 2px solid var(--paper); }
+.col-miembro.general .col-miembro-cuerpo { background: var(--ink-3); }
+.col-miembro.general .col-miembro-cuerpo.sobre { background: var(--acento-suave); }
+
+/* Alta rapida de tareas desde la tarjeta del objetivo. */
+.anadir-tarea-objetivo { align-self: flex-start; display: flex; align-items: center; gap: 4px; padding: 3px 6px 3px 4px;
+  margin-left: -4px; border: none; background: transparent; border-radius: var(--radio-s);
+  font-size: 12px; font-weight: 500; color: var(--texto-3); opacity: 0; transition: all var(--rapido); }
+.objetivo-card:hover .anadir-tarea-objetivo { opacity: 1; }
+.anadir-tarea-objetivo:hover { color: var(--acento); background: var(--acento-suave); }
+.tarea-rapida-objetivo { width: 100%; font-size: 12px; padding: 6px 8px; border-radius: var(--radio-s);
+  border: 1px solid var(--acento); background: var(--paper); box-shadow: 0 0 0 2px var(--acento-suave-2); }
+.tarea-rapida-objetivo:focus { outline: none; }
+/* Sin hover (tactil) el boton no puede depender de el. */
+@media (hover: none) { .anadir-tarea-objetivo { opacity: 1; } }
+
 .anadir-objetivo { border: 1px dashed var(--ink-20); border-radius: var(--radio-l); padding: 10px; color: var(--texto-3); background: transparent; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; transition: all var(--rapido); }
 .anadir-objetivo:hover { border-color: var(--acento); color: var(--acento); background: var(--acento-suave); }
 

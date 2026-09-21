@@ -3,14 +3,14 @@
  * verlo (Tablero, Lista, Calendario, Gantt). Las vistas se guardan con
  * nombre y se pueden compartir con el equipo o dejar como personales.
  */
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Calendar, Check, ChevronDown, Columns3, Filter, GanttChartSquare, KanbanSquare, List, Plus, Save, SlidersHorizontal, Trash2, Users, X,
 } from 'lucide-react'
 import { useApp } from '../../store'
 import { Desplegable, FiltroPersonas, SelectProyecto } from '../../ui/basicos'
 import { ModalTarea } from '../Modales'
-import type { AgruparPor, ColumnaLista, EstadoTarea, OrdenarPor, Prioridad, TipoVista, Vista } from '../../domain/types'
+import type { AgruparPor, ColumnaLista, EstadoTarea, OrdenarPor, Prioridad, Tarea, TipoVista, Vista } from '../../domain/types'
 import { COLUMNAS_LISTA, ETIQUETA_ESTADO_TAREA, ETIQUETA_PRIORIDAD, ORDEN_ESTADOS_TAREA } from '../../domain/types'
 import { filtrarTareas, vistaNueva, vistasIguales } from '../../domain/vistas'
 import Tablero from './Tablero'
@@ -38,7 +38,8 @@ export default function Tareas({ abrirTarea }: { abrirTarea: (id: string) => voi
   const guardada = visibles.find(v => v.id === vistaId) ?? visibles.find(v => v.esPredeterminada) ?? visibles[0]
   // copia de trabajo: se edita libremente y se guarda cuando se quiere
   const [vista, setVista] = useState<Vista | null>(null)
-  const [nueva, setNueva] = useState<Partial<import('../../domain/types').Tarea> | null>(null)
+  const [nueva, setNueva] = useState<Partial<Tarea> | null>(null)
+  const componer = useRef<HTMLInputElement>(null)
   const [menuVistas, setMenuVistas] = useState(false)
   const [menuOpciones, setMenuOpciones] = useState(false)
   const [menuFiltros, setMenuFiltros] = useState(false)
@@ -107,7 +108,7 @@ export default function Tareas({ abrirTarea }: { abrirTarea: (id: string) => voi
         </div>
         <div className="vistas-acciones">
           {modificada && <button className="btn primario pequeno" onClick={() => void guardar()}><Save size={13} /> Guardar vista</button>}
-          <button className="btn primario" onClick={() => setNueva({ proyectoId: vista.filtros.proyectoId, asignadoId: vista.filtros.asignadoId ?? undefined })}><Plus size={15} /> Nueva tarea</button>
+          <button className="btn primario" onClick={() => componer.current?.focus()}><Plus size={15} /> Nueva tarea</button>
         </div>
       </div>
 
@@ -180,12 +181,55 @@ export default function Tareas({ abrirTarea }: { abrirTarea: (id: string) => voi
         {vista.filtros.ocultarHechas && <span className="chip pequeno contorno"><Check size={11} /> Sin hechas</span>}
       </div>
 
+      <ComponerTarea refInput={componer} vista={vista} onDetalles={setNueva} />
+
       {vista.tipo === 'tablero' && <Tablero vista={vista} tareas={tareas} abrirTarea={abrirTarea} onNueva={setNueva} />}
       {vista.tipo === 'lista' && <Lista vista={vista} tareas={tareas} abrirTarea={abrirTarea} onNueva={setNueva} />}
       {vista.tipo === 'calendario' && <Calendario vista={vista} tareas={tareas} abrirTarea={abrirTarea} onNueva={setNueva} />}
       {vista.tipo === 'gantt' && <Gantt vista={vista} tareas={tareas} abrirTarea={abrirTarea} onNueva={setNueva} />}
 
       {nueva && <ModalTarea inicial={nueva} onCerrar={() => setNueva(null)} />}
+    </div>
+  )
+}
+
+/**
+ * Barra de alta rapida: se escribe el titulo y con Enter la tarea ya existe.
+ *
+ * Es el camino por defecto a proposito. El formulario completo sigue a un clic,
+ * en "Mas opciones", que se lleva lo ya escrito para no repetirlo.
+ */
+function ComponerTarea({ refInput, vista, onDetalles }: {
+  refInput: React.RefObject<HTMLInputElement | null>; vista: Vista; onDetalles: (t: Partial<Tarea>) => void
+}) {
+  const { yo, guardarTarea, tareaBase } = useApp()
+  const [titulo, setTitulo] = useState('')
+  const [guardando, setGuardando] = useState(false)
+
+  // hereda lo que ya filtra la vista: si estas mirando un proyecto, la tarea es de ese proyecto
+  const heredado = (): Partial<Tarea> => ({
+    proyectoId: vista.filtros.proyectoId,
+    asignadoId: vista.filtros.asignadoId ?? yo?.id ?? null,
+  })
+
+  const crear = async () => {
+    const t = titulo.trim()
+    if (!t || !yo || guardando) return
+    setGuardando(true)
+    setTitulo('')
+    try { await guardarTarea(tareaBase({ titulo: t, ...heredado() })) } finally { setGuardando(false) }
+    refInput.current?.focus()
+  }
+
+  return (
+    <div className="componer-tarea">
+      <Plus size={16} />
+      <input ref={refInput} value={titulo} onChange={e => setTitulo(e.target.value)}
+        placeholder="Escribe una tarea y pulsa Enter…"
+        onKeyDown={e => { if (e.key === 'Enter') void crear(); if (e.key === 'Escape') setTitulo('') }} />
+      <button className="btn sutil pequeno" onClick={() => { onDetalles({ titulo: titulo.trim(), ...heredado() }); setTitulo('') }}>
+        Más opciones
+      </button>
     </div>
   )
 }

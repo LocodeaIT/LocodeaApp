@@ -147,10 +147,10 @@ export function Desplegable({ boton, children, abierto, setAbierto }: { boton: R
 
 // ─────────────────────────────────────────────── selects de catálogo
 
-export function SelectMiembro({ valor, onCambio, conNadie = true, sutil, pequeno, ancho }: { valor: string | null; onCambio: (id: string | null) => void; conNadie?: boolean; sutil?: boolean; pequeno?: boolean; ancho?: number | string }) {
+export function SelectMiembro({ valor, onCambio, conNadie = true, textoNadie = 'Sin asignar', sutil, pequeno, ancho }: { valor: string | null; onCambio: (id: string | null) => void; conNadie?: boolean; textoNadie?: string; sutil?: boolean; pequeno?: boolean; ancho?: number | string }) {
   const { datos } = useApp()
   const opciones: Opcion<string>[] = [
-    ...(conNadie ? [{ valor: '', etiqueta: 'Sin asignar', icono: <span className="avatar vacio pequeno">?</span> }] : []),
+    ...(conNadie ? [{ valor: '', etiqueta: textoNadie, icono: <Avatar miembro={null} tamano="pequeno" /> }] : []),
     ...datos.miembros.filter(m => m.activo || m.id === valor).map(m => ({ valor: m.id, etiqueta: m.nombre, icono: <span className="avatar pequeno" style={{ background: m.color }}>{m.iniciales}</span> })),
   ]
   return <Select valor={valor ?? ''} opciones={opciones} onCambio={v => onCambio(v || null)} sutil={sutil} pequeno={pequeno} ancho={ancho} />

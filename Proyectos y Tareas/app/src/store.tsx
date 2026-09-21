@@ -63,7 +63,8 @@ interface Ctx {
   asegurarSemana: (lunes: string) => Promise<Semana>
   guardarObjetivo: (o: Objetivo | Nuevo<Objetivo>) => Promise<Objetivo>
   alternarObjetivo: (id: string) => Promise<void>
-  reordenarObjetivos: (ids: string[], responsableId?: string) => Promise<void>
+  /** `responsableId` a null mueve los objetivos a la columna general; omitirlo conserva el que tengan. */
+  reordenarObjetivos: (ids: string[], responsableId?: string | null) => Promise<void>
   borrarObjetivo: (id: string) => Promise<void>
 
   // tareas
@@ -234,10 +235,11 @@ export function Proveedor({ repo, children }: { repo: Repositorio; children: Rea
     await registrar('objetivo', id, cumplido ? 'Marcó el objetivo como cumplido.' : 'Reabrió el objetivo.')
   }, [datos.objetivos, ejecutar, repo, registrar])
 
-  const reordenarObjetivos = useCallback(async (ids: string[], responsableId?: string) => {
+  const reordenarObjetivos = useCallback(async (ids: string[], responsableId?: string | null) => {
     const cambiados = ids.map((id, i) => {
       const o = datos.objetivos.find(x => x.id === id)!
-      return { ...o, orden: i, responsableId: responsableId ?? o.responsableId }
+      // null es un valor valido (columna general), asi que se distingue de "no indicado"
+      return { ...o, orden: i, responsableId: responsableId === undefined ? o.responsableId : responsableId }
     }).filter(o => { const ant = datos.objetivos.find(x => x.id === o.id)!; return ant.orden !== o.orden || ant.responsableId !== o.responsableId })
     if (!cambiados.length) return
     // optimista: se aplica antes de esperar

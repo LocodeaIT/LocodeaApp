@@ -54,7 +54,8 @@ export interface Objetivo {
   id: string
   semanaId: string
   proyectoId: string | null
-  responsableId: string
+  /** null = objetivo general del equipo, sin duenno concreto. */
+  responsableId: string | null
   titulo: string
   descripcion: string
   prioridad: Prioridad

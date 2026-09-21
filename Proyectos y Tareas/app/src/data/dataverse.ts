@@ -140,7 +140,7 @@ function aObjetivo(f: Fila): Objetivo {
     id: f.loc_objetivoid,
     semanaId: f._loc_semana_value ?? '',
     proyectoId: f._loc_proyecto_value ?? null,
-    responsableId: f._loc_responsable_value ?? '',
+    responsableId: f._loc_responsable_value ?? null,
     titulo: txt(f.loc_titulo),
     descripcion: txt(f.loc_descripcion),
     prioridad: DE_PRIORIDAD[f.loc_prioridad] ?? 'media',

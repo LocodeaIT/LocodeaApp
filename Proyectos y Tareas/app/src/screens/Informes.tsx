@@ -66,7 +66,7 @@ function InformeSemana({ lunes }: { lunes: string }) {
   const semana = datos.semanas.find(s => s.inicio === lunes)
   if (!semana) return <p className="vacio">No hay datos para esta semana.</p>
   const r = resumenSemana(semana, datos.objetivos)
-  const objetivos = datos.objetivos.filter(o => o.semanaId === semana.id).sort((a, b) => a.responsableId.localeCompare(b.responsableId) || a.orden - b.orden)
+  const objetivos = datos.objetivos.filter(o => o.semanaId === semana.id).sort((a, b) => (a.responsableId ?? '').localeCompare(b.responsableId ?? '') || a.orden - b.orden)
   const miembros = datos.miembros.filter(m => objetivos.some(o => o.responsableId === m.id))
   return (
     <>

@@ -71,11 +71,14 @@ export function ModalObjetivo({ inicial, semanaId, onCerrar }: { inicial: Objeti
   const [titulo, setTitulo] = useState(inicial.titulo ?? '')
   const [descripcion, setDescripcion] = useState(inicial.descripcion ?? '')
   const [proyectoId, setProyectoId] = useState<string | null>(inicial.proyectoId ?? null)
-  const [responsableId, setResponsableId] = useState<string | null>(inicial.responsableId ?? yo?.id ?? null)
+  // null es un valor valido (objetivo general), asi que hay que mirar si la clave
+  // viene o no; con ?? un null explicito caeria en "yo" y se perderia.
+  const [responsableId, setResponsableId] = useState<string | null>(
+    'responsableId' in inicial ? inicial.responsableId ?? null : yo?.id ?? null)
   const [prioridad, setPrioridad] = useState<Prioridad>(inicial.prioridad ?? 'media')
 
   const guardar = async () => {
-    if (!titulo.trim() || !responsableId) return
+    if (!titulo.trim()) return
     if (existente) {
       await guardarObjetivo({ ...existente, titulo: titulo.trim(), descripcion, proyectoId, responsableId, prioridad })
     } else {
@@ -89,20 +92,20 @@ export function ModalObjetivo({ inicial, semanaId, onCerrar }: { inicial: Objeti
   }
 
   return (
-    <Modal titulo={existente ? 'Editar objetivo' : 'Proponer objetivo'} onCerrar={onCerrar} pie={<>
+    <Modal titulo={existente ? 'Editar objetivo' : 'Nuevo objetivo'} onCerrar={onCerrar} pie={<>
       {existente && <button className="btn peligro" style={{ marginRight: 'auto' }} onClick={() => { if (confirm('¿Borrar el objetivo?')) { void borrarObjetivo(existente.id); onCerrar() } }}>Borrar</button>}
       <button className="btn" onClick={onCerrar}>Cancelar</button>
-      <button className="btn primario" onClick={() => void guardar()} disabled={!titulo.trim()}>{existente ? 'Guardar' : 'Proponer'}</button>
+      <button className="btn primario" onClick={() => void guardar()} disabled={!titulo.trim()}>{existente ? 'Guardar' : 'Crear objetivo'}</button>
     </>}>
       <div className="formulario">
-        <p className="ayuda">Un objetivo es un resultado concreto que se puede dar por hecho o no el viernes. Lo revisará un compañero.</p>
+        <p className="ayuda">Un objetivo es un resultado concreto que se puede dar por hecho o no el viernes. Sin responsable queda como objetivo general del equipo.</p>
         <Campo label="Objetivo"><input autoFocus value={titulo} onChange={e => setTitulo(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') void guardar() }} placeholder="Ej.: Entregar la v1 del portal al cliente" /></Campo>
         <div className="fila-campos dos">
-          <Campo label="Responsable"><SelectMiembro valor={responsableId} onCambio={setResponsableId} conNadie={false} /></Campo>
+          <Campo label="Responsable"><SelectMiembro valor={responsableId} onCambio={setResponsableId} textoNadie="General del equipo" /></Campo>
           <Campo label="Proyecto"><SelectProyecto valor={proyectoId} onCambio={setProyectoId} /></Campo>
         </div>
         <Campo label="Prioridad"><Select valor={prioridad} onCambio={setPrioridad} opciones={OPCIONES_PRIORIDAD} ancho={200} /></Campo>
-        <Campo label="Criterio de éxito (opcional)"><textarea value={descripcion} onChange={e => setDescripcion(e.target.value)} placeholder="¿Cómo sabremos que está cumplido?" /></Campo>
+        <Campo label="Descripción"><textarea value={descripcion} onChange={e => setDescripcion(e.target.value)} placeholder="Detalle, contexto o cómo sabremos que está cumplido" /></Campo>
       </div>
     </Modal>
   )
