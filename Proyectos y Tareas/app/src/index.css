@@ -423,7 +423,11 @@ a { color: var(--acento); text-decoration: none; }
 .paso-linea { flex: 1; height: 2px; background: var(--borde); margin: 0 10px; max-width: 80px; transition: background var(--normal); }
 .paso-linea.hecho { background: var(--ok); }
 
-.columnas-objetivos { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 18px; }
+/* Una sola fila con desplazamiento lateral, igual que el tablero de tareas.
+   Con auto-fit se envolvia: al pasar de 4 a 5 columnas los ultimos del equipo
+   caian a una segunda fila fuera de pantalla y parecia que no estaban. */
+.columnas-objetivos { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(210px, 1fr);
+  gap: 12px; margin-top: 18px; overflow-x: auto; padding-bottom: 8px; align-items: start; }
 .col-miembro { display: flex; flex-direction: column; gap: 10px; }
 .col-miembro-cabecera { display: flex; align-items: center; gap: 10px; padding: 4px 2px; }
 .col-miembro-cabecera .nombre { font-weight: 700; }
