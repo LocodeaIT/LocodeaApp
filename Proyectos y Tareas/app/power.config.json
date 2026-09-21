@@ -1,0 +1,70 @@
+{
+  "version": "1.0",
+  "appId": "fb61a86d-0299-407e-a057-972979fc71f6",
+  "appDisplayName": "Locodea App",
+  "region": "prod",
+  "appType": "CodeApp",
+  "environmentId": "d5102352-7470-e60d-8ac9-ce67c4f7184d",
+  "description": "Objetivos semanales, tareas, reuniones y proyectos del equipo de Locodea",
+  "buildPath": "./dist",
+  "buildEntryPoint": "index.html",
+  "localAppUrl": "http://localhost:3000",
+  "logoPath": "Default",
+  "connectionReferences": {
+    "ccafddbd-8ead-4252-97ba-a59b344c741d": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_office365",
+      "displayName": "Office 365 Outlook",
+      "dataSources": [
+        "office365"
+      ],
+      "dataSets": {}
+    }
+  },
+  "databaseReferences": {
+    "default.cds": {
+      "dataSources": {
+        "miembros": {
+          "entitySetName": "loc_miembros",
+          "logicalName": "loc_miembro",
+          "isHidden": false
+        },
+        "proyectos": {
+          "entitySetName": "loc_proyectos",
+          "logicalName": "loc_proyecto",
+          "isHidden": false
+        },
+        "semanas": {
+          "entitySetName": "loc_semanas",
+          "logicalName": "loc_semana",
+          "isHidden": false
+        },
+        "objetivos": {
+          "entitySetName": "loc_objetivos",
+          "logicalName": "loc_objetivo",
+          "isHidden": false
+        },
+        "tareas": {
+          "entitySetName": "loc_tareas",
+          "logicalName": "loc_tarea",
+          "isHidden": false
+        },
+        "vistas": {
+          "entitySetName": "loc_vistas",
+          "logicalName": "loc_vista",
+          "isHidden": false
+        },
+        "actividades": {
+          "entitySetName": "loc_actividads",
+          "logicalName": "loc_actividad",
+          "isHidden": false
+        },
+        "reuniones": {
+          "entitySetName": "loc_reunions",
+          "logicalName": "loc_reunion",
+          "isHidden": false
+        }
+      },
+      "environmentVariableName": ""
+    }
+  }
+}

@@ -1,0 +1,31 @@
+# Dependencias y compilados
+node_modules/
+dist/
+dist-ssr/
+*.tsbuildinfo
+
+# Entorno local (el build de produccion nunca los usa)
+.env
+.env.local
+.env.*.local
+
+# Registros
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vite/
+.idea/
+*.swp
+
+# Sesiones de Claude Code (locales), salvo la configuracion de arranque
+.claude/*
+!.claude/launch.json
+
+# NOTA: .power/schemas SI se versiona. Lo genera el CLI `pa` a partir de las
+# fuentes de datos y el build no compila sin el.

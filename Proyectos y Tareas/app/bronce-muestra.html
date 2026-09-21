@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Locodea Bronce · muestra</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" />
+    <link rel="stylesheet" href="/src/bronce.css" />
+    <link rel="stylesheet" href="/src/index.css" />
+    <link rel="stylesheet" href="/src/vistas.css" />
+    <link rel="stylesheet" href="/src/extras.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="cabecera">
+        <div class="marca">
+          <div class="logo">L</div>
+          Locodea <small>Objetivos y tareas</small>
+        </div>
+        <div class="buscador">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input placeholder="Buscar tareas, objetivos o proyectos" />
+        </div>
+        <div class="derecha">
+          <button class="btn sutil icono" style="color:#fff">?</button>
+        </div>
+      </header>
+
+      <aside class="lateral">
+        <nav class="nav">
+          <button class="nav-item activo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Inicio</span></button>
+          <button class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg><span>Objetivos</span><span class="contador">3</span></button>
+          <div class="nav-seccion">Trabajo</div>
+          <button class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg><span>Tareas</span><span class="contador gris">12</span></button>
+          <button class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V4h6l2 3h8v13z"/></svg><span>Proyectos</span></button>
+        </nav>
+      </aside>
+
+      <main style="overflow:auto; padding:24px 28px;">
+        <h1 style="margin-bottom:6px">En qué centrarte hoy</h1>
+        <p class="sub" style="color:var(--ink-60); margin-bottom:22px">Sistema de diseño Locodea Bronce aplicado</p>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-bottom:24px">
+          <div class="tarjeta padded">
+            <div class="tarjeta-cabecera"><h3>Tareas vencidas</h3></div>
+            <div style="font-size:34px; font-weight:500; letter-spacing:-.03em">4</div>
+            <div style="color:var(--ink-60); font-size:13px">Dos de ellas del portal de pedidos</div>
+          </div>
+          <div class="tarjeta padded">
+            <div class="tarjeta-cabecera"><h3>Avance semanal</h3></div>
+            <div style="font-size:34px; font-weight:500; letter-spacing:-.03em">68%</div>
+            <div class="bar" style="height:6px; border-radius:99px; background:var(--ink-10); overflow:hidden; margin-top:8px">
+              <div style="height:100%; width:68%; background:var(--bronze); border-radius:99px"></div>
+            </div>
+          </div>
+          <div class="tarjeta arena padded">
+            <div class="tarjeta-cabecera"><h3>Semana</h3></div>
+            <div style="color:var(--ink-65); font-size:13px">Propuesta enviada, pendiente de revisión de Jesús.</div>
+          </div>
+        </div>
+
+        <div class="tarjeta padded" style="margin-bottom:24px">
+          <div class="tarjeta-cabecera"><h3>Componentes</h3></div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px">
+            <button class="btn primario">Nueva tarea</button>
+            <button class="btn">Secundario</button>
+            <button class="btn sutil">Sutil</button>
+            <button class="btn peligro">Eliminar</button>
+            <button class="btn pequeno">Pequeño</button>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px">
+            <span class="chip">Por defecto</span>
+            <span class="chip acento">Acento</span>
+            <span class="chip ok">Cumplido</span>
+            <span class="chip aviso">En riesgo</span>
+            <span class="chip error">Vencida</span>
+            <span class="chip contorno">Contorno</span>
+          </div>
+
+          <div class="fila-campos dos" style="margin-bottom:8px">
+            <div class="campo"><label>Título</label><input value="Portal de pedidos · fase 2" /></div>
+            <div class="campo"><label>Estado</label><select><option>En curso</option></select></div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:12px; margin-top:14px">
+            <span class="check hecho cuadrado">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m20 6-11 11-5-5"/></svg>
+            </span>
+            <span class="check cuadrado"></span>
+            <div class="avatares">
+              <span class="avatar" style="background:#C239B3">MR</span>
+              <span class="avatar" style="background:#0F6CBD">JA</span>
+              <span class="avatar" style="background:#0E7C5B">AL</span>
+              <span class="avatar" style="background:#B85C00">JU</span>
+            </div>
+            <span class="prioridad alta">Alta</span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

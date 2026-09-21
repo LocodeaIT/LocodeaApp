@@ -1,0 +1,43 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "locodea-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--prefix",
+        "app"
+      ],
+      "port": 3000
+    },
+    {
+      "name": "locodea-preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "preview",
+        "--prefix",
+        "app",
+        "--",
+        "--port",
+        "4173",
+        "--strictPort"
+      ],
+      "port": 4173
+    },
+    {
+      "name": "locodea-demo",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "--no-install",
+        "vite",
+        "--port",
+        "3001",
+        "--strictPort"
+      ],
+      "port": 3001
+    }
+  ]
+}

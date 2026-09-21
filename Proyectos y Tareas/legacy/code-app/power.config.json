@@ -1,0 +1,56 @@
+{
+  "version": "1.0",
+  "appId": "fb61a86d-0299-407e-a057-972979fc71f6",
+  "appDisplayName": "Locodea Objetivos",
+  "region": "prod",
+  "appType": "CodeApp",
+  "environmentId": "d5102352-7470-e60d-8ac9-ce67c4f7184d",
+  "description": "Objetivos semanales, tareas y To Do del equipo Locodea",
+  "buildPath": "./dist",
+  "buildEntryPoint": "index.html",
+  "localAppUrl": "http://localhost:3000",
+  "logoPath": "Default",
+  "connectionReferences": {},
+  "databaseReferences": {
+    "default.cds": {
+      "dataSources": {
+        "miembros": {
+          "entitySetName": "loc_miembros",
+          "logicalName": "loc_miembro",
+          "isHidden": false
+        },
+        "proyectos": {
+          "entitySetName": "loc_proyectos",
+          "logicalName": "loc_proyecto",
+          "isHidden": false
+        },
+        "semanas": {
+          "entitySetName": "loc_semanas",
+          "logicalName": "loc_semana",
+          "isHidden": false
+        },
+        "objetivos": {
+          "entitySetName": "loc_objetivos",
+          "logicalName": "loc_objetivo",
+          "isHidden": false
+        },
+        "tareas": {
+          "entitySetName": "loc_tareas",
+          "logicalName": "loc_tarea",
+          "isHidden": false
+        },
+        "vistas": {
+          "entitySetName": "loc_vistas",
+          "logicalName": "loc_vista",
+          "isHidden": false
+        },
+        "actividades": {
+          "entitySetName": "loc_actividads",
+          "logicalName": "loc_actividad",
+          "isHidden": false
+        }
+      },
+      "environmentVariableName": ""
+    }
+  }
+}

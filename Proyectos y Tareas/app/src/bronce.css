@@ -1,0 +1,131 @@
+/* ============================================================================
+ * Sistema de diseño Locodea · «Bronce»
+ *
+ * Tokens tomados del sistema original (ProjectsLocodea/src/index.css). Este
+ * archivo es la capa de diseño: no describe componentes de esta app, solo el
+ * vocabulario común. Si el sistema cambia, se actualiza aquí y nada más.
+ *
+ * Papel #FFFFFF · tinta #1B1816 · bronce #B07A4A · arena #F1EBE2
+ * DM Sans, titulares peso 500 con tracking −3 %
+ * Radios 8/12/20/24/32 y píldora · anillos de 1 px al 5 %
+ * ========================================================================== */
+
+:root {
+  /* paleta base */
+  --paper: #ffffff;
+  --ink: #1b1816;
+  --bronze: #b07a4a;
+  --bronze-deep: #8f6039;
+  --sand: #f1ebe2;
+  --sand-deep: #e6dccd;
+  --dark: #1b1816;
+  --copper-glow: #c98a55;
+  --lavender: #e9c8a8;
+
+  /* superficies */
+  --bg: #faf7f2;
+  --panel: var(--paper);
+  --card: var(--paper);
+  --bg-soft: var(--sand);
+  --bg-muted: var(--sand-deep);
+
+  /* escala de tinta: jerarquía por opacidad, no por colores distintos */
+  --ink-80: rgba(27, 24, 22, .8);
+  --ink-65: rgba(27, 24, 22, .65);
+  --ink-60: rgba(27, 24, 22, .6);
+  --ink-40: rgba(27, 24, 22, .42);
+  --ink-20: rgba(27, 24, 22, .2);
+  --ink-10: rgba(27, 24, 22, .1);
+  --ink-6:  rgba(27, 24, 22, .06);
+  --ink-3:  rgba(27, 24, 22, .035);
+
+  /* el anillo de 1 px es la firma del sistema: sustituye al borde duro */
+  --ring: rgba(27, 24, 22, .05);
+  --line: rgba(27, 24, 22, .08);
+
+  --accent: var(--bronze);
+  --accent-soft: rgba(176, 122, 74, .14);
+  --accent-ink: #fff;
+  --header: var(--dark);
+  --sitemap: var(--sand);
+
+  /* semánticos, apagados para convivir con el bronce */
+  --ok: #4f8a5b;
+  --warn: #c99a3a;
+  --danger: #b5483c;
+  --info: #5b7fa6;
+  --purple: #8a6fb5;
+  --orange: #c9773a;
+
+  --r-8: 8px; --r-12: 12px; --r-20: 20px; --r-24: 24px; --r-32: 32px;
+  --pill: 99px;
+
+  --font: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* sombras cálidas: tintadas con la tinta, nunca negro puro */
+  --shadow-1: 0 1px 2px rgba(27, 24, 22, .04);
+  --shadow-2: 0 4px 16px rgba(27, 24, 22, .06);
+  --shadow-3: 0 12px 40px rgba(27, 24, 22, .10);
+  --shadow-4: 0 30px 80px rgba(27, 24, 22, .18);
+
+  --ease: cubic-bezier(.2, .8, .2, 1);
+
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --paper: #1f1b18;
+  --bg: #171412;
+  --panel: #1f1b18;
+  --card: #1f1b18;
+  --sand: #241f1b;
+  --sand-deep: #2c2622;
+  --bg-soft: #241f1b;
+  --bg-muted: #2c2622;
+  --sitemap: #1c1916;
+  --header: #100e0c;
+  --dark: #100e0c;
+
+  --ink: #f4efe8;
+  --ink-80: rgba(244, 239, 232, .82);
+  --ink-65: rgba(244, 239, 232, .68);
+  --ink-60: rgba(244, 239, 232, .62);
+  --ink-40: rgba(244, 239, 232, .42);
+  --ink-20: rgba(244, 239, 232, .2);
+  --ink-10: rgba(244, 239, 232, .1);
+  --ink-6:  rgba(244, 239, 232, .06);
+  --ink-3:  rgba(244, 239, 232, .035);
+
+  --ring: rgba(244, 239, 232, .08);
+  --line: rgba(244, 239, 232, .1);
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, .4);
+  --shadow-3: 0 12px 40px rgba(0, 0, 0, .5);
+  --shadow-4: 0 30px 80px rgba(0, 0, 0, .6);
+
+  color-scheme: dark;
+}
+
+/* ---------- base tipográfica del sistema ---------- */
+
+h1, h2, h3, h4 {
+  font-family: var(--font);
+  font-weight: 500;
+  letter-spacing: -.03em;
+  line-height: 1.1;
+  margin: 0;
+}
+h1 { font-size: 28px; }
+h2 { font-size: 22px; }
+h3 { font-size: 18px; letter-spacing: -.02em; }
+h4 { font-size: 15px; letter-spacing: -.01em; }
+
+/* En Bronce el énfasis es peso 500, no 700: la jerarquía la marca el color. */
+b, strong { font-weight: 500; }
+
+::selection { background: var(--bronze); color: #fff; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--ink-10); border-radius: 8px; }
+* { scrollbar-width: thin; scrollbar-color: var(--ink-10) transparent; }
