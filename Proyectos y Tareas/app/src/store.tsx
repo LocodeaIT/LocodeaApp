@@ -12,8 +12,9 @@ import type {
 import { ETIQUETA_ESTADO_TAREA } from './domain/types'
 import { crearEvento, actualizarEvento, borrarEvento } from './data/calendario'
 import { ahoraIso, hoy, lunesDe } from './domain/fechas'
+import { PANTALLAS_CRM, type PantallaCrm } from './crm/navegacion'
 
-export type Pantalla = 'inicio' | 'objetivos' | 'tareas' | 'midia' | 'reuniones' | 'proyectos' | 'analisis' | 'informes' | 'equipo'
+export type Pantalla = 'inicio' | 'objetivos' | 'tareas' | 'midia' | 'reuniones' | 'proyectos' | 'analisis' | 'informes' | 'equipo' | PantallaCrm
 
 export interface Aviso {
   id: number
@@ -23,7 +24,7 @@ export interface Aviso {
 
 const VACIO: Instantanea = { miembros: [], proyectos: [], semanas: [], objetivos: [], tareas: [], actividad: [], vistas: [], reuniones: [] }
 
-const PANTALLAS: Pantalla[] = ['inicio', 'objetivos', 'tareas', 'reuniones', 'proyectos', 'analisis', 'informes', 'equipo']
+const PANTALLAS: Pantalla[] = ['inicio', 'objetivos', 'tareas', 'reuniones', 'proyectos', 'analisis', 'informes', 'equipo', ...PANTALLAS_CRM]
 
 const CLAVE_YO = 'locodea.yo'
 const CLAVE_PANTALLA = 'locodea.pantalla'

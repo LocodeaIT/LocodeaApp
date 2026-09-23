@@ -7,20 +7,25 @@ import './extras.css'
 import App from './App'
 import { Proveedor } from './store'
 import { repoDataverse } from './data/dataverse'
+import { CrmProveedor } from './crm/store'
+import { crmRepoDataverse } from './crm/dataverse'
 
 /**
  * La app corre como Code App sobre Dataverse. Para trabajar el diseño en local
  * sin entorno, `VITE_DEMO=1 npm run dev` arranca con datos de ejemplo en el
  * navegador; ese repositorio se carga aparte y no viaja al paquete publicado.
+ * El CRM sigue la misma regla: fuera de la demo usa su repositorio de
+ * Dataverse, que de momento solo avisa de que faltan las tablas.
  */
 const demo = import.meta.env.VITE_DEMO === '1'
 const repo = demo ? (await import('./data/demo')).repoDemo : repoDataverse
+const crmRepo = demo ? (await import('./crm/demo')).crmRepoDemo : crmRepoDataverse
 
 if (demo) {
   avisarModoDemostracion()
 } else {
   // Restos de la etapa en la que los datos vivían en el navegador.
-  for (const clave of ['locodea.objetivos.v1', 'locodea.objetivos.v2', 'locodea.objetivos.v3', 'locodea.demo.v1']) {
+  for (const clave of ['locodea.objetivos.v1', 'locodea.objetivos.v2', 'locodea.objetivos.v3', 'locodea.demo.v1', 'locodea.crm.demo.v1']) {
     try { localStorage.removeItem(clave) } catch { /* modo privado o sin permisos */ }
   }
 }
@@ -42,7 +47,9 @@ function avisarModoDemostracion(): void {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Proveedor repo={repo}>
-      <App />
+      <CrmProveedor repo={crmRepo}>
+        <App />
+      </CrmProveedor>
     </Proveedor>
   </StrictMode>,
 )
