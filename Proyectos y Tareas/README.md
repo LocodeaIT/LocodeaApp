@@ -60,6 +60,7 @@ npx --no-install pa app push --non-interactive --solution-id fad88cef-0fb4-f111-
 | **Proyectos** | Tarjetas con salud del proyecto (tareas completadas sobre el total y tareas vencidas) y detalle con sus tareas y objetivos. |
 | **Análisis** | Cumplimiento por persona y semana, tareas completadas por semana, histórico de semanas, carga actual, salud de proyectos. |
 | **Equipo** | Marco, Jesús y Alejandro: rol, color y quién es el revisor de objetivos. |
+| **CRM** (secciones CRM, Ventas, Compras y Catálogo del menú) | Inicio con indicadores, pipeline y facturación; listas con vistas, filtros, orden, borrado en lote y exportación a Excel; fichas con pestañas, paneles laterales y flujo Calificar → Desarrollar → Proponer → Cerrar. Cadena oportunidad → oferta → pedido → factura (imprimible como documento), compras y actividades «referentes a» cualquier registro. Avisos de vencidos, enlaces directos y botón Atrás (`#crm/…`) y copia de seguridad JSON en el inicio del CRM. **Solo en modo demo** (`VITE_DEMO=1`, datos en el navegador): las tablas de Dataverse están pendientes y, sin ellas, el CRM lo indica en pantalla. La factura oficial (Verifactu/SII) sigue en el ERP. |
 
 ## Flujo semanal (lo importante)
 
@@ -78,12 +79,15 @@ app/src/
   store.tsx  estado global y acciones de negocio
   ui/        componentes base y tarjeta de tarea
   screens/   pantallas; screens/tareas/ tiene las cuatro vistas
+  crm/       módulo CRM: tipos, catálogos, repo (demo.ts + semilla.ts; dataverse.ts pendiente),
+             store.tsx, registro/ (descripción de cada entidad) y screens/ (inicio, lista y ficha genéricas)
 ```
 
 ## Pendiente
 
 - **Identificar al usuario por su cuenta de Power Apps** en vez del selector de
   entrada, enlazándola con la fila de `loc_miembro`.
-- **CRM**: clientes, contactos y oportunidades como módulo hermano.
+- **CRM en Dataverse**: crear las tablas del CRM en la solución y completar
+  `app/src/crm/dataverse.ts` (hoy devuelve un CRM vacío y marca que faltan).
 - **Enlace con el ERP**: `Proyecto.horasPresupuestadas` y las horas reales
   contra el sistema de facturación, que no se construye aquí.

@@ -12,12 +12,13 @@ producción cuando haya licencias de pago: ver
 | Carpeta | Estado | Qué hace |
 |---|---|---|
 | [`Proyectos y Tareas/`](./Proyectos%20y%20Tareas) | En uso | Objetivos semanales, tareas con subtareas, Mi día, proyectos, reuniones sincronizadas con Outlook, informes y análisis |
-| *CRM* | Pendiente | Clientes, contactos y oportunidades |
-| *ERP* | No se construye | Se **integra** con el ERP existente (facturación y contabilidad quedan fuera) |
+| CRM (en `Proyectos y Tareas/app/src/crm/`) | En modo demo | Cuentas, contactos, clientes potenciales, oportunidades, actividades, productos, ofertas, pedidos y facturas de venta y compra. Funciona en local con `VITE_DEMO=1`; las tablas de Dataverse están pendientes |
+| *ERP* | No se construye | Se **integra** con el ERP existente (contabilidad y facturación oficial quedan fuera) |
 
 La decisión sobre el ERP es deliberada: facturación y contabilidad están
-reguladas (Verifactu, SII) y cambian por ley. Esa responsabilidad se deja en un
-ERP real y aquí solo se consumen y empujan datos.
+reguladas (Verifactu, SII) y cambian por ley. El CRM gestiona los documentos
+comerciales (ofertas, pedidos, facturas como documento de trabajo), pero la
+factura oficial, Verifactu/SII y la contabilidad siguen en el ERP real.
 
 ## Base de datos
 

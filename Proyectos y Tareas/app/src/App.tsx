@@ -6,6 +6,10 @@ import { useApp, type Pantalla } from './store'
 import { Avatar, Avisos, Desplegable } from './ui/basicos'
 import { Logo } from './ui/Logo'
 import { esVencida, lunesDe, hoy } from './domain/fechas'
+import { useCrm } from './crm/contexto'
+import { esPantallaCrm } from './crm/navegacion'
+import { buscarEnCrm } from './crm/busqueda'
+import { NavCrm, ResultadosCrm } from './crm/NavCrm'
 // Carga diferida: cada pantalla es su propio paquete, asi el arranque no
 // arrastra los graficos ni las vistas que todavia no se han abierto.
 const Inicio = lazy(() => import('./screens/Inicio'))
@@ -16,6 +20,7 @@ const Analisis = lazy(() => import('./screens/Analisis'))
 const Informes = lazy(() => import('./screens/Informes'))
 const Equipo = lazy(() => import('./screens/Equipo'))
 const Reuniones = lazy(() => import('./screens/Reuniones'))
+const PantallaCrm = lazy(() => import('./crm/screens/PantallaCrm'))
 import Login from './screens/Login'
 import { DetalleTarea } from './screens/DetalleTarea'
 import { MiDiaFlotante } from './screens/MiDia'
@@ -55,7 +60,7 @@ export default function App() {
   if (!yo) return <Login />
 
   const pantallaActiva: Pantalla = pantalla === 'midia' ? 'inicio' : pantalla
-  const Pantalla = { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
+  const Pantalla = esPantallaCrm(pantallaActiva) ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
 
   return (
     <div className={`app ${colapsada ? 'colapsada' : ''}`}>
@@ -100,12 +105,13 @@ export default function App() {
               </button>
             </div>
           ))}
+          <NavCrm pantallaActiva={pantallaActiva} />
         </nav>
       </aside>
 
       <main className="contenido" key={pantallaActiva}>
         <Suspense fallback={<div className="carga"><div className="spinner" /></div>}>
-        <Pantalla abrirTarea={setTareaAbierta} />
+        {Pantalla ? <Pantalla abrirTarea={setTareaAbierta} /> : <PantallaCrm />}
       </Suspense>
       </main>
 
@@ -122,15 +128,18 @@ function ResultadosBusqueda({ texto, onAbrirTarea, onIr }: { texto: string; onAb
   const tareas = datos.tareas.filter(t => t.titulo.toLowerCase().includes(q)).slice(0, 6)
   const objetivos = datos.objetivos.filter(o => o.titulo.toLowerCase().includes(q)).slice(0, 4)
   const proyectos = datos.proyectos.filter(p => p.nombre.toLowerCase().includes(q) || p.cliente.toLowerCase().includes(q)).slice(0, 3)
+  const crm = useCrm()
+  const enCrm = crm.disponible ? buscarEnCrm(crm.datos, texto) : []
   return (
     <div className="menu-flotante" style={{ left: 0, right: 0, minWidth: 0 }}>
-      {!tareas.length && !objetivos.length && !proyectos.length && <div className="item" style={{ color: 'var(--texto-3)' }}>Sin resultados</div>}
+      {!tareas.length && !objetivos.length && !proyectos.length && !enCrm.length && <div className="item" style={{ color: 'var(--texto-3)' }}>Sin resultados</div>}
       {tareas.length > 0 && <div className="cabecera-menu">Tareas</div>}
       {tareas.map(t => <button key={t.id} className="item" onClick={() => onAbrirTarea(t.id)}><KanbanSquare size={14} /><span style={{ flex: 1 }}>{t.titulo}</span><small style={{ color: 'var(--texto-3)' }}>{proyecto(t.proyectoId)?.nombre}</small></button>)}
       {objetivos.length > 0 && <div className="cabecera-menu">Objetivos</div>}
       {objetivos.map(o => <button key={o.id} className="item" onClick={() => onIr('objetivos')}><Target size={14} /><span>{o.titulo}</span></button>)}
       {proyectos.length > 0 && <div className="cabecera-menu">Proyectos</div>}
       {proyectos.map(p => <button key={p.id} className="item" onClick={() => onIr('proyectos')}><i className="punto-proyecto" style={{ background: p.color }} /><span>{p.nombre}</span><small style={{ color: 'var(--texto-3)' }}>{p.cliente}</small></button>)}
+      <ResultadosCrm resultados={enCrm} onElegido={onIr} />
     </div>
   )
 }
