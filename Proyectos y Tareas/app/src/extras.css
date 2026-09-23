@@ -195,3 +195,44 @@ body.con-dialogo { overflow: hidden; }
 .persona-chip { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 12px 0 6px; border-radius: var(--pill); background: var(--paper); color: var(--ink-65); font-size: 13px; font-weight: 500; box-shadow: 0 0 0 1px var(--ink-10); transition: all var(--rapido); }
 .persona-chip:hover { background: var(--sand); }
 .persona-chip.activa { background: var(--accent-soft); color: var(--ink); box-shadow: 0 0 0 1px var(--bronze); }
+
+/* ─────────────────────────────────────────────── contenido de redes
+
+   Misma anatomia que las reuniones: una fila que se despliega. Lo que cambia
+   es que aqui manda el canal, asi que cada pieza lleva su color en el borde
+   izquierdo y se reconoce de un vistazo sin leer la etiqueta. */
+
+.lista-contenido { display: flex; flex-direction: column; gap: 8px; }
+.tarjeta.contenido { border-left: 3px solid var(--canal); overflow: hidden; }
+.tarjeta.contenido.publicado { opacity: .62; }
+.tarjeta.contenido.publicado:hover { opacity: 1; }
+
+.contenido-cima { display: flex; align-items: center; gap: 12px; padding: 11px 16px; cursor: pointer; transition: background var(--rapido); }
+.contenido-cima:hover { background: var(--sand); }
+.contenido-cima .canal { display: grid; place-items: center; width: 30px; height: 30px; flex: none;
+  border-radius: 50%; background: color-mix(in srgb, var(--canal) 12%, transparent); color: var(--canal); }
+.contenido-cima .grow { min-width: 0; }
+.contenido-titulo { font-weight: 600; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contenido-meta { display: flex; align-items: center; gap: 8px; margin-top: 2px; font-size: 12px; color: var(--texto-3); }
+.contenido-meta .canal-nombre { color: var(--canal); font-weight: 500; }
+.contenido-cima .cuando { font-size: 12px; color: var(--texto-2); white-space: nowrap; flex: none; min-width: 72px; text-align: right; }
+.contenido-cima .chev { color: var(--ink-40); transition: transform var(--normal); flex: none; }
+.contenido-cima .chev.abierto { transform: rotate(180deg); }
+
+.contenido-cuerpo { border-top: 1px solid var(--line); padding: 14px 16px; background: var(--ink-3);
+  display: flex; flex-direction: column; gap: 12px; }
+.contenido-pie { display: flex; justify-content: flex-end; }
+
+.filtro-canales { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.filtro-canales .chip { cursor: pointer; }
+.chip.activo { background: var(--acento); color: #fff; border-color: transparent; }
+.chip.activo .punto-proyecto { box-shadow: 0 0 0 1.5px rgba(255,255,255,.7); }
+
+/* El plazo pasado se avisa sin alarmar: solo el titulo del grupo cambia de tono. */
+.seccion-titulo.alerta { color: var(--error); }
+
+/* El canal y la fecha son decisiones, no adornos: se ven aunque no haya foco. */
+.componer-tarea .select { flex: none; }
+.componer-tarea .fecha-componer { flex: none; width: 138px; font-size: 13px; color: var(--texto-2);
+  border: 1px solid var(--borde-suave); border-radius: var(--pill); background: var(--paper); padding: 5px 10px; }
+.componer-tarea .fecha-componer:focus { outline: none; color: var(--texto); border-color: var(--acento); }

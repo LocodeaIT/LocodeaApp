@@ -15,7 +15,7 @@
 import type { Instantanea, Nuevo, Repositorio } from './repo'
 import type {
   Actividad, ColumnaLista, EntidadActividad, EstadoObjetivo, EstadoProyecto, EstadoTarea,
-  EstadoReunion, FiltrosVista, ItemChecklist, Miembro, Objetivo, Prioridad, Proyecto, Rol,
+  CanalContenido, Contenido, EstadoContenido, EstadoReunion, FiltrosVista, ItemChecklist, Miembro, Objetivo, Prioridad, Proyecto, Rol,
   Reunion, Semana, Tarea, TemaReunion, TipoVista, AgruparPor, OrdenarPor, Vista,
 } from '../domain/types'
 import { FILTROS_VACIOS } from '../domain/types'
@@ -28,6 +28,7 @@ import { Loc_tareasService } from '../generated/services/Loc_tareasService'
 import { Loc_vistasService } from '../generated/services/Loc_vistasService'
 import { Loc_actividadsService } from '../generated/services/Loc_actividadsService'
 import { Loc_reunionsService } from '../generated/services/Loc_reunionsService'
+import { Loc_contenidosService } from '../generated/services/Loc_contenidosService'
 
 // ─────────────────────────────────────────────── choices
 
@@ -43,6 +44,8 @@ const EST_OBJETIVO: Record<EstadoObjetivo, number> = { pendiente: 412000030, cum
 const EST_TAREA: Record<EstadoTarea, number> = { pendiente: 412000040, en_curso: 412000041, bloqueada: 412000042, revision: 412000043, hecha: 412000044 }
 const PRIORIDAD: Record<Prioridad, number> = { alta: 412000050, media: 412000051, baja: 412000052 }
 const EST_REUNION: Record<EstadoReunion, number> = { pendiente: 412000060, celebrada: 412000061, cancelada: 412000062 }
+const CANAL: Record<CanalContenido, number> = { youtube: 412000070, linkedin: 412000071, instagram: 412000072, tiktok: 412000073, blog: 412000074, newsletter: 412000075, x: 412000076 }
+const EST_CONTENIDO: Record<EstadoContenido, number> = { idea: 412000080, guion: 412000081, produccion: 412000082, listo: 412000083, publicado: 412000084 }
 
 const DE_ROL = inverso(ROL)
 const DE_EST_PROYECTO = inverso(EST_PROYECTO)
@@ -50,6 +53,8 @@ const DE_EST_OBJETIVO = inverso(EST_OBJETIVO)
 const DE_EST_TAREA = inverso(EST_TAREA)
 const DE_PRIORIDAD = inverso(PRIORIDAD)
 const DE_EST_REUNION = inverso(EST_REUNION)
+const DE_CANAL = inverso(CANAL)
+const DE_EST_CONTENIDO = inverso(EST_CONTENIDO)
 
 // ─────────────────────────────────────────────── utilidades
 
@@ -261,6 +266,28 @@ function aReunion(f: Fila): Reunion {
   }
 }
 
+function aContenido(f: Fila): Contenido {
+  return {
+    id: f.loc_contenidoid,
+    titulo: txt(f.loc_titulo),
+    canal: DE_CANAL[f.loc_canal] ?? 'linkedin',
+    estado: DE_EST_CONTENIDO[f.loc_estado] ?? 'idea',
+    fecha: soloFecha(f.loc_fechapublicacion),
+    notas: txt(f.loc_notas),
+    enlace: txt(f.loc_enlace),
+    responsableId: f._loc_responsable_value ?? null,
+    proyectoId: f._loc_proyecto_value ?? null,
+    creadoEl: txt(f.createdon),
+  }
+}
+
+const deContenido = (c: Omit<Contenido, 'id' | 'creadoEl'>): Payload => ({
+  loc_titulo: c.titulo, loc_canal: CANAL[c.canal], loc_estado: EST_CONTENIDO[c.estado],
+  loc_fechapublicacion: c.fecha, loc_notas: c.notas, loc_enlace: c.enlace,
+  'loc_Responsable@odata.bind': ref('loc_miembros', c.responsableId),
+  'loc_Proyecto@odata.bind': ref('loc_proyectos', c.proyectoId),
+})
+
 const deReunion = (r: Omit<Reunion, 'id' | 'creadoEl'>): Payload => ({
   loc_titulo: r.titulo, loc_fecha: r.fecha, loc_duracionmin: r.duracionMin,
   loc_lugar: r.lugar, loc_estado: EST_REUNION[r.estado], loc_notas: r.notas,
@@ -277,7 +304,7 @@ const TOPE = 5000
 
 export const repoDataverse: Repositorio = {
   async cargar(): Promise<Instantanea> {
-    const [miembros, proyectos, semanas, objetivos, tareas, vistas, actividad, reuniones] = await Promise.all([
+    const [miembros, proyectos, semanas, objetivos, tareas, vistas, actividad, reuniones, contenidos] = await Promise.all([
       Loc_miembrosService.getAll({ top: TOPE }),
       Loc_proyectosService.getAll({ top: TOPE }),
       Loc_semanasService.getAll({ top: TOPE }),
@@ -286,6 +313,7 @@ export const repoDataverse: Repositorio = {
       Loc_vistasService.getAll({ top: TOPE }),
       Loc_actividadsService.getAll({ top: TOPE }),
       Loc_reunionsService.getAll({ top: TOPE }),
+      Loc_contenidosService.getAll({ top: TOPE }),
     ])
     return {
       miembros: lista(miembros).map(aMiembro),
@@ -296,6 +324,7 @@ export const repoDataverse: Repositorio = {
       vistas: lista(vistas).map(aVista),
       actividad: lista(actividad).map(aActividad),
       reuniones: lista(reuniones).map(aReunion),
+      contenidos: lista(contenidos).map(aContenido),
     }
   },
 
@@ -388,6 +417,18 @@ export const repoDataverse: Repositorio = {
   },
   async borrarReunion(id) {
     await Loc_reunionsService.delete(id)
+  },
+
+  async crearContenido(c) {
+    const x = await Loc_contenidosService.create(comoPayload({ ...deContenido(c), statecode: 0 }))
+    return aContenido(dato(x, 'crearContenido'))
+  },
+  async actualizarContenido(c) {
+    await Loc_contenidosService.update(c.id, comoPayload(deContenido(c)))
+    return c
+  },
+  async borrarContenido(id) {
+    await Loc_contenidosService.delete(id)
   },
 
   async crearVista(v: Nuevo<Vista>) {

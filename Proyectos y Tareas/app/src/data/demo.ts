@@ -10,7 +10,7 @@
 import type { Instantanea, Nuevo, Repositorio } from './repo'
 import { nuevoId } from './repo'
 import { generarSeed } from './seed'
-import type { Actividad, Miembro, Objetivo, Proyecto, Reunion, Semana, Tarea, Vista } from '../domain/types'
+import type { Actividad, Contenido, Miembro, Objetivo, Proyecto, Reunion, Semana, Tarea, Vista } from '../domain/types'
 import { ahoraIso } from '../domain/fechas'
 
 const CLAVE = 'locodea.demo.v1'
@@ -33,6 +33,7 @@ function migrar(d: Instantanea): Instantanea {
     ...d,
     vistas: d.vistas ?? [],
     reuniones: d.reuniones ?? [],
+    contenidos: d.contenidos ?? [],
     tareas: d.tareas.map(t => ({ ...t, inicio: t.inicio ?? null, padreId: t.padreId ?? null })),
   }
 }
@@ -178,6 +179,22 @@ export const repoDemo: Repositorio = {
   async borrarReunion(id) {
     await espera()
     persistir(d => ({ ...d, reuniones: d.reuniones.filter(x => x.id !== id) }))
+  },
+
+  async crearContenido(c) {
+    await espera()
+    const nuevo: Contenido = { ...c, id: nuevoId(), creadoEl: ahoraIso() }
+    persistir(d => ({ ...d, contenidos: [...d.contenidos, nuevo] }))
+    return nuevo
+  },
+  async actualizarContenido(c) {
+    await espera()
+    persistir(d => ({ ...d, contenidos: reemplazar(d.contenidos, c) }))
+    return c
+  },
+  async borrarContenido(id) {
+    await espera()
+    persistir(d => ({ ...d, contenidos: d.contenidos.filter(x => x.id !== id) }))
   },
 
   async crearVista(v: Nuevo<Vista>) {

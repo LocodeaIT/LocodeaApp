@@ -7,14 +7,14 @@ import {
 } from 'react'
 import type { Instantanea, Nuevo, Repositorio } from './data/repo'
 import type {
-  Actividad, EntidadActividad, Miembro, Objetivo, Proyecto, Reunion, Semana, Tarea, Vista,
+  Actividad, Contenido, EntidadActividad, Miembro, Objetivo, Proyecto, Reunion, Semana, Tarea, Vista,
 } from './domain/types'
 import { ETIQUETA_ESTADO_TAREA } from './domain/types'
 import { crearEvento, actualizarEvento, borrarEvento } from './data/calendario'
 import { ahoraIso, hoy, lunesDe } from './domain/fechas'
 import { PANTALLAS_CRM, type PantallaCrm } from './crm/navegacion'
 
-export type Pantalla = 'inicio' | 'objetivos' | 'tareas' | 'midia' | 'reuniones' | 'proyectos' | 'analisis' | 'informes' | 'equipo' | PantallaCrm
+export type Pantalla = 'inicio' | 'objetivos' | 'tareas' | 'midia' | 'reuniones' | 'contenido' | 'proyectos' | 'analisis' | 'informes' | 'equipo' | PantallaCrm
 
 export interface Aviso {
   id: number
@@ -22,9 +22,9 @@ export interface Aviso {
   tono: 'ok' | 'error' | 'info'
 }
 
-const VACIO: Instantanea = { miembros: [], proyectos: [], semanas: [], objetivos: [], tareas: [], actividad: [], vistas: [], reuniones: [] }
+const VACIO: Instantanea = { miembros: [], proyectos: [], semanas: [], objetivos: [], tareas: [], actividad: [], vistas: [], reuniones: [], contenidos: [] }
 
-const PANTALLAS: Pantalla[] = ['inicio', 'objetivos', 'tareas', 'reuniones', 'proyectos', 'analisis', 'informes', 'equipo', ...PANTALLAS_CRM]
+const PANTALLAS: Pantalla[] = ['inicio', 'objetivos', 'tareas', 'reuniones', 'contenido', 'proyectos', 'analisis', 'informes', 'equipo', ...PANTALLAS_CRM]
 
 const CLAVE_YO = 'locodea.yo'
 const CLAVE_PANTALLA = 'locodea.pantalla'
@@ -83,6 +83,11 @@ interface Ctx {
   guardarReunion: (r: Reunion | Nuevo<Reunion>) => Promise<Reunion>
   borrarReunion: (id: string) => Promise<void>
   reunionBase: (parcial: Partial<Reunion>) => Nuevo<Reunion>
+
+  // contenido de redes
+  guardarContenido: (c: Contenido | Nuevo<Contenido>) => Promise<Contenido>
+  borrarContenido: (id: string) => Promise<void>
+  contenidoBase: (parcial?: Partial<Contenido>) => Nuevo<Contenido>
 
   guardarVista: (v: Vista | Nuevo<Vista>) => Promise<Vista>
   borrarVista: (id: string) => Promise<void>
@@ -364,6 +369,27 @@ export function Proveedor({ repo, children }: { repo: Repositorio; children: Rea
     ...parcial,
   }), [datos.miembros, yo])
 
+  const guardarContenido = useCallback(async (c: Contenido | Nuevo<Contenido>) => {
+    if ('id' in c) {
+      return ejecutar(() => repo.actualizarContenido(c),
+        (d, x) => ({ ...d, contenidos: d.contenidos.map(y => (y.id === x.id ? x : y)) }), 'No se pudo guardar el contenido')
+    }
+    return ejecutar(() => repo.crearContenido(c),
+      (d, x) => ({ ...d, contenidos: [...d.contenidos, x] }), 'No se pudo crear el contenido')
+  }, [ejecutar, repo])
+
+  const borrarContenido = useCallback(async (id: string) => {
+    await ejecutar(() => repo.borrarContenido(id),
+      d => ({ ...d, contenidos: d.contenidos.filter(x => x.id !== id) }), 'No se pudo borrar el contenido')
+    avisar('Contenido borrado')
+  }, [ejecutar, repo, avisar])
+
+  const contenidoBase = useCallback((parcial: Partial<Contenido> = {}): Nuevo<Contenido> => ({
+    titulo: '', canal: 'linkedin', estado: 'idea', fecha: null, notas: '', enlace: '',
+    responsableId: yo?.id ?? null, proyectoId: null,
+    ...parcial,
+  }), [yo])
+
   const guardarVista = useCallback(async (v: Vista | Nuevo<Vista>) => {
     let r: Vista
     if ('id' in v) {
@@ -390,6 +416,7 @@ export function Proveedor({ repo, children }: { repo: Repositorio; children: Rea
     guardarTarea, moverTarea, reordenarTodo, alternarHecha, borrarTarea,
     tareaBase, subtareasDe, guardarVista, borrarVista,
     guardarReunion, borrarReunion, reunionBase,
+    guardarContenido, borrarContenido, contenidoBase,
     comentar, recargar,
   }), [
     datos, cargando, error, yo, entrarComo, salir, pantalla, semanaSel, avisos, avisar,
@@ -399,6 +426,7 @@ export function Proveedor({ repo, children }: { repo: Repositorio; children: Rea
     guardarTarea, moverTarea, reordenarTodo, alternarHecha, borrarTarea,
     tareaBase, subtareasDe, guardarVista, borrarVista,
     guardarReunion, borrarReunion, reunionBase,
+    guardarContenido, borrarContenido, contenidoBase,
     comentar, recargar,
   ])
 

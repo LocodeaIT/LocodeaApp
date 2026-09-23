@@ -237,3 +237,59 @@ export const ETIQUETA_ESTADO_PROYECTO: Record<EstadoProyecto, string> = {
   pausado: 'En pausa',
   cerrado: 'Cerrado',
 }
+
+// ─────────────────────────────────────────────── contenido de redes
+
+export type CanalContenido = 'youtube' | 'linkedin' | 'instagram' | 'tiktok' | 'blog' | 'newsletter' | 'x'
+export type EstadoContenido = 'idea' | 'guion' | 'produccion' | 'listo' | 'publicado'
+
+/** Una pieza de contenido: un vídeo, un post, una newsletter. */
+export interface Contenido {
+  id: string
+  titulo: string
+  canal: CanalContenido
+  estado: EstadoContenido
+  /** Día en que se publica o se quiere publicar. Vacío = todavía sin fecha. */
+  fecha: string | null
+  /** Guion, ideas, enlaces de referencia. */
+  notas: string
+  /** URL de la pieza ya publicada. */
+  enlace: string
+  responsableId: string | null
+  proyectoId: string | null
+  creadoEl: string
+}
+
+export const ETIQUETA_CANAL: Record<CanalContenido, string> = {
+  youtube: 'YouTube',
+  linkedin: 'LinkedIn',
+  instagram: 'Instagram',
+  tiktok: 'TikTok',
+  blog: 'Blog',
+  newsletter: 'Newsletter',
+  x: 'X',
+}
+
+/** Color de cada canal, dentro de la paleta Bronce. */
+export const COLOR_CANAL: Record<CanalContenido, string> = {
+  youtube: '#C4302B',
+  linkedin: '#0A66C2',
+  instagram: '#C13584',
+  tiktok: '#1B1816',
+  blog: '#9D6743',
+  newsletter: '#0E7C5B',
+  x: '#4A4340',
+}
+
+export const ETIQUETA_ESTADO_CONTENIDO: Record<EstadoContenido, string> = {
+  idea: 'Idea',
+  guion: 'Guion',
+  produccion: 'Producción',
+  listo: 'Listo',
+  publicado: 'Publicado',
+}
+
+/** Orden natural del avance, para recorrerlo con un clic. */
+export const ORDEN_ESTADOS_CONTENIDO: EstadoContenido[] = ['idea', 'guion', 'produccion', 'listo', 'publicado']
+
+export const CANALES: CanalContenido[] = ['youtube', 'linkedin', 'instagram', 'tiktok', 'blog', 'newsletter', 'x']

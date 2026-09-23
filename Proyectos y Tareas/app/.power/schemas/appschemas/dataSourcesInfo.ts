@@ -12,6 +12,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "loc_contenidos": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_contenidoid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "loc_miembros": {
     "tableId": "",
     "version": "",

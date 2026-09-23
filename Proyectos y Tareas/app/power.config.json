@@ -62,6 +62,11 @@
           "entitySetName": "loc_reunions",
           "logicalName": "loc_reunion",
           "isHidden": false
+        },
+        "contenidos": {
+          "entitySetName": "loc_contenidos",
+          "logicalName": "loc_contenido",
+          "isHidden": false
         }
       },
       "environmentVariableName": ""

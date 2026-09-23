@@ -4,7 +4,7 @@
  * un par de semanas cerradas con histórico y tareas con vencimientos vivos.
  */
 import type { Instantanea } from './repo'
-import type { Actividad, Miembro, Objetivo, Proyecto, Semana, Tarea, Vista } from '../domain/types'
+import type { Actividad, Contenido, Miembro, Objetivo, Proyecto, Semana, Tarea, Vista } from '../domain/types'
 import { FILTROS_VACIOS } from '../domain/types'
 import { hoy, lunesDe, sumarDias } from '../domain/fechas'
 
@@ -185,5 +185,14 @@ export function generarSeed(): Instantanea {
     { id: 'a-7', entidad: 'tarea', entidadId: 't-6', autorId: M.jesus, fecha: iso(s0, 11), tipo: 'cambio', texto: 'Marcó la tarea como bloqueada.' },
   ]
 
-  return { miembros, proyectos, semanas, objetivos, tareas, actividad, vistas, reuniones: [] }
+  const contenidos: Contenido[] = [
+    { id: 'c-1', titulo: 'Cómo automatizamos los pedidos de un distribuidor con Power Pages', canal: 'youtube', estado: 'guion', fecha: sumarDias(lunes, 3), notas: 'Caso real del portal. Grabar pantalla del alta de pedido y el aviso de estado.', enlace: '', responsableId: M.jesus, proyectoId: P.ortoalresa, creadoEl: iso(s1) },
+    { id: 'c-2', titulo: '3 señales de que tu empresa necesita dejar el Excel', canal: 'linkedin', estado: 'listo', fecha: sumarDias(lunes, 1), notas: 'Post de texto, sin enlace externo para que no penalice el alcance.', enlace: '', responsableId: M.marco, proyectoId: null, creadoEl: iso(s1) },
+    { id: 'c-3', titulo: 'Demo: recordatorios de cita por WhatsApp en 60 segundos', canal: 'instagram', estado: 'produccion', fecha: sumarDias(lunes, 5), notas: 'Vertical, con subtítulos. Sale el flujo de Power Automate.', enlace: '', responsableId: M.marco, proyectoId: P.clinica, creadoEl: iso(s1) },
+    { id: 'c-4', titulo: 'Qué medimos en un cuadro de mando de logística', canal: 'linkedin', estado: 'idea', fecha: null, notas: 'Enganchar con el proyecto de TransNorte sin dar nombres.', enlace: '', responsableId: M.alejandro, proyectoId: P.logistica, creadoEl: iso(s1) },
+    { id: 'c-5', titulo: 'Newsletter de septiembre: lo que hemos aprendido', canal: 'newsletter', estado: 'idea', fecha: sumarDias(lunes, 10), notas: '', enlace: '', responsableId: M.jesus, proyectoId: P.interno, creadoEl: iso(s2) },
+    { id: 'c-6', titulo: 'Presentamos Locodea', canal: 'linkedin', estado: 'publicado', fecha: sumarDias(lunes, -9), notas: '', enlace: 'https://www.linkedin.com/company/locodea', responsableId: M.marco, proyectoId: P.interno, creadoEl: iso(s3) },
+  ]
+
+  return { miembros, proyectos, semanas, objetivos, tareas, actividad, vistas, reuniones: [], contenidos }
 }

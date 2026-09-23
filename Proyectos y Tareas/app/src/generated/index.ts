@@ -6,6 +6,7 @@
 // Models
 export * as CommonModels from './models/CommonModels';
 export * as Loc_actividadsModel from './models/Loc_actividadsModel';
+export * as Loc_contenidosModel from './models/Loc_contenidosModel';
 export * as Loc_miembrosModel from './models/Loc_miembrosModel';
 export * as Loc_objetivosModel from './models/Loc_objetivosModel';
 export * as Loc_proyectosModel from './models/Loc_proyectosModel';
@@ -17,6 +18,7 @@ export * as Office365OutlookModel from './models/Office365OutlookModel';
 
 // Services
 export * from './services/Loc_actividadsService';
+export * from './services/Loc_contenidosService';
 export * from './services/Loc_miembrosService';
 export * from './services/Loc_objetivosService';
 export * from './services/Loc_proyectosService';

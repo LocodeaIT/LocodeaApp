@@ -1,6 +1,6 @@
 import { useMemo, useState, lazy, Suspense } from 'react'
 import {
-  BarChart3, CalendarDays, Check, ChevronsLeft, ChevronsRight, FileText, FolderKanban, Home, KanbanSquare, LogOut, RefreshCw, Search, Target, Users,
+  BarChart3, CalendarDays, Check, ChevronsLeft, ChevronsRight, FileText, FolderKanban, Home, KanbanSquare, LogOut, Megaphone, RefreshCw, Search, Target, Users,
 } from 'lucide-react'
 import { useApp, type Pantalla } from './store'
 import { Avatar, Avisos, Desplegable } from './ui/basicos'
@@ -21,6 +21,7 @@ const Informes = lazy(() => import('./screens/Informes'))
 const Equipo = lazy(() => import('./screens/Equipo'))
 const Reuniones = lazy(() => import('./screens/Reuniones'))
 const PantallaCrm = lazy(() => import('./crm/screens/PantallaCrm'))
+const Contenido = lazy(() => import('./screens/Contenido'))
 import Login from './screens/Login'
 import { DetalleTarea } from './screens/DetalleTarea'
 import { MiDiaFlotante } from './screens/MiDia'
@@ -31,6 +32,7 @@ const NAV: { id: Pantalla; nombre: string; icono: typeof Home; seccion?: string 
   { id: 'tareas', nombre: 'Tareas', icono: KanbanSquare },
   { id: 'proyectos', nombre: 'Proyectos', icono: FolderKanban },
   { id: 'reuniones', nombre: 'Reuniones', icono: CalendarDays, seccion: 'Seguimiento' },
+  { id: 'contenido', nombre: 'Contenido', icono: Megaphone },
   { id: 'analisis', nombre: 'Análisis', icono: BarChart3 },
   { id: 'informes', nombre: 'Informes', icono: FileText },
   { id: 'equipo', nombre: 'Equipo', icono: Users },
@@ -60,7 +62,7 @@ export default function App() {
   if (!yo) return <Login />
 
   const pantallaActiva: Pantalla = pantalla === 'midia' ? 'inicio' : pantalla
-  const Pantalla = esPantallaCrm(pantallaActiva) ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
+  const Pantalla = esPantallaCrm(pantallaActiva) ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, contenido: Contenido, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
 
   return (
     <div className={`app ${colapsada ? 'colapsada' : ''}`}>

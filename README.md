@@ -11,7 +11,7 @@ producción cuando haya licencias de pago: ver
 
 | Carpeta | Estado | Qué hace |
 |---|---|---|
-| [`Proyectos y Tareas/`](./Proyectos%20y%20Tareas) | En uso | Objetivos semanales, tareas con subtareas, Mi día, proyectos, reuniones sincronizadas con Outlook, informes y análisis |
+| [`Proyectos y Tareas/`](./Proyectos%20y%20Tareas) | En uso | Objetivos semanales, tareas con subtareas, Mi día, proyectos, reuniones sincronizadas con Outlook, calendario de contenido de redes, informes y análisis |
 | CRM (en `Proyectos y Tareas/app/src/crm/`) | En modo demo | Cuentas, contactos, clientes potenciales, oportunidades, actividades, productos, ofertas, pedidos y facturas de venta y compra. Funciona en local con `VITE_DEMO=1`; las tablas de Dataverse están pendientes |
 | *ERP* | No se construye | Se **integra** con el ERP existente (contabilidad y facturación oficial quedan fuera) |
 
@@ -22,7 +22,7 @@ factura oficial, Verifactu/SII y la contabilidad siguen en el ERP real.
 
 ## Base de datos
 
-Las 8 tablas `loc_*` viven en Dataverse, dentro de la solución
+Las 9 tablas `loc_*` viven en Dataverse, dentro de la solución
 **LocodeaObjetivos** (publicador `loc`). La solución es la unidad que se exporta
 e importa para llevar la app de un entorno a otro.
 
