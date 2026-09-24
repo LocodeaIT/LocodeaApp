@@ -29,3 +29,6 @@ desktop.ini
 
 # NOTA: .power/schemas SI se versiona. Lo genera el CLI `pa` a partir de las
 # fuentes de datos y el build no compila sin el.
+
+# Ids de los datos de ejemplo del CRM insertados en un entorno (los escribe scripts/crm-ejemplos.mjs)
+Proyectos y Tareas/scripts/crm-ejemplos.ids.json

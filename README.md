@@ -40,8 +40,8 @@ VITE_DEMO=1 npm run dev      # datos de ejemplo, sin entorno
 Para publicar, siempre dentro de la solución:
 
 ```bash
-npm run build
-npx --no-install pa app push --non-interactive --solution-id fad88cef-0fb4-f111-aaab-70a8a5068d0e
+npm run publicar -- --mensaje "Qué cambia"   # build + pa app push + git commit + git push
+# (a mano equivale a: npm run build && npx --no-install pa app push --non-interactive --solution-id fad88cef-0fb4-f111-aaab-70a8a5068d0e, y después commit y push a GitHub)
 ```
 
 ## Historia: la versión web sobre Supabase
