@@ -41,6 +41,7 @@ export interface Loc_facturaventasBase {
   loc_estado?: Loc_facturaventasloc_estado;
   loc_facturaventaid: string;
   loc_fecha?: string;
+  loc_importecobrado?: number;
   loc_metodopago?: Loc_facturaventasloc_metodopago;
   loc_notas?: string;
   loc_numero: string;

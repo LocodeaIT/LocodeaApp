@@ -1,14 +1,14 @@
 {
-  "name": "loc_facturacompra",
-  "title": "Facturas de compra",
+  "name": "loc_documento",
+  "title": "Documentos",
   "schema": {
     "type": "array",
     "items": {
       "type": "object",
       "x-ms-dataverse-entity": true,
-      "x-ms-dataverse-entityset": "loc_facturacompras",
-      "x-ms-dataverse-primary-id": "loc_facturacompraid",
-      "x-ms-dataverse-primary-name": "loc_numero",
+      "x-ms-dataverse-entityset": "loc_documentos",
+      "x-ms-dataverse-primary-id": "loc_documentoid",
+      "x-ms-dataverse-primary-name": "loc_nombre",
       "properties": {
         "createdby": {
           "type": "string",
@@ -89,67 +89,23 @@
           "x-ms-dataverse-type": "IntegerType",
           "x-ms-schema-name": "ImportSequenceNumber"
         },
-        "loc_condicionespago": {
+        "loc_avisodias": {
           "type": "string",
-          "title": "Condiciones de pago",
-          "x-ms-dataverse-attribute": "loc_condicionespago",
-          "x-ms-dataverse-type": "PicklistType",
-          "x-ms-schema-name": "loc_CondicionesPago",
-          "enum": [
-            "Al contado",
-            "15 días",
-            "30 días",
-            "60 días"
-          ],
-          "x-ms-enum-values": [
-            412000110,
-            412000111,
-            412000112,
-            412000113
-          ],
-          "Color": [
-            null,
-            null,
-            null,
-            null
-          ],
-          "x-ms-optionsetmetadataid": "f710f967-8db7-f111-aaae-70a8a5068d0e",
-          "x-ms-isGlobal": false,
-          "x-ms-optionsetdisplayname": "Condiciones de pago",
-          "x-ms-optionSetType": "Picklist"
+          "title": "Avisar con (días)",
+          "x-ms-dataverse-attribute": "loc_avisodias",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "loc_AvisoDias"
         },
-        "loc_condicionespagoname": {
+        "loc_caduca": {
           "type": "string",
-          "title": "loc_condicionespagoname",
-          "x-ms-dataverse-attribute": "loc_condicionespagoname",
-          "x-ms-dataverse-type": "VirtualType",
-          "x-ms-schema-name": "loc_condicionespagoName",
-          "x-ms-dataverse-attribute-of": "loc_condicionespago",
-          "x-ms-read-only": true
-        },
-        "loc_contacto": {
-          "type": "string",
-          "title": "Contacto",
-          "x-ms-dataverse-attribute": "loc_contacto",
-          "x-ms-dataverse-type": "LookupType",
-          "x-ms-schema-name": "loc_Contacto",
-          "x-ms-dataverse-navigation-properties": [
-            "loc_Contacto"
-          ]
-        },
-        "loc_contactoname": {
-          "type": "string",
-          "title": "loc_contactoname",
-          "x-ms-dataverse-attribute": "loc_contactoname",
-          "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "loc_ContactoName",
-          "x-ms-dataverse-attribute-of": "loc_contacto",
-          "x-ms-read-only": true,
-          "maxLength": 100
+          "title": "Caduca el",
+          "x-ms-dataverse-attribute": "loc_caduca",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "loc_Caduca"
         },
         "loc_cuenta": {
           "type": "string",
-          "title": "Proveedor",
+          "title": "Cuenta",
           "x-ms-dataverse-attribute": "loc_cuenta",
           "x-ms-dataverse-type": "LookupType",
           "x-ms-schema-name": "loc_Cuenta",
@@ -167,110 +123,72 @@
           "x-ms-read-only": true,
           "maxLength": 200
         },
-        "loc_estado": {
+        "loc_documentoid": {
           "type": "string",
-          "title": "Estado",
-          "x-ms-dataverse-attribute": "loc_estado",
-          "x-ms-dataverse-type": "PicklistType",
-          "x-ms-schema-name": "loc_Estado",
-          "enum": [
-            "Pendiente",
-            "Registrada",
-            "Pagada",
-            "Anulada"
-          ],
-          "x-ms-enum-values": [
-            412000190,
-            412000191,
-            412000192,
-            412000193
-          ],
-          "Color": [
-            null,
-            null,
-            null,
-            null
-          ],
-          "x-ms-optionsetmetadataid": "f210f967-8db7-f111-aaae-70a8a5068d0e",
-          "x-ms-isGlobal": false,
-          "x-ms-optionsetdisplayname": "Estado",
-          "x-ms-optionSetType": "Picklist"
-        },
-        "loc_estadoname": {
-          "type": "string",
-          "title": "loc_estadoname",
-          "x-ms-dataverse-attribute": "loc_estadoname",
-          "x-ms-dataverse-type": "VirtualType",
-          "x-ms-schema-name": "loc_estadoName",
-          "x-ms-dataverse-attribute-of": "loc_estado",
-          "x-ms-read-only": true
-        },
-        "loc_facturacompraid": {
-          "type": "string",
-          "title": "Factura de compra",
-          "x-ms-dataverse-attribute": "loc_facturacompraid",
+          "title": "Documento",
+          "x-ms-dataverse-attribute": "loc_documentoid",
           "x-ms-dataverse-type": "UniqueidentifierType",
-          "x-ms-schema-name": "loc_FacturaCompraId",
+          "x-ms-schema-name": "loc_DocumentoId",
           "x-ms-dataverse-primary-id": true,
           "required": true,
           "x-ms-keyType": "primary"
         },
-        "loc_fecha": {
+        "loc_enlace": {
           "type": "string",
-          "title": "Fecha",
-          "x-ms-dataverse-attribute": "loc_fecha",
-          "x-ms-dataverse-type": "DateTimeType",
-          "x-ms-schema-name": "loc_Fecha"
+          "title": "Enlace al archivo",
+          "x-ms-dataverse-attribute": "loc_enlace",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Enlace",
+          "maxLength": 500
         },
-        "loc_importepagado": {
+        "loc_firmado": {
           "type": "string",
-          "title": "Importe pagado",
-          "x-ms-dataverse-attribute": "loc_importepagado",
-          "x-ms-dataverse-type": "DecimalType",
-          "x-ms-schema-name": "loc_ImportePagado"
-        },
-        "loc_metodopago": {
-          "type": "string",
-          "title": "Método de pago",
-          "x-ms-dataverse-attribute": "loc_metodopago",
-          "x-ms-dataverse-type": "PicklistType",
-          "x-ms-schema-name": "loc_MetodoPago",
+          "title": "Firmado",
+          "x-ms-dataverse-attribute": "loc_firmado",
+          "x-ms-dataverse-type": "BooleanType",
+          "x-ms-schema-name": "loc_Firmado",
           "enum": [
-            "Transferencia",
-            "Domiciliación",
-            "Tarjeta"
+            "No",
+            "Sí"
           ],
           "x-ms-enum-values": [
-            412000115,
-            412000116,
-            412000117
+            0,
+            1
           ],
           "Color": [
             null,
-            null,
             null
           ],
-          "x-ms-optionsetmetadataid": "a29ddd6e-8db7-f111-aaae-70a8a5068d0e",
+          "x-ms-optionsetmetadataid": "3da41ac4-69b8-f111-aaae-70a8a5068d0e",
           "x-ms-isGlobal": false,
-          "x-ms-optionsetdisplayname": "Método de pago",
-          "x-ms-optionSetType": "Picklist"
+          "x-ms-optionsetdisplayname": "Firmado",
+          "x-ms-optionSetType": "Boolean"
         },
-        "loc_metodopagoname": {
+        "loc_firmadoel": {
           "type": "string",
-          "title": "loc_metodopagoname",
-          "x-ms-dataverse-attribute": "loc_metodopagoname",
+          "title": "Firmado el",
+          "x-ms-dataverse-attribute": "loc_firmadoel",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "loc_FirmadoEl"
+        },
+        "loc_firmadoname": {
+          "type": "string",
+          "title": "loc_firmadoname",
+          "x-ms-dataverse-attribute": "loc_firmadoname",
           "x-ms-dataverse-type": "VirtualType",
-          "x-ms-schema-name": "loc_metodopagoName",
-          "x-ms-dataverse-attribute-of": "loc_metodopago",
+          "x-ms-schema-name": "loc_firmadoName",
+          "x-ms-dataverse-attribute-of": "loc_firmado",
           "x-ms-read-only": true
         },
-        "loc_noproveedor": {
+        "loc_nombre": {
           "type": "string",
-          "title": "Nº factura del proveedor",
-          "x-ms-dataverse-attribute": "loc_noproveedor",
+          "title": "Nombre",
+          "x-ms-dataverse-attribute": "loc_nombre",
           "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "loc_NoProveedor",
-          "maxLength": 100
+          "x-ms-schema-name": "loc_Nombre",
+          "x-ms-dataverse-primary-name": true,
+          "required": true,
+          "maxLength": 300
         },
         "loc_notas": {
           "type": "string",
@@ -280,84 +198,78 @@
           "x-ms-schema-name": "loc_Notas",
           "maxLength": 8000
         },
-        "loc_numero": {
+        "loc_responsable": {
           "type": "string",
-          "title": "Número",
-          "x-ms-dataverse-attribute": "loc_numero",
-          "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "loc_Numero",
-          "x-ms-dataverse-primary-name": true,
-          "required": true,
-          "maxLength": 20
-        },
-        "loc_pagadael": {
-          "type": "string",
-          "title": "Pagada el",
-          "x-ms-dataverse-attribute": "loc_pagadael",
-          "x-ms-dataverse-type": "DateTimeType",
-          "x-ms-schema-name": "loc_PagadaEl"
-        },
-        "loc_pedido": {
-          "type": "string",
-          "title": "Pedido de origen",
-          "x-ms-dataverse-attribute": "loc_pedido",
+          "title": "Responsable",
+          "x-ms-dataverse-attribute": "loc_responsable",
           "x-ms-dataverse-type": "LookupType",
-          "x-ms-schema-name": "loc_Pedido",
+          "x-ms-schema-name": "loc_Responsable",
           "x-ms-dataverse-navigation-properties": [
-            "loc_Pedido"
+            "loc_Responsable"
           ]
         },
-        "loc_pedidoname": {
+        "loc_responsablename": {
           "type": "string",
-          "title": "loc_pedidoname",
-          "x-ms-dataverse-attribute": "loc_pedidoname",
+          "title": "loc_responsablename",
+          "x-ms-dataverse-attribute": "loc_responsablename",
           "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "loc_PedidoName",
-          "x-ms-dataverse-attribute-of": "loc_pedido",
-          "x-ms-read-only": true,
-          "maxLength": 20
-        },
-        "loc_propietario": {
-          "type": "string",
-          "title": "Propietario",
-          "x-ms-dataverse-attribute": "loc_propietario",
-          "x-ms-dataverse-type": "LookupType",
-          "x-ms-schema-name": "loc_Propietario",
-          "x-ms-dataverse-navigation-properties": [
-            "loc_Propietario"
-          ]
-        },
-        "loc_propietarioname": {
-          "type": "string",
-          "title": "loc_propietarioname",
-          "x-ms-dataverse-attribute": "loc_propietarioname",
-          "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "loc_PropietarioName",
-          "x-ms-dataverse-attribute-of": "loc_propietario",
+          "x-ms-schema-name": "loc_ResponsableName",
+          "x-ms-dataverse-attribute-of": "loc_responsable",
           "x-ms-read-only": true,
           "maxLength": 200
         },
-        "loc_referencia": {
+        "loc_tipo": {
           "type": "string",
-          "title": "Referencia",
-          "x-ms-dataverse-attribute": "loc_referencia",
-          "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "loc_Referencia",
-          "maxLength": 200
+          "title": "Tipo",
+          "x-ms-dataverse-attribute": "loc_tipo",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_Tipo",
+          "enum": [
+            "Contrato",
+            "NDA / confidencialidad",
+            "Mandato SEPA",
+            "Certificado digital",
+            "Escritura",
+            "CIF / NIF",
+            "LOPD / RGPD",
+            "Poder",
+            "Otro"
+          ],
+          "x-ms-enum-values": [
+            412000430,
+            412000431,
+            412000432,
+            412000433,
+            412000434,
+            412000435,
+            412000436,
+            412000437,
+            412000438
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "13a9bbbd-69b8-f111-aaae-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Tipo",
+          "x-ms-optionSetType": "Picklist"
         },
-        "loc_registradael": {
+        "loc_tiponame": {
           "type": "string",
-          "title": "Registrada el",
-          "x-ms-dataverse-attribute": "loc_registradael",
-          "x-ms-dataverse-type": "DateTimeType",
-          "x-ms-schema-name": "loc_RegistradaEl"
-        },
-        "loc_vencimiento": {
-          "type": "string",
-          "title": "Vencimiento",
-          "x-ms-dataverse-attribute": "loc_vencimiento",
-          "x-ms-dataverse-type": "DateTimeType",
-          "x-ms-schema-name": "loc_Vencimiento"
+          "title": "loc_tiponame",
+          "x-ms-dataverse-attribute": "loc_tiponame",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_tipoName",
+          "x-ms-dataverse-attribute-of": "loc_tipo",
+          "x-ms-read-only": true
         },
         "modifiedby": {
           "type": "string",
@@ -540,7 +452,7 @@
             null,
             null
           ],
-          "x-ms-optionsetmetadataid": "a6b3de7a-8cb7-f111-aaae-70a8a5068d0e",
+          "x-ms-optionsetmetadataid": "04d18986-69b8-f111-aaae-70a8a5068d0e",
           "x-ms-isGlobal": false,
           "x-ms-optionsetdisplayname": "Estado",
           "x-ms-optionSetType": "State"
@@ -572,7 +484,7 @@
             null,
             null
           ],
-          "x-ms-optionsetmetadataid": "b0b3de7a-8cb7-f111-aaae-70a8a5068d0e",
+          "x-ms-optionsetmetadataid": "0ed18986-69b8-f111-aaae-70a8a5068d0e",
           "x-ms-isGlobal": false,
           "x-ms-optionsetdisplayname": "Razón para el estado",
           "x-ms-optionSetType": "Status"
@@ -612,8 +524,8 @@
       "required": [
         "createdbyyominame",
         "createdonbehalfbyyominame",
-        "loc_facturacompraid",
-        "loc_numero",
+        "loc_documentoid",
+        "loc_nombre",
         "modifiedbyyominame",
         "modifiedonbehalfbyyominame",
         "ownerid",

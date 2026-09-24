@@ -212,8 +212,9 @@ export const facturasVenta = entidadDocumento<FacturaVenta>({
     campoPropietario(),
     { clave: 'pedidoId', titulo: 'Pedido de origen', mostrar: (d, c) => <Enlace col="pedidosVenta" id={d.pedidoId} texto={c.datos.pedidosVenta.find(p => p.id === d.pedidoId)?.no} /> },
     { clave: 'pagadaEl', titulo: 'Cobrada el', mostrar: d => (d.pagadaEl ? fecha(d.pagadaEl) : '—') },
+    { clave: 'importeCobrado', titulo: 'Cobrado a cuenta', tipo: 'numero', min: 0, paso: 0.01 },
   ],
-  nuevo: b => ({ ...b, estado: 'borrador', pedidoId: null, vencimiento: '', registradaEl: null, pagadaEl: null }),
+  nuevo: b => ({ ...b, estado: 'borrador', pedidoId: null, vencimiento: '', registradaEl: null, pagadaEl: null, importeCobrado: 0 }),
   antesDeGuardar: conVencimiento,
   comandos: (f, c) => [
     f.estado === 'borrador' && estadoCmd(c, 'facturasVenta', f, 'registrada', 'Registrar', Lock, 'acento'),
@@ -276,8 +277,9 @@ export const facturasCompra = entidadDocumento<FacturaCompra>({
     campoPropietario(),
     { clave: 'pedidoId', titulo: 'Pedido de origen', mostrar: (d, c) => <Enlace col="pedidosCompra" id={d.pedidoId} texto={c.datos.pedidosCompra.find(p => p.id === d.pedidoId)?.no} /> },
     { clave: 'pagadaEl', titulo: 'Pagada el', mostrar: d => (d.pagadaEl ? fecha(d.pagadaEl) : '—') },
+    { clave: 'importePagado', titulo: 'Pagado a cuenta', tipo: 'numero', min: 0, paso: 0.01 },
   ],
-  nuevo: b => ({ ...b, estado: 'pendiente', pedidoId: null, noProveedor: '', vencimiento: '', registradaEl: null, pagadaEl: null }),
+  nuevo: b => ({ ...b, estado: 'pendiente', pedidoId: null, noProveedor: '', vencimiento: '', registradaEl: null, pagadaEl: null, importePagado: 0 }),
   antesDeGuardar: conVencimiento,
   comandos: (f, c) => [
     f.estado === 'pendiente' && estadoCmd(c, 'facturasCompra', f, 'registrada', 'Registrar', Lock, 'acento'),

@@ -32,3 +32,4 @@ desktop.ini
 
 # Ids de los datos de ejemplo del CRM insertados en un entorno (los escribe scripts/crm-ejemplos.mjs)
 Proyectos y Tareas/scripts/crm-ejemplos.ids.json
+Proyectos y Tareas/scripts/gestion-ejemplos.ids.json

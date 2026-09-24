@@ -39,6 +39,14 @@ pushear a continuación, antes de dar la tarea por terminada.
   se crea o completa con `node scripts/crm-esquema.mjs` (idempotente). Los datos
   de prueba del CRM se insertan con `node scripts/crm-ejemplos.mjs` y se quitan
   con `--borrar`.
+- Módulo Gestión (`app/src/gestion`): gastos con foto (`loc_gasto`), documentos
+  con caducidad (`loc_documento`), caja y trimestre calculados de las facturas del
+  CRM. Esquema con `node scripts/gestion-esquema.mjs`; ejemplos con
+  `node scripts/gestion-ejemplos.mjs` (y `--borrar`). Añadió a las facturas
+  `loc_importecobrado` / `loc_importepagado` y a la cuenta `loc_regimeniva`.
+- Los scripts de Dataverse llaman al CLI con `npx -y @microsoft/dataverse`; en
+  Windows conviene `$env:DATAVERSE_CLI=<ruta a bin/dataverse.js>` para que
+  los `&` de las consultas OData no pasen por cmd.
 - Todo en español: nombres de archivos, funciones, comentarios, mensajes de
   commit y textos de la interfaz.
 - Antes de publicar: `npm run build` sin errores de TypeScript y `npm run lint`.

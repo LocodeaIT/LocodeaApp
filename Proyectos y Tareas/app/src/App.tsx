@@ -11,6 +11,8 @@ import { useCrm } from './crm/contexto'
 import { esPantallaCrm } from './crm/navegacion'
 import { buscarEnCrm } from './crm/busqueda'
 import { NavCrm, ResultadosCrm, migasCrm } from './crm/NavCrm'
+import { esPantallaGestion } from './gestion/navegacion'
+import { NavGestion, migasGestion } from './gestion/NavGestion'
 // Carga diferida: cada pantalla es su propio paquete, asi el arranque no
 // arrastra los graficos ni las vistas que todavia no se han abierto.
 const Inicio = lazy(() => import('./screens/Inicio'))
@@ -22,6 +24,7 @@ const Informes = lazy(() => import('./screens/Informes'))
 const Equipo = lazy(() => import('./screens/Equipo'))
 const Reuniones = lazy(() => import('./screens/Reuniones'))
 const PantallaCrm = lazy(() => import('./crm/screens/PantallaCrm'))
+const PantallaGestion = lazy(() => import('./gestion/screens/PantallaGestion'))
 const Contenido = lazy(() => import('./screens/Contenido'))
 const SkillsIA = lazy(() => import('./screens/SkillsIA'))
 import Login from './screens/Login'
@@ -65,7 +68,7 @@ export default function App() {
   if (!yo) return <Login />
 
   const pantallaActiva: Pantalla = pantalla === 'midia' ? 'inicio' : pantalla
-  const Pantalla = esPantallaCrm(pantallaActiva) ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, contenido: Contenido, skills: SkillsIA, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
+  const Pantalla = esPantallaCrm(pantallaActiva) || esPantallaGestion(pantallaActiva) ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, contenido: Contenido, skills: SkillsIA, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
   const migas = migasDe(pantallaActiva)
 
   return (
@@ -90,6 +93,7 @@ export default function App() {
             </div>
           ))}
           <NavCrm pantallaActiva={pantallaActiva} />
+          <NavGestion pantallaActiva={pantallaActiva} />
         </nav>
 
         <div className="lateral-pie">
@@ -131,7 +135,7 @@ export default function App() {
 
         <main className="contenido" key={pantallaActiva}>
           <Suspense fallback={<div className="carga"><div className="spinner" /></div>}>
-            {Pantalla ? <Pantalla abrirTarea={setTareaAbierta} /> : <PantallaCrm />}
+            {Pantalla ? <Pantalla abrirTarea={setTareaAbierta} /> : esPantallaGestion(pantallaActiva) ? <PantallaGestion /> : <PantallaCrm />}
           </Suspense>
         </main>
       </div>
@@ -148,6 +152,8 @@ export default function App() {
 function migasDe(id: Pantalla): { seccion?: string; nombre: string } {
   const crm = migasCrm(id)
   if (crm) return crm
+  const gestion = migasGestion(id)
+  if (gestion) return gestion
   const i = NAV.findIndex(n => n.id === id)
   if (i < 0) return { nombre: 'Inicio' }
   const seccion = NAV.slice(0, i + 1).reverse().find(n => n.seccion)?.seccion

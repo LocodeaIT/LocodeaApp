@@ -5,8 +5,12 @@
 import type {
   ColEntidad, ColReferente, CondicionPago, EstadoActividad, EstadoActivo, EstadoFacturaVisible, EstadoOferta,
   EstadoOportunidad, EstadoPedidoCompra, EstadoPedidoVenta, EstadoPotencial, Fase, MetodoPago, OrigenPotencial,
-  PrioridadCrm, Puntuacion, TipoActividad, TipoCuenta, TipoProducto, Unidad,
+  PrioridadCrm, Puntuacion, RegimenIva, TipoActividad, TipoCuenta, TipoProducto, Unidad,
 } from './types'
+
+export const REGIMEN_IVA: Record<RegimenIva, string> = {
+  general: 'General (España)', intracomunitario: 'Intracomunitario (UE, sin IVA)', exento: 'Exento', recargo: 'Recargo de equivalencia', extracomunitario: 'Fuera de la UE',
+}
 
 export const TIPO_CUENTA: Record<TipoCuenta, string> = { cliente: 'Cliente', proveedor: 'Proveedor', ambos: 'Cliente y proveedor' }
 export const ESTADO_ACTIVO: Record<EstadoActivo, string> = { activo: 'Activo', inactivo: 'Inactivo' }

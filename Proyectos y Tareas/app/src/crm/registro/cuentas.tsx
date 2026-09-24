@@ -1,7 +1,8 @@
 /** Cuentas: clientes y proveedores. */
 import { Crosshair, FileText, ShoppingBag, UserRound } from 'lucide-react'
 import type { Cuenta } from '../types'
-import { CONDICIONES_PAGO, EMPLEADOS, ESTADO_ACTIVO, METODO_PAGO, TIPO_CUENTA, opcionesDe } from '../catalogos'
+import { CONDICIONES_PAGO, EMPLEADOS, ESTADO_ACTIVO, METODO_PAGO, REGIMEN_IVA, TIPO_CUENTA, opcionesDe } from '../catalogos'
+import { validarNif } from '../../gestion/calculos'
 import { facturado, pipelineAbierto } from '../consultas'
 import { eur0 } from '../formato'
 import { ICONO_COL } from '../iconos'
@@ -39,10 +40,10 @@ export const cuentas: Entidad<Cuenta> = {
   ],
   nuevo: c => ({
     id: '', no: '', nombre: '', tipo: 'cliente', estado: 'activo', cif: '', sector: '', direccion: '', cp: '', ciudad: '', provincia: '', pais: 'España',
-    web: '', telefono: '', email: '', empleados: '', propietarioId: c.yoId, condicionesPago: '30', metodoPago: 'transferencia', iva: 21, iban: '', notas: '', creadoEl: '',
+    web: '', telefono: '', email: '', empleados: '', propietarioId: c.yoId, condicionesPago: '30', metodoPago: 'transferencia', iva: 21, iban: '', regimenIva: 'general', notas: '', creadoEl: '',
   }),
   titulo: a => a.nombre,
-  validar: d => (!d.nombre.trim() ? 'Escribe el nombre de la cuenta.' : null),
+  validar: d => (!d.nombre.trim() ? 'Escribe el nombre de la cuenta.' : d.regimenIva === 'general' ? validarNif(d.cif) : null),
   pestanas: [
     {
       clave: 'general', titulo: 'General', campos: [
@@ -74,6 +75,7 @@ export const cuentas: Entidad<Cuenta> = {
         { clave: 'metodoPago', titulo: 'Método de pago', tipo: 'opciones', opciones: opcionesDe(METODO_PAGO) },
         { clave: 'iban', titulo: 'IBAN' },
         { clave: 'iva', titulo: 'IVA %', tipo: 'numero', min: 0 },
+        { clave: 'regimenIva', titulo: 'Régimen de IVA', tipo: 'opciones', opciones: opcionesDe(REGIMEN_IVA) },
       ],
     },
     { clave: 'notas', titulo: 'Notas', abierta: false, campos: [{ clave: 'notas', titulo: 'Notas', tipo: 'area', completo: true }] },

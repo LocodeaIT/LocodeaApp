@@ -329,6 +329,47 @@
           "x-ms-schema-name": "loc_Provincia",
           "maxLength": 100
         },
+        "loc_regimeniva": {
+          "type": "string",
+          "title": "Régimen de IVA",
+          "x-ms-dataverse-attribute": "loc_regimeniva",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_RegimenIva",
+          "enum": [
+            "General",
+            "Intracomunitario",
+            "Exento",
+            "Recargo de equivalencia",
+            "Extracomunitario"
+          ],
+          "x-ms-enum-values": [
+            412000440,
+            412000441,
+            412000442,
+            412000443,
+            412000444
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "f04ac8d0-69b8-f111-aaae-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Régimen de IVA",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_regimenivaname": {
+          "type": "string",
+          "title": "loc_regimenivaname",
+          "x-ms-dataverse-attribute": "loc_regimenivaname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_regimenivaName",
+          "x-ms-dataverse-attribute-of": "loc_regimeniva",
+          "x-ms-read-only": true
+        },
         "loc_sector": {
           "type": "string",
           "title": "Sector",

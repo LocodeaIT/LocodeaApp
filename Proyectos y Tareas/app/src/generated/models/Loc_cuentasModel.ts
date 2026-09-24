@@ -20,6 +20,14 @@ export const Loc_cuentasloc_metodopago = {
   412000117: 'Tarjeta'
 } as const;
 export type Loc_cuentasloc_metodopago = keyof typeof Loc_cuentasloc_metodopago;
+export const Loc_cuentasloc_regimeniva = {
+  412000440: 'General',
+  412000441: 'Intracomunitario',
+  412000442: 'Exento',
+  412000443: 'Recargo de equivalencia',
+  412000444: 'Extracomunitario'
+} as const;
+export type Loc_cuentasloc_regimeniva = keyof typeof Loc_cuentasloc_regimeniva;
 export const Loc_cuentasloc_tipo = {
   412000100: 'Cliente',
   412000101: 'Proveedor',
@@ -57,6 +65,7 @@ export interface Loc_cuentasBase {
   loc_pais?: string;
   "loc_Propietario@odata.bind"?: string;
   loc_provincia?: string;
+  loc_regimeniva?: Loc_cuentasloc_regimeniva;
   loc_sector?: string;
   loc_telefono?: string;
   loc_tipo?: Loc_cuentasloc_tipo;
@@ -73,6 +82,7 @@ export interface Loc_cuentas extends Loc_cuentasBase {
   loc_condicionespagoname?: string;
   loc_estadoname?: string;
   loc_metodopagoname?: string;
+  loc_regimenivaname?: string;
   loc_tiponame?: string;
   modifiedon?: string;
   ownerid: string;

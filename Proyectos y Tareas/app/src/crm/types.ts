@@ -26,6 +26,8 @@ export type EstadoActividad = 'abierta' | 'completada' | 'cancelada'
 export type PrioridadCrm = 'baja' | 'normal' | 'alta'
 export type CondicionPago = 'contado' | '15' | '30' | '60'
 export type MetodoPago = 'transferencia' | 'domiciliacion' | 'tarjeta'
+/** Régimen de IVA de la cuenta (dato fiscal para la gestoría). */
+export type RegimenIva = 'general' | 'intracomunitario' | 'exento' | 'recargo' | 'extracomunitario'
 export type TipoProducto = 'servicio' | 'licencia' | 'producto'
 export type Unidad = 'hora' | 'dia' | 'mes' | 'ud' | 'proyecto'
 
@@ -59,6 +61,7 @@ export interface Cuenta extends RegistroBase {
   metodoPago: MetodoPago
   iva: number
   iban: string
+  regimenIva: RegimenIva
   notas: string
 }
 
@@ -171,6 +174,8 @@ export interface FacturaVenta extends DocumentoBase {
   vencimiento: string
   registradaEl: string | null
   pagadaEl: string | null
+  /** Cobros parciales acumulados; la previsión de caja resta esto del total. */
+  importeCobrado: number
 }
 
 export interface PedidoCompra extends DocumentoBase {
@@ -189,6 +194,8 @@ export interface FacturaCompra extends DocumentoBase {
   vencimiento: string
   registradaEl: string | null
   pagadaEl: string | null
+  /** Pagos parciales acumulados. */
+  importePagado: number
 }
 
 export type Documento = Oferta | PedidoVenta | FacturaVenta | PedidoCompra | FacturaCompra

@@ -41,6 +41,7 @@ export interface Loc_facturacomprasBase {
   loc_estado?: Loc_facturacomprasloc_estado;
   loc_facturacompraid: string;
   loc_fecha?: string;
+  loc_importepagado?: number;
   loc_metodopago?: Loc_facturacomprasloc_metodopago;
   loc_noproveedor?: string;
   loc_notas?: string;

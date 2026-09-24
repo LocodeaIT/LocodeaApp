@@ -222,6 +222,13 @@
           "x-ms-dataverse-type": "DateTimeType",
           "x-ms-schema-name": "loc_Fecha"
         },
+        "loc_importecobrado": {
+          "type": "string",
+          "title": "Importe cobrado",
+          "x-ms-dataverse-attribute": "loc_importecobrado",
+          "x-ms-dataverse-type": "DecimalType",
+          "x-ms-schema-name": "loc_ImporteCobrado"
+        },
         "loc_metodopago": {
           "type": "string",
           "title": "Método de pago",

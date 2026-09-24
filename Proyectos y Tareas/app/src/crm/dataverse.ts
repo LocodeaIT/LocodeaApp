@@ -23,7 +23,7 @@ import type {
   ActividadCrm, ColDocumento, ColReferente, Coleccion, CondicionPago, Contacto, CrmInstantanea, Cuenta, Documento, DocumentoBase,
   EstadoActividad, EstadoActivo, EstadoFacturaCompra, EstadoFacturaVenta, EstadoOferta, EstadoOportunidad, EstadoPedidoCompra,
   EstadoPedidoVenta, EstadoPotencial, FacturaCompra, FacturaVenta, Fase, LineaDocumento, MetodoPago, Nota, Oferta, Oportunidad,
-  OrigenPotencial, PedidoCompra, PedidoVenta, Potencial, PrioridadCrm, Producto, Puntuacion, RegistroBase, RegistroDe, TipoActividad,
+  OrigenPotencial, PedidoCompra, PedidoVenta, Potencial, PrioridadCrm, Producto, Puntuacion, RegimenIva, RegistroBase, RegistroDe, TipoActividad,
   TipoCuenta, TipoProducto, Unidad,
 } from './types'
 import { COLECCIONES } from './types'
@@ -69,6 +69,7 @@ const UNIDAD: Record<Unidad, number> = { hora: 412000205, dia: 412000206, mes: 4
 const TIPO_ACTIVIDAD: Record<TipoActividad, number> = { tarea: 412000210, llamada: 412000211, correo: 412000212, cita: 412000213 }
 const EST_ACTIVIDAD: Record<EstadoActividad, number> = { abierta: 412000215, completada: 412000216, cancelada: 412000217 }
 const PRIORIDAD: Record<PrioridadCrm, number> = { baja: 412000220, normal: 412000221, alta: 412000222 }
+const REGIMEN: Record<RegimenIva, number> = { general: 412000440, intracomunitario: 412000441, exento: 412000442, recargo: 412000443, extracomunitario: 412000444 }
 
 const DE = {
   tipoCuenta: inverso(TIPO_CUENTA), activo: inverso(ACTIVO), condiciones: inverso(CONDICIONES), metodo: inverso(METODO), origen: inverso(ORIGEN),
@@ -76,6 +77,7 @@ const DE = {
   estOferta: inverso(EST_OFERTA), estPedidoVenta: inverso(EST_PEDIDO_VENTA), estFacturaVenta: inverso(EST_FACTURA_VENTA),
   estPedidoCompra: inverso(EST_PEDIDO_COMPRA), estFacturaCompra: inverso(EST_FACTURA_COMPRA), tipoProducto: inverso(TIPO_PRODUCTO),
   unidad: inverso(UNIDAD), tipoActividad: inverso(TIPO_ACTIVIDAD), estActividad: inverso(EST_ACTIVIDAD), prioridad: inverso(PRIORIDAD),
+  regimen: inverso(REGIMEN),
 }
 
 // ─────────────────────────────────────────────── utilidades
@@ -136,13 +138,13 @@ const cuentas: Tabla<'cuentas'> = {
     ciudad: txt(f.loc_ciudad), provincia: txt(f.loc_provincia), pais: txt(f.loc_pais), web: txt(f.loc_web), telefono: txt(f.loc_telefono),
     email: txt(f.loc_email), empleados: txt(f.loc_empleados), propietarioId: f._loc_propietario_value ?? null,
     condicionesPago: DE.condiciones[f.loc_condicionespago] ?? '30', metodoPago: DE.metodo[f.loc_metodopago] ?? 'transferencia',
-    iva: f.loc_iva ?? 21, iban: txt(f.loc_iban), notas: txt(f.loc_notas),
+    iva: f.loc_iva ?? 21, iban: txt(f.loc_iban), regimenIva: DE.regimen[f.loc_regimeniva] ?? 'general', notas: txt(f.loc_notas),
   }),
   escribir: a => ({
     loc_numero: a.no, loc_nombre: a.nombre, loc_tipo: TIPO_CUENTA[a.tipo], loc_estado: ACTIVO[a.estado], loc_cif: a.cif, loc_sector: a.sector,
     loc_direccion: a.direccion, loc_cp: a.cp, loc_ciudad: a.ciudad, loc_provincia: a.provincia, loc_pais: a.pais, loc_web: a.web,
     loc_telefono: a.telefono, loc_email: a.email, loc_empleados: a.empleados, loc_condicionespago: CONDICIONES[a.condicionesPago],
-    loc_metodopago: METODO[a.metodoPago], loc_iva: num(a.iva), loc_iban: a.iban, loc_notas: a.notas,
+    loc_metodopago: METODO[a.metodoPago], loc_iva: num(a.iva), loc_iban: a.iban, loc_regimeniva: REGIMEN[a.regimenIva] ?? REGIMEN.general, loc_notas: a.notas,
     'loc_Propietario@odata.bind': ref('loc_miembros', a.propietarioId),
   }),
 }
@@ -258,11 +260,11 @@ const facturasVenta: Tabla<'facturasVenta'> = {
   conjunto: 'loc_facturaventas', clave: 'loc_facturaventaid', servicio: Loc_facturaventasService,
   leer: (f): FacturaVenta => ({
     ...leerDocumento(f, 'loc_facturaventaid'), lineas: [], estado: DE.estFacturaVenta[f.loc_estado] ?? 'borrador', pedidoId: f._loc_pedido_value ?? null,
-    vencimiento: dia(f.loc_vencimiento), registradaEl: nulo(f.loc_registradael), pagadaEl: nulo(f.loc_pagadael),
+    vencimiento: dia(f.loc_vencimiento), registradaEl: nulo(f.loc_registradael), pagadaEl: nulo(f.loc_pagadael), importeCobrado: num(f.loc_importecobrado),
   }),
   escribir: x => ({
     ...escribirDocumento(x), loc_estado: EST_FACTURA_VENTA[x.estado], loc_vencimiento: fechaONulo(x.vencimiento),
-    loc_registradael: fechaONulo(x.registradaEl), loc_pagadael: fechaONulo(x.pagadaEl),
+    loc_registradael: fechaONulo(x.registradaEl), loc_pagadael: fechaONulo(x.pagadaEl), loc_importecobrado: num(x.importeCobrado),
     'loc_Pedido@odata.bind': ref('loc_pedidoventas', x.pedidoId),
   }),
 }
@@ -284,10 +286,11 @@ const facturasCompra: Tabla<'facturasCompra'> = {
   leer: (f): FacturaCompra => ({
     ...leerDocumento(f, 'loc_facturacompraid'), lineas: [], estado: DE.estFacturaCompra[f.loc_estado] ?? 'pendiente', pedidoId: f._loc_pedido_value ?? null,
     noProveedor: txt(f.loc_noproveedor), vencimiento: dia(f.loc_vencimiento), registradaEl: nulo(f.loc_registradael), pagadaEl: nulo(f.loc_pagadael),
+    importePagado: num(f.loc_importepagado),
   }),
   escribir: x => ({
     ...escribirDocumento(x), loc_estado: EST_FACTURA_COMPRA[x.estado], loc_noproveedor: x.noProveedor, loc_vencimiento: fechaONulo(x.vencimiento),
-    loc_registradael: fechaONulo(x.registradaEl), loc_pagadael: fechaONulo(x.pagadaEl),
+    loc_registradael: fechaONulo(x.registradaEl), loc_pagadael: fechaONulo(x.pagadaEl), loc_importepagado: num(x.importePagado),
     'loc_Pedido@odata.bind': ref('loc_pedidocompras', x.pedidoId),
   }),
 }

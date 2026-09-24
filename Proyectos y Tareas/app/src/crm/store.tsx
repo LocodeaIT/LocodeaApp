@@ -17,7 +17,7 @@ import type {
 } from './types'
 import { CRM_VACIO } from './types'
 import { DIAS_PAGO, FASE, NOMBRE_REGISTRO, PROBABILIDAD_FASE } from './catalogos'
-import { copiarLineas, siguienteNo } from './documentos'
+import { copiarLineas, siguienteNo, totales } from './documentos'
 import { cuentaDeReferente, etiquetaEstado } from './consultas'
 import { eur0, normalizar } from './formato'
 import { ContextoCrm, LISTA_INICIAL, type CrmCtx, type EstadoLista, type Ficha } from './contexto'
@@ -195,7 +195,7 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
       const c: Cuenta = {
         id: '', no: '', nombre: l.empresa, tipo: 'cliente', estado: 'activo', cif: '', sector: l.sector, direccion: '', cp: '', ciudad: l.ciudad,
         provincia: '', pais: 'España', web: '', telefono: l.telefono, email: l.email, empleados: '', propietarioId: l.propietarioId,
-        condicionesPago: '30', metodoPago: 'transferencia', iva: 21, iban: '', notas: '', creadoEl: '',
+        condicionesPago: '30', metodoPago: 'transferencia', iva: 21, iban: '', regimenIva: 'general', notas: '', creadoEl: '',
       }
       cuentaId = (await guardar('cuentas', c)).id
     }
@@ -257,7 +257,9 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
 
   const cambiarEstadoDocumento = useCallback(async (col: ColDocumento, doc: Documento, estado: string) => {
     if (estado === 'registrada' && !doc.lineas.length) { avisar('No se puede registrar una factura sin líneas.', 'error'); return }
-    const extra = estado === 'pagada' ? { pagadaEl: ahoraIso() } : estado === 'registrada' ? { registradaEl: ahoraIso() } : {}
+    const extra = estado === 'pagada'
+      ? { pagadaEl: ahoraIso(), ...(col === 'facturasVenta' ? { importeCobrado: totales(doc).total } : col === 'facturasCompra' ? { importePagado: totales(doc).total } : {}) }
+      : estado === 'registrada' ? { registradaEl: ahoraIso() } : {}
     await guardar(col, { ...doc, estado, ...extra } as RegistroDe<typeof col>)
     avisar(`${NOMBRE_REGISTRO[col]}: ${etiquetaEstado(col, estado).toLowerCase()}`)
   }, [guardar, avisar])
@@ -282,7 +284,7 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
     const f: FacturaVenta = {
       id: '', no: '', cuentaId: pedido.cuentaId, contactoId: pedido.contactoId, pedidoId: pedido.id, fecha: hoy(), vencimiento: sumarDias(hoy(), DIAS_PAGO[cond] ?? 30),
       estado: 'borrador', propietarioId: pedido.propietarioId, lineas: copiarLineas(pedido.lineas), condicionesPago: cond, metodoPago: pedido.metodoPago,
-      referencia: pedido.referencia, notas: '', registradaEl: null, pagadaEl: null, creadoEl: '',
+      referencia: pedido.referencia, notas: '', registradaEl: null, pagadaEl: null, importeCobrado: 0, creadoEl: '',
     }
     const nueva = await guardar('facturasVenta', f)
     await guardar('pedidosVenta', { ...pedido, estado: 'facturado', facturaId: nueva.id })
@@ -296,7 +298,7 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
     const f: FacturaCompra = {
       id: '', no: '', cuentaId: pedido.cuentaId, contactoId: pedido.contactoId, pedidoId: pedido.id, noProveedor: '', fecha: hoy(),
       vencimiento: sumarDias(hoy(), DIAS_PAGO[cond] ?? 30), estado: 'pendiente', propietarioId: pedido.propietarioId, lineas: copiarLineas(pedido.lineas),
-      condicionesPago: cond, metodoPago: pedido.metodoPago, referencia: pedido.referencia, notas: '', registradaEl: null, pagadaEl: null, creadoEl: '',
+      condicionesPago: cond, metodoPago: pedido.metodoPago, referencia: pedido.referencia, notas: '', registradaEl: null, pagadaEl: null, importePagado: 0, creadoEl: '',
     }
     const nueva = await guardar('facturasCompra', f)
     await guardar('pedidosCompra', { ...pedido, estado: 'facturado', facturaId: nueva.id })

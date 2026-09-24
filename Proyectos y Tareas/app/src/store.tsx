@@ -13,8 +13,9 @@ import { ETIQUETA_ESTADO_TAREA } from './domain/types'
 import { crearEvento, actualizarEvento, borrarEvento } from './data/calendario'
 import { ahoraIso, hoy, lunesDe } from './domain/fechas'
 import { PANTALLAS_CRM, type PantallaCrm } from './crm/navegacion'
+import { PANTALLAS_GESTION, type PantallaGestion } from './gestion/navegacion'
 
-export type Pantalla = 'inicio' | 'objetivos' | 'tareas' | 'midia' | 'reuniones' | 'contenido' | 'skills' | 'proyectos' | 'analisis' | 'informes' | 'equipo' | PantallaCrm
+export type Pantalla = 'inicio' | 'objetivos' | 'tareas' | 'midia' | 'reuniones' | 'contenido' | 'skills' | 'proyectos' | 'analisis' | 'informes' | 'equipo' | PantallaCrm | PantallaGestion
 
 export interface Aviso {
   id: number
@@ -24,7 +25,7 @@ export interface Aviso {
 
 const VACIO: Instantanea = { miembros: [], proyectos: [], semanas: [], objetivos: [], tareas: [], actividad: [], vistas: [], reuniones: [], contenidos: [], recursosIA: [] }
 
-const PANTALLAS: Pantalla[] = ['inicio', 'objetivos', 'tareas', 'reuniones', 'contenido', 'skills', 'proyectos', 'analisis', 'informes', 'equipo', ...PANTALLAS_CRM]
+const PANTALLAS: Pantalla[] = ['inicio', 'objetivos', 'tareas', 'reuniones', 'contenido', 'skills', 'proyectos', 'analisis', 'informes', 'equipo', ...PANTALLAS_CRM, ...PANTALLAS_GESTION]
 
 const CLAVE_YO = 'locodea.yo'
 const CLAVE_PANTALLA = 'locodea.pantalla'

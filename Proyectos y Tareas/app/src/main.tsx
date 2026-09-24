@@ -15,6 +15,8 @@ import { Proveedor } from './store'
 import { repoDataverse } from './data/dataverse'
 import { CrmProveedor } from './crm/store'
 import { crmRepoDataverse } from './crm/dataverse'
+import { GestionProveedor } from './gestion/store'
+import { gestionRepoDataverse } from './gestion/dataverse'
 
 /**
  * La app corre como Code App sobre Dataverse. Para trabajar el diseño en local
@@ -25,12 +27,13 @@ import { crmRepoDataverse } from './crm/dataverse'
 const demo = import.meta.env.VITE_DEMO === '1'
 const repo = demo ? (await import('./data/demo')).repoDemo : repoDataverse
 const crmRepo = demo ? (await import('./crm/demo')).crmRepoDemo : crmRepoDataverse
+const gestionRepo = demo ? (await import('./gestion/demo')).gestionRepoDemo : gestionRepoDataverse
 
 if (demo) {
   avisarModoDemostracion()
 } else {
   // Restos de la etapa en la que los datos vivían en el navegador.
-  for (const clave of ['locodea.objetivos.v1', 'locodea.objetivos.v2', 'locodea.objetivos.v3', 'locodea.demo.v1', 'locodea.crm.demo.v1']) {
+  for (const clave of ['locodea.objetivos.v1', 'locodea.objetivos.v2', 'locodea.objetivos.v3', 'locodea.demo.v1', 'locodea.crm.demo.v1', 'locodea.gestion.demo.v1']) {
     try { localStorage.removeItem(clave) } catch { /* modo privado o sin permisos */ }
   }
 }
@@ -53,7 +56,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Proveedor repo={repo}>
       <CrmProveedor repo={crmRepo}>
-        <App />
+        <GestionProveedor repo={gestionRepo}>
+          <App />
+        </GestionProveedor>
       </CrmProveedor>
     </Proveedor>
   </StrictMode>,

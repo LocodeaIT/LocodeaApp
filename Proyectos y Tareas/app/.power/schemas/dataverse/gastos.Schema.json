@@ -1,14 +1,14 @@
 {
-  "name": "loc_facturacompra",
-  "title": "Facturas de compra",
+  "name": "loc_gasto",
+  "title": "Gastos",
   "schema": {
     "type": "array",
     "items": {
       "type": "object",
       "x-ms-dataverse-entity": true,
-      "x-ms-dataverse-entityset": "loc_facturacompras",
-      "x-ms-dataverse-primary-id": "loc_facturacompraid",
-      "x-ms-dataverse-primary-name": "loc_numero",
+      "x-ms-dataverse-entityset": "loc_gastos",
+      "x-ms-dataverse-primary-id": "loc_gastoid",
+      "x-ms-dataverse-primary-name": "loc_concepto",
       "properties": {
         "createdby": {
           "type": "string",
@@ -89,83 +89,128 @@
           "x-ms-dataverse-type": "IntegerType",
           "x-ms-schema-name": "ImportSequenceNumber"
         },
-        "loc_condicionespago": {
+        "loc_base": {
           "type": "string",
-          "title": "Condiciones de pago",
-          "x-ms-dataverse-attribute": "loc_condicionespago",
+          "title": "Base imponible",
+          "x-ms-dataverse-attribute": "loc_base",
+          "x-ms-dataverse-type": "DecimalType",
+          "x-ms-schema-name": "loc_Base"
+        },
+        "loc_categoria": {
+          "type": "string",
+          "title": "Categoría",
+          "x-ms-dataverse-attribute": "loc_categoria",
           "x-ms-dataverse-type": "PicklistType",
-          "x-ms-schema-name": "loc_CondicionesPago",
+          "x-ms-schema-name": "loc_Categoria",
           "enum": [
-            "Al contado",
-            "15 días",
-            "30 días",
-            "60 días"
+            "Viajes y transporte",
+            "Dietas y comidas",
+            "Software y licencias",
+            "Hosting e infraestructura",
+            "Material y equipos",
+            "Formación",
+            "Marketing",
+            "Asesoría y gestoría",
+            "Telefonía e internet",
+            "Suministros y oficina",
+            "Otros"
           ],
           "x-ms-enum-values": [
-            412000110,
-            412000111,
-            412000112,
-            412000113
+            412000400,
+            412000401,
+            412000402,
+            412000403,
+            412000404,
+            412000405,
+            412000406,
+            412000407,
+            412000408,
+            412000409,
+            412000410
           ],
           "Color": [
             null,
             null,
             null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null
           ],
-          "x-ms-optionsetmetadataid": "f710f967-8db7-f111-aaae-70a8a5068d0e",
+          "x-ms-optionsetmetadataid": "171407a5-69b8-f111-aaae-70a8a5068d0e",
           "x-ms-isGlobal": false,
-          "x-ms-optionsetdisplayname": "Condiciones de pago",
+          "x-ms-optionsetdisplayname": "Categoría",
           "x-ms-optionSetType": "Picklist"
         },
-        "loc_condicionespagoname": {
+        "loc_categorianame": {
           "type": "string",
-          "title": "loc_condicionespagoname",
-          "x-ms-dataverse-attribute": "loc_condicionespagoname",
+          "title": "loc_categorianame",
+          "x-ms-dataverse-attribute": "loc_categorianame",
           "x-ms-dataverse-type": "VirtualType",
-          "x-ms-schema-name": "loc_condicionespagoName",
-          "x-ms-dataverse-attribute-of": "loc_condicionespago",
+          "x-ms-schema-name": "loc_categoriaName",
+          "x-ms-dataverse-attribute-of": "loc_categoria",
           "x-ms-read-only": true
         },
-        "loc_contacto": {
+        "loc_concepto": {
           "type": "string",
-          "title": "Contacto",
-          "x-ms-dataverse-attribute": "loc_contacto",
-          "x-ms-dataverse-type": "LookupType",
-          "x-ms-schema-name": "loc_Contacto",
-          "x-ms-dataverse-navigation-properties": [
-            "loc_Contacto"
-          ]
-        },
-        "loc_contactoname": {
-          "type": "string",
-          "title": "loc_contactoname",
-          "x-ms-dataverse-attribute": "loc_contactoname",
+          "title": "Concepto",
+          "x-ms-dataverse-attribute": "loc_concepto",
           "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "loc_ContactoName",
-          "x-ms-dataverse-attribute-of": "loc_contacto",
-          "x-ms-read-only": true,
-          "maxLength": 100
+          "x-ms-schema-name": "loc_Concepto",
+          "x-ms-dataverse-primary-name": true,
+          "required": true,
+          "maxLength": 300
         },
-        "loc_cuenta": {
+        "loc_deducible": {
           "type": "string",
-          "title": "Proveedor",
-          "x-ms-dataverse-attribute": "loc_cuenta",
-          "x-ms-dataverse-type": "LookupType",
-          "x-ms-schema-name": "loc_Cuenta",
-          "x-ms-dataverse-navigation-properties": [
-            "loc_Cuenta"
-          ]
+          "title": "Deducible",
+          "x-ms-dataverse-attribute": "loc_deducible",
+          "x-ms-dataverse-type": "BooleanType",
+          "x-ms-schema-name": "loc_Deducible",
+          "enum": [
+            "No",
+            "Sí"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "223747b1-69b8-f111-aaae-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Deducible",
+          "x-ms-optionSetType": "Boolean"
         },
-        "loc_cuentaname": {
+        "loc_deduciblename": {
           "type": "string",
-          "title": "loc_cuentaname",
-          "x-ms-dataverse-attribute": "loc_cuentaname",
+          "title": "loc_deduciblename",
+          "x-ms-dataverse-attribute": "loc_deduciblename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_deducibleName",
+          "x-ms-dataverse-attribute-of": "loc_deducible",
+          "x-ms-read-only": true
+        },
+        "loc_diacargo": {
+          "type": "string",
+          "title": "Día de cargo",
+          "x-ms-dataverse-attribute": "loc_diacargo",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "loc_DiaCargo"
+        },
+        "loc_enlace": {
+          "type": "string",
+          "title": "Enlace al documento",
+          "x-ms-dataverse-attribute": "loc_enlace",
           "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "loc_CuentaName",
-          "x-ms-dataverse-attribute-of": "loc_cuenta",
-          "x-ms-read-only": true,
-          "maxLength": 200
+          "x-ms-schema-name": "loc_Enlace",
+          "maxLength": 500
         },
         "loc_estado": {
           "type": "string",
@@ -174,16 +219,16 @@
           "x-ms-dataverse-type": "PicklistType",
           "x-ms-schema-name": "loc_Estado",
           "enum": [
-            "Pendiente",
-            "Registrada",
-            "Pagada",
-            "Anulada"
+            "Pendiente de pago",
+            "Pagado",
+            "Pendiente de reembolso",
+            "Reembolsado"
           ],
           "x-ms-enum-values": [
-            412000190,
-            412000191,
-            412000192,
-            412000193
+            412000415,
+            412000416,
+            412000417,
+            412000418
           ],
           "Color": [
             null,
@@ -191,7 +236,7 @@
             null,
             null
           ],
-          "x-ms-optionsetmetadataid": "f210f967-8db7-f111-aaae-70a8a5068d0e",
+          "x-ms-optionsetmetadataid": "e06623ab-69b8-f111-aaae-70a8a5068d0e",
           "x-ms-isGlobal": false,
           "x-ms-optionsetdisplayname": "Estado",
           "x-ms-optionSetType": "Picklist"
@@ -205,15 +250,25 @@
           "x-ms-dataverse-attribute-of": "loc_estado",
           "x-ms-read-only": true
         },
-        "loc_facturacompraid": {
+        "loc_facturacompra": {
           "type": "string",
           "title": "Factura de compra",
-          "x-ms-dataverse-attribute": "loc_facturacompraid",
-          "x-ms-dataverse-type": "UniqueidentifierType",
-          "x-ms-schema-name": "loc_FacturaCompraId",
-          "x-ms-dataverse-primary-id": true,
-          "required": true,
-          "x-ms-keyType": "primary"
+          "x-ms-dataverse-attribute": "loc_facturacompra",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "loc_FacturaCompra",
+          "x-ms-dataverse-navigation-properties": [
+            "loc_FacturaCompra"
+          ]
+        },
+        "loc_facturacompraname": {
+          "type": "string",
+          "title": "loc_facturacompraname",
+          "x-ms-dataverse-attribute": "loc_facturacompraname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_FacturaCompraName",
+          "x-ms-dataverse-attribute-of": "loc_facturacompra",
+          "x-ms-read-only": true,
+          "maxLength": 20
         },
         "loc_fecha": {
           "type": "string",
@@ -222,12 +277,37 @@
           "x-ms-dataverse-type": "DateTimeType",
           "x-ms-schema-name": "loc_Fecha"
         },
-        "loc_importepagado": {
+        "loc_foto": {
           "type": "string",
-          "title": "Importe pagado",
-          "x-ms-dataverse-attribute": "loc_importepagado",
+          "title": "Foto del ticket",
+          "x-ms-dataverse-attribute": "loc_foto",
+          "x-ms-dataverse-type": "MemoType",
+          "x-ms-schema-name": "loc_Foto",
+          "maxLength": 1048576
+        },
+        "loc_gastoid": {
+          "type": "string",
+          "title": "Gasto",
+          "x-ms-dataverse-attribute": "loc_gastoid",
+          "x-ms-dataverse-type": "UniqueidentifierType",
+          "x-ms-schema-name": "loc_GastoId",
+          "x-ms-dataverse-primary-id": true,
+          "required": true,
+          "x-ms-keyType": "primary"
+        },
+        "loc_irpf": {
+          "type": "string",
+          "title": "IRPF %",
+          "x-ms-dataverse-attribute": "loc_irpf",
           "x-ms-dataverse-type": "DecimalType",
-          "x-ms-schema-name": "loc_ImportePagado"
+          "x-ms-schema-name": "loc_Irpf"
+        },
+        "loc_iva": {
+          "type": "string",
+          "title": "IVA %",
+          "x-ms-dataverse-attribute": "loc_iva",
+          "x-ms-dataverse-type": "DecimalType",
+          "x-ms-schema-name": "loc_Iva"
         },
         "loc_metodopago": {
           "type": "string",
@@ -236,21 +316,24 @@
           "x-ms-dataverse-type": "PicklistType",
           "x-ms-schema-name": "loc_MetodoPago",
           "enum": [
+            "Tarjeta",
             "Transferencia",
             "Domiciliación",
-            "Tarjeta"
+            "Efectivo"
           ],
           "x-ms-enum-values": [
-            412000115,
-            412000116,
-            412000117
+            412000420,
+            412000421,
+            412000422,
+            412000423
           ],
           "Color": [
             null,
             null,
+            null,
             null
           ],
-          "x-ms-optionsetmetadataid": "a29ddd6e-8db7-f111-aaae-70a8a5068d0e",
+          "x-ms-optionsetmetadataid": "e46623ab-69b8-f111-aaae-70a8a5068d0e",
           "x-ms-isGlobal": false,
           "x-ms-optionsetdisplayname": "Método de pago",
           "x-ms-optionSetType": "Picklist"
@@ -264,12 +347,12 @@
           "x-ms-dataverse-attribute-of": "loc_metodopago",
           "x-ms-read-only": true
         },
-        "loc_noproveedor": {
+        "loc_nofactura": {
           "type": "string",
-          "title": "Nº factura del proveedor",
-          "x-ms-dataverse-attribute": "loc_noproveedor",
+          "title": "Nº de factura del proveedor",
+          "x-ms-dataverse-attribute": "loc_nofactura",
           "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "loc_NoProveedor",
+          "x-ms-schema-name": "loc_NoFactura",
           "maxLength": 100
         },
         "loc_notas": {
@@ -286,78 +369,106 @@
           "x-ms-dataverse-attribute": "loc_numero",
           "x-ms-dataverse-type": "StringType",
           "x-ms-schema-name": "loc_Numero",
-          "x-ms-dataverse-primary-name": true,
-          "required": true,
           "maxLength": 20
         },
-        "loc_pagadael": {
+        "loc_pagador": {
           "type": "string",
-          "title": "Pagada el",
-          "x-ms-dataverse-attribute": "loc_pagadael",
-          "x-ms-dataverse-type": "DateTimeType",
-          "x-ms-schema-name": "loc_PagadaEl"
-        },
-        "loc_pedido": {
-          "type": "string",
-          "title": "Pedido de origen",
-          "x-ms-dataverse-attribute": "loc_pedido",
+          "title": "Pagado por",
+          "x-ms-dataverse-attribute": "loc_pagador",
           "x-ms-dataverse-type": "LookupType",
-          "x-ms-schema-name": "loc_Pedido",
+          "x-ms-schema-name": "loc_Pagador",
           "x-ms-dataverse-navigation-properties": [
-            "loc_Pedido"
+            "loc_Pagador"
           ]
         },
-        "loc_pedidoname": {
+        "loc_pagadorname": {
           "type": "string",
-          "title": "loc_pedidoname",
-          "x-ms-dataverse-attribute": "loc_pedidoname",
+          "title": "loc_pagadorname",
+          "x-ms-dataverse-attribute": "loc_pagadorname",
           "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "loc_PedidoName",
-          "x-ms-dataverse-attribute-of": "loc_pedido",
-          "x-ms-read-only": true,
-          "maxLength": 20
-        },
-        "loc_propietario": {
-          "type": "string",
-          "title": "Propietario",
-          "x-ms-dataverse-attribute": "loc_propietario",
-          "x-ms-dataverse-type": "LookupType",
-          "x-ms-schema-name": "loc_Propietario",
-          "x-ms-dataverse-navigation-properties": [
-            "loc_Propietario"
-          ]
-        },
-        "loc_propietarioname": {
-          "type": "string",
-          "title": "loc_propietarioname",
-          "x-ms-dataverse-attribute": "loc_propietarioname",
-          "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "loc_PropietarioName",
-          "x-ms-dataverse-attribute-of": "loc_propietario",
+          "x-ms-schema-name": "loc_PagadorName",
+          "x-ms-dataverse-attribute-of": "loc_pagador",
           "x-ms-read-only": true,
           "maxLength": 200
         },
-        "loc_referencia": {
+        "loc_proveedor": {
           "type": "string",
-          "title": "Referencia",
-          "x-ms-dataverse-attribute": "loc_referencia",
+          "title": "Proveedor",
+          "x-ms-dataverse-attribute": "loc_proveedor",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "loc_Proveedor",
+          "x-ms-dataverse-navigation-properties": [
+            "loc_Proveedor"
+          ]
+        },
+        "loc_proveedorname": {
+          "type": "string",
+          "title": "loc_proveedorname",
+          "x-ms-dataverse-attribute": "loc_proveedorname",
           "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "loc_Referencia",
+          "x-ms-schema-name": "loc_ProveedorName",
+          "x-ms-dataverse-attribute-of": "loc_proveedor",
+          "x-ms-read-only": true,
           "maxLength": 200
         },
-        "loc_registradael": {
+        "loc_proyecto": {
           "type": "string",
-          "title": "Registrada el",
-          "x-ms-dataverse-attribute": "loc_registradael",
-          "x-ms-dataverse-type": "DateTimeType",
-          "x-ms-schema-name": "loc_RegistradaEl"
+          "title": "Proyecto",
+          "x-ms-dataverse-attribute": "loc_proyecto",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "loc_Proyecto",
+          "x-ms-dataverse-navigation-properties": [
+            "loc_Proyecto"
+          ]
         },
-        "loc_vencimiento": {
+        "loc_proyectoname": {
           "type": "string",
-          "title": "Vencimiento",
-          "x-ms-dataverse-attribute": "loc_vencimiento",
-          "x-ms-dataverse-type": "DateTimeType",
-          "x-ms-schema-name": "loc_Vencimiento"
+          "title": "loc_proyectoname",
+          "x-ms-dataverse-attribute": "loc_proyectoname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_ProyectoName",
+          "x-ms-dataverse-attribute-of": "loc_proyecto",
+          "x-ms-read-only": true,
+          "maxLength": 200
+        },
+        "loc_recurrente": {
+          "type": "string",
+          "title": "Gasto fijo mensual",
+          "x-ms-dataverse-attribute": "loc_recurrente",
+          "x-ms-dataverse-type": "BooleanType",
+          "x-ms-schema-name": "loc_Recurrente",
+          "enum": [
+            "No",
+            "Sí"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "e86623ab-69b8-f111-aaae-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Gasto fijo mensual",
+          "x-ms-optionSetType": "Boolean"
+        },
+        "loc_recurrentename": {
+          "type": "string",
+          "title": "loc_recurrentename",
+          "x-ms-dataverse-attribute": "loc_recurrentename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_recurrenteName",
+          "x-ms-dataverse-attribute-of": "loc_recurrente",
+          "x-ms-read-only": true
+        },
+        "loc_total": {
+          "type": "string",
+          "title": "Total",
+          "x-ms-dataverse-attribute": "loc_total",
+          "x-ms-dataverse-type": "DecimalType",
+          "x-ms-schema-name": "loc_Total"
         },
         "modifiedby": {
           "type": "string",
@@ -540,7 +651,7 @@
             null,
             null
           ],
-          "x-ms-optionsetmetadataid": "a6b3de7a-8cb7-f111-aaae-70a8a5068d0e",
+          "x-ms-optionsetmetadataid": "8cab5e62-69b8-f111-aaae-70a8a5068d0e",
           "x-ms-isGlobal": false,
           "x-ms-optionsetdisplayname": "Estado",
           "x-ms-optionSetType": "State"
@@ -572,7 +683,7 @@
             null,
             null
           ],
-          "x-ms-optionsetmetadataid": "b0b3de7a-8cb7-f111-aaae-70a8a5068d0e",
+          "x-ms-optionsetmetadataid": "96ab5e62-69b8-f111-aaae-70a8a5068d0e",
           "x-ms-isGlobal": false,
           "x-ms-optionsetdisplayname": "Razón para el estado",
           "x-ms-optionSetType": "Status"
@@ -612,8 +723,8 @@
       "required": [
         "createdbyyominame",
         "createdonbehalfbyyominame",
-        "loc_facturacompraid",
-        "loc_numero",
+        "loc_concepto",
+        "loc_gastoid",
         "modifiedbyyominame",
         "modifiedonbehalfbyyominame",
         "ownerid",

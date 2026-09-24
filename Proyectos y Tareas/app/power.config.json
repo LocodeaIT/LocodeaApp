@@ -137,6 +137,16 @@
           "entitySetName": "loc_recursoias",
           "logicalName": "loc_recursoia",
           "isHidden": false
+        },
+        "gastos": {
+          "entitySetName": "loc_gastos",
+          "logicalName": "loc_gasto",
+          "isHidden": false
+        },
+        "documentos": {
+          "entitySetName": "loc_documentos",
+          "logicalName": "loc_documento",
+          "isHidden": false
         }
       },
       "environmentVariableName": ""

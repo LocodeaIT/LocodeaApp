@@ -40,6 +40,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "loc_documentos": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_documentoid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "loc_facturacompras": {
     "tableId": "",
     "version": "",
@@ -51,6 +58,13 @@ export const dataSourcesInfo = {
     "tableId": "",
     "version": "",
     "primaryKey": "loc_facturaventaid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_gastos": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_gastoid",
     "dataSourceType": "Dataverse",
     "apis": {}
   },

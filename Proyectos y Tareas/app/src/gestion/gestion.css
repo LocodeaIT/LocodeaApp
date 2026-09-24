@@ -1,0 +1,94 @@
+/* ──────────────────────────────────────────────────────────── Gestión
+   Gastos, caja, trimestre y documentos. Reutiliza .pagina, .tarjeta, .kpi,
+   .tabla, .chip y .btn de la app; aquí solo lo propio del módulo. */
+
+.ges-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr)); gap: 14px; margin-bottom: 20px; }
+.ges-kpi .valor.neg { color: var(--danger); }
+.ges-kpi .valor.pos { color: var(--ok); }
+
+.ges-herramientas { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.ges-herramientas .buscar { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: var(--pill); background: var(--sand-2); flex: 1; min-width: 200px; max-width: 360px; }
+.ges-herramientas .buscar input { border: 0; background: transparent; flex: 1; min-width: 0; font: inherit; color: var(--ink); outline: 0; }
+.ges-herramientas .buscar svg { color: var(--muted); flex: none; }
+
+.ges-tabla-wrap { overflow-x: auto; }
+.ges-tabla td.concepto { max-width: 360px; }
+.ges-tabla td.concepto b { display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ges-tabla td.concepto small { display: block; color: var(--texto-3); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ges-tabla .miniatura { width: 34px; height: 34px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 0 1px var(--ring); background: var(--sand-2); display: block; }
+.ges-tabla .sin-foto { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; color: var(--faint); background: var(--sand-2); }
+.ges-tabla tr.vencida td:first-child { box-shadow: inset 3px 0 0 var(--danger); }
+.ges-total { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ges-total.neg { color: var(--danger); }
+
+/* foto del ticket en el formulario */
+.ges-foto { display: flex; gap: 14px; align-items: flex-start; }
+.ges-foto img { width: 120px; height: 120px; object-fit: cover; border-radius: var(--r-14); box-shadow: 0 0 0 1px var(--ring); }
+.ges-foto .marco { width: 120px; height: 120px; border-radius: var(--r-14); display: grid; place-items: center; background: var(--sand-2); color: var(--faint); border: 1.5px dashed var(--ink-20); }
+.ges-foto .acciones { display: flex; flex-direction: column; gap: 8px; }
+.ges-foto-grande { max-width: min(92vw, 720px); max-height: 80vh; border-radius: var(--r-14); display: block; margin: 0 auto; }
+
+/* importes del formulario: total ↔ base */
+.ges-importes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr)); gap: 12px; align-items: end; }
+.ges-importes .calculado { font-size: 13px; color: var(--muted); padding-bottom: 10px; }
+.ges-importes .calculado b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+.ges-check { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; user-select: none; }
+.ges-check input { width: 16px; height: 16px; accent-color: var(--accent); }
+.error-formulario { font-size: 13px; color: var(--danger); padding: 10px 14px; border-radius: var(--r-12); background: var(--error-suave); }
+
+/* caja */
+.ges-caja { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+.ges-semanas { display: flex; flex-direction: column; gap: 10px; }
+.ges-semana { display: grid; grid-template-columns: 92px minmax(0, 1fr) 110px; gap: 12px; align-items: center; font-size: 13px; }
+.ges-semana .barras { display: flex; flex-direction: column; gap: 3px; }
+.ges-semana .barra { height: 8px; border-radius: 4px; background: var(--sand-3); position: relative; overflow: hidden; }
+.ges-semana .barra i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--ok); }
+.ges-semana .barra.pago i { background: var(--danger); }
+.ges-semana .saldo { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+.ges-semana .saldo.neg { color: var(--danger); }
+.ges-saldo-inicial { display: flex; align-items: center; gap: 10px; }
+.ges-saldo-inicial input { width: 140px; height: 38px; border-radius: var(--r-14); border: 0; box-shadow: 0 0 0 1px var(--ring); padding: 0 12px; font: inherit; text-align: right; background: var(--paper); color: var(--ink); }
+.ges-saldo-inicial input:focus { outline: 0; box-shadow: inset 0 0 0 1px var(--accent), 0 0 0 4px var(--accent-soft); }
+.ges-mov { display: grid; grid-template-columns: 82px minmax(0, 1fr) 120px; gap: 12px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--ring); font-size: 13px; }
+.ges-mov:last-child { border-bottom: 0; }
+.ges-mov .cuando { color: var(--muted); font-variant-numeric: tabular-nums; }
+.ges-mov .cuando.vencido { color: var(--danger); font-weight: 500; }
+.ges-mov .que b { display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ges-mov .que small { color: var(--texto-3); font-size: 12px; }
+.ges-mov .cuanto { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; }
+.ges-mov .cuanto.neg { color: var(--danger); }
+.ges-mov .cuanto.pos { color: var(--ok); }
+.ges-mov.clicable { cursor: pointer; }
+.ges-mov.clicable:hover .que b { color: var(--bronze-deep); }
+
+/* trimestre */
+.ges-trimestre { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+.ges-selector { display: inline-flex; align-items: center; gap: 4px; background: var(--sand); border-radius: var(--pill); padding: 4px; }
+.ges-selector b { min-width: 92px; text-align: center; font-weight: 500; }
+.ges-selector button { width: 30px; height: 30px; border-radius: 50%; border: 0; background: transparent; display: grid; place-items: center; color: var(--muted); }
+.ges-selector button:hover { background: var(--paper); color: var(--ink); box-shadow: var(--shadow-card); }
+.ges-resultado { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); margin-top: 6px; font-weight: 500; }
+.ges-resultado .valor { font-size: 22px; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.ges-plazo { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--ring); font-size: 13px; }
+.ges-plazo:last-child { border-bottom: 0; }
+.ges-plazo .modelo { font-weight: 600; letter-spacing: -.02em; color: var(--accent-text); font-size: 15px; }
+.ges-plazo .nombre { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ges-plazo .nombre small { display: block; color: var(--texto-3); font-size: 12px; }
+.ges-plazo .cuando { white-space: nowrap; color: var(--muted); font-size: 12px; text-align: right; }
+.ges-plazo .cuando.abierto { color: var(--danger); font-weight: 500; }
+.ges-aviso { font-size: 12.5px; color: var(--muted); line-height: 1.5; padding: 12px 14px; border-radius: var(--r-14); background: var(--sand-2); }
+
+/* documentos */
+.ges-docs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 14px; }
+.ges-doc { padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: box-shadow var(--normal); }
+.ges-doc:hover { box-shadow: var(--shadow-lift); }
+.ges-doc .cima { display: flex; align-items: center; gap: 10px; }
+.ges-doc .cima h3 { font-size: 15.5px; font-weight: 500; letter-spacing: -.01em; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ges-doc .meta { font-size: 12.5px; color: var(--muted); display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.ges-doc .pie { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 6px; }
+.ges-doc.caducado { box-shadow: 0 0 0 1px var(--danger), var(--shadow-2); }
+
+@media (max-width: 1100px) {
+  .ges-caja, .ges-trimestre { grid-template-columns: 1fr; }
+}

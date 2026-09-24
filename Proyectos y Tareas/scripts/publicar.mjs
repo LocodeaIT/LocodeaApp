@@ -52,7 +52,9 @@ log('GitHub')
 correr('git add -A', raiz, 'git add')
 const pendiente = salida('git status --porcelain', raiz)
 if (pendiente) {
-  correr(`git commit -m "${mensaje.replace(/"/g, '\\"')}"`, raiz, 'git commit')
+  // sin shell: el mensaje puede tener varias líneas (cuerpo, Co-Authored-By…)
+  const commit = spawnSync('git', ['commit', '-m', mensaje], { cwd: raiz, stdio: 'inherit' })
+  if (commit.status !== 0) { console.error('\n✖ Falló: git commit. No se ha seguido adelante.'); process.exit(commit.status ?? 1) }
 } else {
   console.log('  (sin cambios que commitear)')
 }

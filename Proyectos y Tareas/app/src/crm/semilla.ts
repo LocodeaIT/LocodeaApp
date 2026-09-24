@@ -5,7 +5,7 @@
  */
 import type {
   ActividadCrm, ColReferente, CondicionPago, Contacto, CrmInstantanea, Cuenta, FacturaCompra, FacturaVenta, LineaDocumento,
-  Nota, Oferta, Oportunidad, PedidoCompra, PedidoVenta, Potencial, Producto,
+  Nota, Oferta, Oportunidad, PedidoCompra, PedidoVenta, Potencial, Producto, RegimenIva,
 } from './types'
 import { PROBABILIDAD_FASE } from './catalogos'
 import { hoy, sumarDias } from '../domain/fechas'
@@ -58,7 +58,8 @@ export function generarSemillaCrm(): CrmInstantanea {
   ] as const).map(([id, nombre, tipo, cif, sector, ciudad, provincia, web, telefono, empleados, propietarioId, alta, condicionesPago]) => ({
     id, no: 'C' + (1000 + Number(id.slice(1))), nombre, tipo, estado: 'activo' as const, cif, sector, ciudad, provincia, pais: 'España',
     direccion: '', cp: '', web, telefono, email: 'info@' + web.split('/')[0], empleados, propietarioId,
-    condicionesPago: condicionesPago as CondicionPago, metodoPago: 'transferencia' as const, iva: 21, iban: '', notas: '', creadoEl: dia(alta),
+    condicionesPago: condicionesPago as CondicionPago, metodoPago: 'transferencia' as const, iva: 21, iban: '',
+    regimenIva: (id === 'a12' ? 'intracomunitario' : 'general') as RegimenIva, notas: '', creadoEl: dia(alta),
   }))
   cuentas[0].notas = 'Prefieren llamadas por la mañana. El contrato de soporte se renueva en marzo.'
   cuentas[2].notas = 'Quieren sustituir sus Excel de inventario por una Power App antes del verano. Piden pago en 3 hitos.'
@@ -170,11 +171,11 @@ export function generarSemillaCrm(): CrmInstantanea {
     { id: 'si1', no: 'FV-26001', cuentaId: 'a1', contactoId: 'c1', pedidoId: 'so1', fecha: soloDia(-27), vencimiento: soloDia(33), estado: 'pagada', pagadaEl: dia(-5), registradaEl: dia(-27), propietarioId: A, lineas: [L('p2', 440), L('p6', 1), L('p8', 2)], condicionesPago: '60' },
     { id: 'si2', no: 'FV-26002', cuentaId: 'a2', contactoId: 'c3', pedidoId: 'so2', fecha: soloDia(-15), vencimiento: soloDia(15), estado: 'registrada', pagadaEl: null, registradaEl: dia(-15), propietarioId: J, lineas: [L('p6', 1)], condicionesPago: '30' },
     { id: 'si3', no: 'FV-26003', cuentaId: 'a5', contactoId: 'c7', pedidoId: 'so3', fecha: soloDia(-99), vencimiento: soloDia(-84), estado: 'pagada', pagadaEl: dia(-80), registradaEl: dia(-99), propietarioId: J, lineas: [L('p4', 180), L('p3', 40)], condicionesPago: '15' },
-    { id: 'si4', no: 'FV-26004', cuentaId: 'a7', contactoId: 'c9', pedidoId: null, fecha: soloDia(-50), vencimiento: soloDia(-20), estado: 'registrada', pagadaEl: null, registradaEl: dia(-50), propietarioId: A, lineas: [L('p2', 96), L('p1', 18)], condicionesPago: '60', referencia: 'App de visitas técnicas' },
+    { id: 'si4', no: 'FV-26004', cuentaId: 'a7', contactoId: 'c9', pedidoId: null, fecha: soloDia(-50), vencimiento: soloDia(-20), estado: 'registrada', pagadaEl: null, registradaEl: dia(-50), propietarioId: A, lineas: [L('p2', 96), L('p1', 18)], condicionesPago: '60', referencia: 'App de visitas técnicas', importeCobrado: 3000 },
     { id: 'si5', no: 'FV-26005', cuentaId: 'a8', contactoId: 'c10', pedidoId: null, fecha: soloDia(-40), vencimiento: soloDia(-10), estado: 'registrada', pagadaEl: null, registradaEl: dia(-40), propietarioId: J, lineas: [L('p2', 32)], condicionesPago: '30', referencia: 'Mejoras en la app de recuento' },
     { id: 'si6', no: 'FV-26006', cuentaId: 'a1', contactoId: 'c1', pedidoId: null, fecha: soloDia(0), vencimiento: soloDia(60), estado: 'borrador', pagadaEl: null, registradaEl: null, propietarioId: A, lineas: [L('p7', 1)], condicionesPago: '60', referencia: 'Soporte · mes en curso' },
     { id: 'si7', no: 'FV-26007', cuentaId: 'a6', contactoId: 'c8', pedidoId: null, fecha: soloDia(-8), vencimiento: soloDia(22), estado: 'registrada', pagadaEl: null, registradaEl: dia(-8), propietarioId: M, lineas: [L('p8', 1)], condicionesPago: '30', referencia: 'Formación en el obrador' },
-  ].map(o => ({ ...doc, ...o } as FacturaVenta))
+  ].map(o => ({ ...doc, importeCobrado: 0, ...o } as FacturaVenta))
 
   const pedidosCompra: PedidoCompra[] = [
     { id: 'po1', no: 'PC-26001', cuentaId: 'a11', contactoId: 'c17', fecha: soloDia(-14), recepcionPrevista: soloDia(-12), estado: 'facturado', propietarioId: A, facturaId: 'pi1', lineas: [LC('p9', 40)], condicionesPago: '30', refProveedor: 'MS-ORD-88123' },
@@ -187,7 +188,7 @@ export function generarSemillaCrm(): CrmInstantanea {
     { id: 'pi2', no: 'FC-26002', cuentaId: 'a12', contactoId: 'c18', pedidoId: null, noProveedor: 'R0012345678', fecha: soloDia(-35), vencimiento: soloDia(-20), estado: 'pagada', registradaEl: dia(-35), pagadaEl: dia(-22), propietarioId: A, lineas: [LC('p11', 3)], condicionesPago: '15' },
     { id: 'pi3', no: 'FC-26003', cuentaId: 'a13', contactoId: 'c19', pedidoId: null, noProveedor: '2026-017', fecha: soloDia(-45), vencimiento: soloDia(-15), estado: 'registrada', registradaEl: dia(-45), pagadaEl: null, propietarioId: M, lineas: [LC('p12', 5)], condicionesPago: '30', referencia: 'Mockups del portal de familias' },
     { id: 'pi4', no: 'FC-26004', cuentaId: 'a11', contactoId: 'c17', pedidoId: null, noProveedor: 'MS-4472311', fecha: soloDia(-2), vencimiento: soloDia(28), estado: 'pendiente', registradaEl: null, pagadaEl: null, propietarioId: A, lineas: [LC('p10', 3)], condicionesPago: '30' },
-  ].map(o => ({ ...doc, ...o } as FacturaCompra))
+  ].map(o => ({ ...doc, importePagado: 0, ...o } as FacturaCompra))
 
   // ─────────────────────────────────────────── actividades
   const todos: Record<ColReferente, { id: string; cuentaId?: string | null }[]> = {
