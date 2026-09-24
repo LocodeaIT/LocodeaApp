@@ -15,7 +15,7 @@
 import type { Instantanea, Nuevo, Repositorio } from './repo'
 import type {
   Actividad, ColumnaLista, EntidadActividad, EstadoObjetivo, EstadoProyecto, EstadoTarea,
-  CanalContenido, Contenido, EstadoContenido, EstadoReunion, FiltrosVista, ItemChecklist, Miembro, Objetivo, Prioridad, Proyecto, Rol,
+  CanalContenido, Contenido, EstadoContenido, EstadoRecursoIA, PlataformaIA, RecursoIA, TipoRecursoIA, EstadoReunion, FiltrosVista, ItemChecklist, Miembro, Objetivo, Prioridad, Proyecto, Rol,
   Reunion, Semana, Tarea, TemaReunion, TipoVista, AgruparPor, OrdenarPor, Vista,
 } from '../domain/types'
 import { FILTROS_VACIOS } from '../domain/types'
@@ -29,6 +29,7 @@ import { Loc_vistasService } from '../generated/services/Loc_vistasService'
 import { Loc_actividadsService } from '../generated/services/Loc_actividadsService'
 import { Loc_reunionsService } from '../generated/services/Loc_reunionsService'
 import { Loc_contenidosService } from '../generated/services/Loc_contenidosService'
+import { Loc_recursoiasService } from '../generated/services/Loc_recursoiasService'
 
 // ─────────────────────────────────────────────── choices
 
@@ -46,6 +47,10 @@ const PRIORIDAD: Record<Prioridad, number> = { alta: 412000050, media: 412000051
 const EST_REUNION: Record<EstadoReunion, number> = { pendiente: 412000060, celebrada: 412000061, cancelada: 412000062 }
 const CANAL: Record<CanalContenido, number> = { youtube: 412000070, linkedin: 412000071, instagram: 412000072, tiktok: 412000073, blog: 412000074, newsletter: 412000075, x: 412000076 }
 const EST_CONTENIDO: Record<EstadoContenido, number> = { idea: 412000080, guion: 412000081, produccion: 412000082, listo: 412000083, publicado: 412000084 }
+// El CRM ocupa del 100 al 222: el tipo va en el hueco del 90 y el resto abre bloque en el 300.
+const TIPO_IA: Record<TipoRecursoIA, number> = { skill: 412000090, agente: 412000091, prompt: 412000092, flujo: 412000093 }
+const PLATAFORMA_IA: Record<PlataformaIA, number> = { claude: 412000300, copilot_studio: 412000301, copilot_m365: 412000302, chatgpt: 412000303, power_automate: 412000304, otra: 412000305 }
+const EST_IA: Record<EstadoRecursoIA, number> = { idea: 412000310, desarrollo: 412000311, uso: 412000312, retirado: 412000313 }
 
 const DE_ROL = inverso(ROL)
 const DE_EST_PROYECTO = inverso(EST_PROYECTO)
@@ -54,6 +59,9 @@ const DE_EST_TAREA = inverso(EST_TAREA)
 const DE_PRIORIDAD = inverso(PRIORIDAD)
 const DE_EST_REUNION = inverso(EST_REUNION)
 const DE_CANAL = inverso(CANAL)
+const DE_TIPO_IA = inverso(TIPO_IA)
+const DE_PLATAFORMA_IA = inverso(PLATAFORMA_IA)
+const DE_EST_IA = inverso(EST_IA)
 const DE_EST_CONTENIDO = inverso(EST_CONTENIDO)
 
 // ─────────────────────────────────────────────── utilidades
@@ -281,6 +289,29 @@ function aContenido(f: Fila): Contenido {
   }
 }
 
+function aRecursoIA(f: Fila): RecursoIA {
+  return {
+    id: f.loc_recursoiaid,
+    nombre: txt(f.loc_nombre),
+    tipo: DE_TIPO_IA[f.loc_tipo] ?? 'skill',
+    plataforma: DE_PLATAFORMA_IA[f.loc_plataforma] ?? 'otra',
+    estado: DE_EST_IA[f.loc_estado] ?? 'idea',
+    descripcion: txt(f.loc_descripcion),
+    comoUsar: txt(f.loc_comousar),
+    enlace: txt(f.loc_enlace),
+    responsableId: f._loc_responsable_value ?? null,
+    proyectoId: f._loc_proyecto_value ?? null,
+    creadoEl: txt(f.createdon),
+  }
+}
+
+const deRecursoIA = (r: Omit<RecursoIA, 'id' | 'creadoEl'>): Payload => ({
+  loc_nombre: r.nombre, loc_tipo: TIPO_IA[r.tipo], loc_plataforma: PLATAFORMA_IA[r.plataforma],
+  loc_estado: EST_IA[r.estado], loc_descripcion: r.descripcion, loc_comousar: r.comoUsar, loc_enlace: r.enlace,
+  'loc_Responsable@odata.bind': ref('loc_miembros', r.responsableId),
+  'loc_Proyecto@odata.bind': ref('loc_proyectos', r.proyectoId),
+})
+
 const deContenido = (c: Omit<Contenido, 'id' | 'creadoEl'>): Payload => ({
   loc_titulo: c.titulo, loc_canal: CANAL[c.canal], loc_estado: EST_CONTENIDO[c.estado],
   loc_fechapublicacion: c.fecha, loc_notas: c.notas, loc_enlace: c.enlace,
@@ -304,7 +335,7 @@ const TOPE = 5000
 
 export const repoDataverse: Repositorio = {
   async cargar(): Promise<Instantanea> {
-    const [miembros, proyectos, semanas, objetivos, tareas, vistas, actividad, reuniones, contenidos] = await Promise.all([
+    const [miembros, proyectos, semanas, objetivos, tareas, vistas, actividad, reuniones, contenidos, recursosIA] = await Promise.all([
       Loc_miembrosService.getAll({ top: TOPE }),
       Loc_proyectosService.getAll({ top: TOPE }),
       Loc_semanasService.getAll({ top: TOPE }),
@@ -314,6 +345,7 @@ export const repoDataverse: Repositorio = {
       Loc_actividadsService.getAll({ top: TOPE }),
       Loc_reunionsService.getAll({ top: TOPE }),
       Loc_contenidosService.getAll({ top: TOPE }),
+      Loc_recursoiasService.getAll({ top: TOPE }),
     ])
     return {
       miembros: lista(miembros).map(aMiembro),
@@ -325,6 +357,7 @@ export const repoDataverse: Repositorio = {
       actividad: lista(actividad).map(aActividad),
       reuniones: lista(reuniones).map(aReunion),
       contenidos: lista(contenidos).map(aContenido),
+      recursosIA: lista(recursosIA).map(aRecursoIA),
     }
   },
 
@@ -429,6 +462,18 @@ export const repoDataverse: Repositorio = {
   },
   async borrarContenido(id) {
     await Loc_contenidosService.delete(id)
+  },
+
+  async crearRecursoIA(r) {
+    const x = await Loc_recursoiasService.create(comoPayload({ ...deRecursoIA(r), statecode: 0 }))
+    return aRecursoIA(dato(x, 'crearRecursoIA'))
+  },
+  async actualizarRecursoIA(r) {
+    await Loc_recursoiasService.update(r.id, comoPayload(deRecursoIA(r)))
+    return r
+  },
+  async borrarRecursoIA(id) {
+    await Loc_recursoiasService.delete(id)
   },
 
   async crearVista(v: Nuevo<Vista>) {

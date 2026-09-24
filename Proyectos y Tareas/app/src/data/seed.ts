@@ -4,7 +4,7 @@
  * un par de semanas cerradas con histórico y tareas con vencimientos vivos.
  */
 import type { Instantanea } from './repo'
-import type { Actividad, Contenido, Miembro, Objetivo, Proyecto, Semana, Tarea, Vista } from '../domain/types'
+import type { Actividad, Contenido, Miembro, Objetivo, Proyecto, RecursoIA, Semana, Tarea, Vista } from '../domain/types'
 import { FILTROS_VACIOS } from '../domain/types'
 import { hoy, lunesDe, sumarDias } from '../domain/fechas'
 
@@ -194,5 +194,28 @@ export function generarSeed(): Instantanea {
     { id: 'c-6', titulo: 'Presentamos Locodea', canal: 'linkedin', estado: 'publicado', fecha: sumarDias(lunes, -9), notas: '', enlace: 'https://www.linkedin.com/company/locodea', responsableId: M.marco, proyectoId: P.interno, creadoEl: iso(s3) },
   ]
 
-  return { miembros, proyectos, semanas, objetivos, tareas, actividad, vistas, reuniones: [], contenidos }
+  // Lo que el propio equipo usa: sirve de ejemplo de cómo rellenar el catálogo.
+  const recursosIA: RecursoIA[] = [
+    { id: 'ia-1', nombre: 'locodea-code-app', tipo: 'skill', plataforma: 'claude', estado: 'uso',
+      descripcion: 'Crea o amplía code apps con el sistema de diseño locodea. y conexión a Dataverse. Aplica las reglas de la casa: desplegables propios, DM Sans empaquetada, publicar dentro de la solución.',
+      comoUsar: 'En Claude Code: «hazme una app de gestión de X» o «añade una pantalla de facturas». Se activa sola.',
+      enlace: '~/.claude/skills/locodea-code-app', responsableId: M.jesus, proyectoId: P.interno, creadoEl: iso(s2) },
+    { id: 'ia-2', nombre: 'locodea (contexto de negocio)', tipo: 'skill', plataforma: 'claude', estado: 'uso',
+      descripcion: 'Propuesta de valor, catálogo, precios y argumentario de Locodea. Para redactar ofertas, posts y mensajes a clientes con la voz de la casa.',
+      comoUsar: 'Mencionar Locodea o «la agencia» en la conversación.',
+      enlace: '~/.claude/skills/locodea', responsableId: M.marco, proyectoId: P.interno, creadoEl: iso(s3) },
+    { id: 'ia-3', nombre: 'Asistente de pedidos del distribuidor', tipo: 'agente', plataforma: 'copilot_studio', estado: 'desarrollo',
+      descripcion: 'Responde en el portal a «¿dónde está mi pedido?» consultando Dataverse, y abre una incidencia si hay retraso.',
+      comoUsar: 'Burbuja de chat en el portal de Power Pages, pestaña Pedidos.',
+      enlace: '', responsableId: M.jesus, proyectoId: P.ortoalresa, creadoEl: iso(s1) },
+    { id: 'ia-4', nombre: 'Resumen de reunión a tareas', tipo: 'flujo', plataforma: 'power_automate', estado: 'idea',
+      descripcion: 'Tras una reunión de Teams, saca las acciones de la transcripción y las crea como tareas en la app.',
+      comoUsar: '', enlace: '', responsableId: M.alejandro, proyectoId: P.interno, creadoEl: iso(s0) },
+    { id: 'ia-5', nombre: 'Guion de vídeo técnico', tipo: 'prompt', plataforma: 'chatgpt', estado: 'uso',
+      descripcion: 'Convierte una demo grabada en guion de YouTube con gancho, pasos y llamada a la acción.',
+      comoUsar: 'Pegar la transcripción de la demo y pedir «guion de 5 minutos para pymes».',
+      enlace: '', responsableId: M.marco, proyectoId: null, creadoEl: iso(s1) },
+  ]
+
+  return { miembros, proyectos, semanas, objetivos, tareas, actividad, vistas, reuniones: [], contenidos, recursosIA }
 }

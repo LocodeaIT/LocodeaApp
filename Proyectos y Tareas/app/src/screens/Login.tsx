@@ -18,7 +18,7 @@ export default function Login() {
       <div className="login-caja">
         <div className="login-logo"><Logo tamano={104} animado /></div>
 
-        <h1 className="login-marca">Locodea<span>App</span></h1>
+        <h1 className="login-marca">locodea<em>.</em><span>App</span></h1>
         <p className="login-lema">Objetivos, tareas y reuniones del equipo</p>
 
         <div className="login-personas">

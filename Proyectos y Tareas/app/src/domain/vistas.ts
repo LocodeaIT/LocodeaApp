@@ -68,7 +68,7 @@ export function agruparTareas(tareas: Tarea[], agrupar: AgruparPor, cat: Catalog
   const base = (clave: string, nombre: string, color: string, cambio: Partial<Tarea>): Grupo => ({ clave, nombre, color, cambio, tareas: [] })
   let grupos: Grupo[]
   switch (agrupar) {
-    case 'ninguno': grupos = [base('todas', 'Todas las tareas', '#0f6cbd', {})]; break
+    case 'ninguno': grupos = [base('todas', 'Todas las tareas', 'var(--bronze)', {})]; break
     case 'estado': grupos = ORDEN_ESTADOS_TAREA.map(e => base(e, ETIQUETA_ESTADO_TAREA[e], COLOR_ESTADO[e], { estado: e })); break
     case 'proyecto': grupos = [...cat.proyectos.filter(p => p.estado !== 'cerrado').map(p => base(p.id, p.nombre, p.color, { proyectoId: p.id })), base('sin', 'Sin proyecto', '#9e9e9e', { proyectoId: null })]; break
     case 'asignado': grupos = [...cat.miembros.filter(m => m.activo).map(m => base(m.id, m.nombre, m.color, { asignadoId: m.id })), base('sin', 'Sin asignar', '#9e9e9e', { asignadoId: null })]; break
@@ -97,8 +97,9 @@ function nombreGrupoSuelto(t: Tarea, agrupar: AgruparPor, cat: Catalogos): strin
   return 'Otro'
 }
 
-export const COLOR_ESTADO: Record<Tarea['estado'], string> = { pendiente: '#8a8a8a', en_curso: '#0f6cbd', bloqueada: '#c50f1f', revision: '#5b5fc7', hecha: '#0e700e' }
-export const COLOR_PRIORIDAD: Record<Tarea['prioridad'], string> = { alta: '#c50f1f', media: '#bc4b09', baja: '#8a8a8a' }
+// Colores del sistema locodea., por token: así siguen al tema y a la marca blanca.
+export const COLOR_ESTADO: Record<Tarea['estado'], string> = { pendiente: 'var(--gris-calido)', en_curso: 'var(--bronze)', bloqueada: 'var(--danger)', revision: 'var(--purple)', hecha: 'var(--ok)' }
+export const COLOR_PRIORIDAD: Record<Tarea['prioridad'], string> = { alta: 'var(--danger)', media: 'var(--warn)', baja: 'var(--gris-calido)' }
 
 export function vistaNueva(tipo: Vista['tipo'], miembroId: string | null): Nuevo<Vista> {
   return {

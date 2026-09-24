@@ -26,6 +26,14 @@ const NAV_CRM: { id: PantallaCrm; nombre: string; icono: LucideIcon; seccion?: s
 ]
 
 /** Secciones del CRM en el menú lateral. Al pulsar se va a la lista (o al inicio) aunque hubiera una ficha abierta. */
+/** Sección y nombre de una pantalla del CRM, para las migas de la barra superior. */
+export function migasCrm(id: string): { seccion: string; nombre: string } | null {
+  const i = NAV_CRM.findIndex(n => n.id === id)
+  if (i < 0) return null
+  const seccion = NAV_CRM.slice(0, i + 1).reverse().find(n => n.seccion)?.seccion ?? 'CRM'
+  return { seccion, nombre: NAV_CRM[i].nombre }
+}
+
 export function NavCrm({ pantallaActiva }: { pantallaActiva: string }) {
   const { datos, irLista, irInicio } = useCrm()
   const vencidas = datos.actividades.filter(actividadVencida).length

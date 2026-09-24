@@ -4,7 +4,7 @@
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Info, Minus, X, User } from 'lucide-react'
+import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Info, Minus, X, User, Users } from 'lucide-react'
 import type { Miembro, Prioridad, Proyecto } from '../domain/types'
 import { ETIQUETA_PRIORIDAD } from '../domain/types'
 import { useApp } from '../store'
@@ -14,7 +14,9 @@ export function Avatar({ miembro, tamano, titulo }: { miembro: Miembro | null | 
   // Sin persona asignada se muestra una silueta tenue: un interrogante sobre
   // un circulo punteado parecia un error de carga.
   if (!miembro) return <span className={`avatar vacio ${tamano ?? ''}`} title={titulo ?? 'Sin asignar'}><User size={13} /></span>
-  return <span className={`avatar ${tamano ?? ''}`} style={{ background: miembro.color }} title={titulo ?? miembro.nombre}>{miembro.iniciales}</span>
+  // Sistema locodea.: iniciales en bronce sobre papel, solo con el anillo. El
+  // color de cada persona se reserva para los datos (barras, gráficos).
+  return <span className={`avatar ${tamano ?? ''}`} title={titulo ?? miembro.nombre}>{miembro.iniciales}</span>
 }
 
 export function ChipProyecto({ proyecto }: { proyecto: Proyecto | null | undefined }) {
@@ -125,9 +127,9 @@ export function FiltroPersonas({ valor, onCambio }: { valor: string | null; onCa
   const { datos } = useApp()
   return (
     <div className="filtro-personas">
-      <span className={`avatar ${valor === null ? 'activo' : ''}`} style={{ background: '#616161' }} onClick={() => onCambio(null)} title="Todos">∗</span>
+      <button className={`avatar ${valor === null ? 'activo' : ''}`} onClick={() => onCambio(null)} title="Todo el equipo" aria-pressed={valor === null}><Users size={14} /></button>
       {datos.miembros.filter(m => m.activo).map(m => (
-        <span key={m.id} className={`avatar ${valor === m.id ? 'activo' : ''}`} style={{ background: m.color }} onClick={() => onCambio(valor === m.id ? null : m.id)} title={m.nombre}>{m.iniciales}</span>
+        <button key={m.id} className={`avatar ${valor === m.id ? 'activo' : ''}`} onClick={() => onCambio(valor === m.id ? null : m.id)} title={m.nombre} aria-pressed={valor === m.id}>{m.iniciales}</button>
       ))}
     </div>
   )
@@ -151,7 +153,7 @@ export function SelectMiembro({ valor, onCambio, conNadie = true, textoNadie = '
   const { datos } = useApp()
   const opciones: Opcion<string>[] = [
     ...(conNadie ? [{ valor: '', etiqueta: textoNadie, icono: <Avatar miembro={null} tamano="pequeno" /> }] : []),
-    ...datos.miembros.filter(m => m.activo || m.id === valor).map(m => ({ valor: m.id, etiqueta: m.nombre, icono: <span className="avatar pequeno" style={{ background: m.color }}>{m.iniciales}</span> })),
+    ...datos.miembros.filter(m => m.activo || m.id === valor).map(m => ({ valor: m.id, etiqueta: m.nombre, icono: <Avatar miembro={m} tamano="pequeno" /> })),
   ]
   return <Select valor={valor ?? ''} opciones={opciones} onCambio={v => onCambio(v || null)} sutil={sutil} pequeno={pequeno} ancho={ancho} />
 }
@@ -165,4 +167,49 @@ export function SelectProyecto({ valor, onCambio, textoNinguno = 'Sin proyecto',
   return <Select valor={valor ?? ''} opciones={opciones} onCambio={v => onCambio(v || null)} sutil={sutil} pequeno={pequeno} ancho={ancho} />
 }
 
-export const COLORES = ['#0F6CBD', '#C239B3', '#0E7C5B', '#D13438', '#CA5010', '#5B5FC7', '#038387', '#8764B8', '#6B6B6B', '#986F0B']
+/** Colores para proyectos y personas: la paleta de datos validada del CRM
+ *  (orden seguro para daltonismo), empezando en bronce. Van en hex porque
+ *  se guardan en Dataverse como dato. */
+export const COLORES = ['#ad6a33', '#2a78d6', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#4a3aa7', '#e34948', '#8e5e34', '#6b6b6b']
+
+// ─────────────────────────────────────────────── confirmar
+
+/*
+ * Sustituye a window.confirm, que en una Code App sale con el aspecto del
+ * sistema operativo y no con el de la app. Es una promesa: `if (await
+ * confirmar('¿Borrar…?', { peligro: true })) …`. Mismo contrato que en
+ * Formación, sin la animación de `motion`, que esta app no usa.
+ */
+interface PeticionConfirmar {
+  titulo: string
+  texto?: string
+  aceptar?: string
+  peligro?: boolean
+  resolver: (ok: boolean) => void
+}
+let abrirConfirmar: ((p: PeticionConfirmar) => void) | null = null
+
+export function confirmar(titulo: string, opciones: { texto?: string; aceptar?: string; peligro?: boolean } = {}): Promise<boolean> {
+  return new Promise(resolver => {
+    if (abrirConfirmar) abrirConfirmar({ titulo, ...opciones, resolver })
+    else resolver(false)  // sin <Confirmador/> montado no se borra nada por las buenas
+  })
+}
+
+export function Confirmador() {
+  const [p, setP] = useState<PeticionConfirmar | null>(null)
+  useEffect(() => {
+    abrirConfirmar = setP
+    return () => { abrirConfirmar = null }
+  }, [])
+  if (!p) return null
+  const cerrar = (ok: boolean) => { p.resolver(ok); setP(null) }
+  return (
+    <Modal titulo={p.titulo} onCerrar={() => cerrar(false)} pie={<>
+      <button className="btn" onClick={() => cerrar(false)}>Cancelar</button>
+      <button className={`btn ${p.peligro ? 'peligro lleno' : 'primario'}`} autoFocus onClick={() => cerrar(true)}>{p.aceptar ?? 'Aceptar'}</button>
+    </>}>
+      {p.texto && <p className="ayuda-confirmar">{p.texto}</p>}
+    </Modal>
+  )
+}

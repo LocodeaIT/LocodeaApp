@@ -28,7 +28,7 @@ export default function Informes(_: { abrirTarea: (id: string) => void }) {
   return (
     <div className="pagina">
       <div className="titulo-pagina no-imprimir">
-        <div><h1>Informes</h1><div className="sub">Elige el informe, revísalo y guárdalo en PDF con el botón de imprimir (destino «Guardar como PDF»).</div></div>
+        <div><h1>Informes.</h1><div className="sub">Elige el informe, revísalo y guárdalo en PDF con el botón de imprimir (destino «Guardar como PDF»).</div></div>
         <div className="acciones">
           <button className="btn primario" onClick={() => window.print()}><Printer size={15} /> Imprimir / Guardar PDF</button>
         </div>

@@ -8,7 +8,7 @@
  * El esquema se crea con los scripts de despliegue; el modelo de dominio que
  * esas tablas reflejan esta en ../domain/types.ts.
  */
-import type { Actividad, Contenido, Miembro, Objetivo, Proyecto, Reunion, Semana, Tarea, Vista } from '../domain/types'
+import type { Actividad, Contenido, Miembro, Objetivo, Proyecto, RecursoIA, Reunion, Semana, Tarea, Vista } from '../domain/types'
 
 export interface Instantanea {
   miembros: Miembro[]
@@ -20,6 +20,7 @@ export interface Instantanea {
   vistas: Vista[]
   reuniones: Reunion[]
   contenidos: Contenido[]
+  recursosIA: RecursoIA[]
 }
 
 export type Nuevo<T> = Omit<T, 'id' | 'creadoEl'>
@@ -59,6 +60,10 @@ export interface Repositorio {
   crearContenido(c: Nuevo<Contenido>): Promise<Contenido>
   actualizarContenido(c: Contenido): Promise<Contenido>
   borrarContenido(id: string): Promise<void>
+
+  crearRecursoIA(r: Nuevo<RecursoIA>): Promise<RecursoIA>
+  actualizarRecursoIA(r: RecursoIA): Promise<RecursoIA>
+  borrarRecursoIA(id: string): Promise<void>
 
   crearVista(v: Nuevo<Vista>): Promise<Vista>
   actualizarVista(v: Vista): Promise<Vista>

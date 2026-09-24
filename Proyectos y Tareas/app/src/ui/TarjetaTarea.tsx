@@ -25,7 +25,7 @@ export function TarjetaTarea({ tarea: t, arrastrando, overlay, onAlternar }: { t
           <span className={`check ${t.estado === 'hecha' ? 'hecho' : ''}`} title={t.estado === 'hecha' ? 'Marcar como pendiente' : 'Marcar como hecha'}
             onPointerDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); onAlternar() }}><Check size={11} strokeWidth={3} /></span>
         )}
-        <div className="titulo">{t.importante && <Star size={12} fill="#0f6cbd" stroke="#0f6cbd" style={{ marginRight: 4, verticalAlign: -1 }} />}{t.titulo}</div>
+        <div className="titulo">{t.importante && <Star size={12} fill="var(--bronze)" stroke="var(--bronze)" style={{ marginRight: 4, verticalAlign: -1 }} />}{t.titulo}</div>
       </div>
       {o && <span className="objetivo-link" title={o.titulo}><Target size={11} />{o.titulo}</span>}
       {t.etiquetas.length > 0 && <div className="etiquetas">{t.etiquetas.map(e => <span key={e} className="chip pequeno acento">{e}</span>)}</div>}

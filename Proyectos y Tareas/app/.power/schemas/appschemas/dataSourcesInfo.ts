@@ -19,17 +19,17 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
-  "loc_contenidos": {
-    "tableId": "",
-    "version": "",
-    "primaryKey": "loc_contenidoid",
-    "dataSourceType": "Dataverse",
-    "apis": {}
-  },
   "loc_contactos": {
     "tableId": "",
     "version": "",
     "primaryKey": "loc_contactoid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_contenidos": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_contenidoid",
     "dataSourceType": "Dataverse",
     "apis": {}
   },
@@ -128,6 +128,13 @@ export const dataSourcesInfo = {
     "tableId": "",
     "version": "",
     "primaryKey": "loc_proyectoid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_recursoias": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_recursoiaid",
     "dataSourceType": "Dataverse",
     "apis": {}
   },

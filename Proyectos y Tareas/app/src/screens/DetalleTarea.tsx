@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Check, CornerLeftUp, GitBranch, MessageSquare, Plus, Send, Star, Sun, Trash2, X } from 'lucide-react'
 import { useApp } from '../store'
-import { Avatar, Panel, SelectMiembro, SelectProyecto } from '../ui/basicos'
+import { Avatar, Panel, SelectMiembro, SelectProyecto, confirmar } from '../ui/basicos'
 import { Select } from '../ui/Select'
 import { ModalTarea, OPCIONES_PRIORIDAD } from './Modales'
 import type { EstadoTarea, Tarea } from '../domain/types'
@@ -163,7 +163,7 @@ export function DetalleTarea({ id, onCerrar, onAbrirOtra }: { id: string; onCerr
 
       <div style={{ marginTop: 'auto', paddingTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: 12, color: 'var(--texto-3)' }}>Creada por {miembro(t.creadoPorId)?.nombre ?? '—'} · {fechaHora(t.creadoEl)}</span>
-        <button className="btn peligro pequeno" onClick={() => { if (confirm(subtareas.length ? `¿Borrar esta tarea y sus ${subtareas.length} subtareas?` : '¿Borrar esta tarea?')) { void borrarTarea(t.id); onCerrar() } }}><Trash2 size={13} /> Borrar</button>
+        <button className="btn peligro pequeno" onClick={async () => { if (await confirmar(subtareas.length ? `¿Borrar esta tarea y sus ${subtareas.length} subtareas?` : '¿Borrar esta tarea?', { aceptar: 'Borrar', peligro: true })) { void borrarTarea(t.id); onCerrar() } }}><Trash2 size={13} /> Borrar</button>
       </div>
       {nuevaSub && <ModalTarea inicial={{ padreId: t.id, proyectoId: t.proyectoId, asignadoId: t.asignadoId ?? undefined, objetivoId: t.objetivoId, vence: t.vence }} onCerrar={() => setNuevaSub(false)} />}
     </Panel>

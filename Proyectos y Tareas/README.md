@@ -15,21 +15,39 @@ Es el primer módulo de la [aplicación interna de Locodea](../README.md).
 
 ## Diseño
 
-La app usa el sistema **Locodea Bronce**. Los tokens están en `app/src/bronce.css`
-(papel, tinta, bronce, arena; DM Sans; radios 8/12/20/24/32; anillos de 1 px).
-Es la única capa que hay que tocar si el sistema cambia.
+La app usa el sistema de diseño **«locodea.»** (paleta Bronce), el mismo que las
+code apps CRM, Formación y Almacén: papel, tinta, bronce y arena; DM Sans con
+negritas en 500; muy redondo y con un anillo de 1 px en lugar de bordes. Por
+tener muchas secciones sigue el esqueleto del CRM: **barra lateral en arena a
+toda altura** con la marca arriba y la persona abajo, y **barra superior clara**
+con migas y buscador en píldora.
 
-Para ver los componentes sin conectar con Dataverse, con `VITE_DEMO=1 npm run dev` abre
-`http://localhost:3000/bronce-muestra.html`.
+Está en tres capas, de abajo arriba:
 
-Tres reglas del sistema que conviene respetar al añadir pantallas:
+| Archivo | Qué tiene |
+|---|---|
+| `app/src/bronce.css` | Los **valores** del sistema (tokens). Es lo único que se toca si el sistema cambia |
+| `app/src/index.css` | Alias en español (`--texto-2`, `--acento`…) que usan las pantallas, el esqueleto y los componentes base |
+| `app/src/sistema.css` | La capa de componentes del sistema; se carga la última y manda sobre el resto |
 
-- El **anillo de 1 px** (`box-shadow: 0 0 0 1px var(--ring)`) sustituye al borde duro.
-- Las **sombras van tintadas** con la tinta, nunca negro puro.
-- La jerarquía se marca con **opacidad de tinta** (`--ink-65`, `--ink-40`…) y peso 500,
-  no con colores distintos ni negritas.
+Reglas que no se negocian (vienen de la skill `locodea-code-app`):
 
-No escribas colores a mano: rompen el modo oscuro, que viene incluido.
+- **Colores solo por token.** Nada de hex en pantallas, salvo colores de datos
+  (proyecto, persona, canal) que se guardan en Dataverse.
+- **Bronce medido.** Botón principal en tinta (`.btn.primario`); el bronce
+  (`.btn.acento`) solo para *la* acción de la pantalla. El texto en bronce va
+  siempre en `--accent-text` (#8A5A30), nunca en #B07A4A sobre blanco.
+- **Personas con sus iniciales en bronce**, sin círculo de color: el color de
+  cada persona se reserva para barras y gráficos.
+- **Desplegables propios** (`ui/Select.tsx`), nunca `<select>`; y para
+  confirmar, `confirmar()` de `ui/basicos.tsx`, nunca `window.confirm`.
+- **DM Sans empaquetada** con `@fontsource/dm-sans`: la política de seguridad de
+  las Code Apps bloquea Google Fonts una vez publicada la app.
+- **Titulares de una frase con punto final** («Contenido.»), sin emojis.
+
+Ojo con un nombre heredado: en esta app `--accent-ink` significa «texto blanco
+sobre bronce» (el CRM lo usa así), al revés que en el sistema. Los nombres del
+sistema son `--on-accent` y `--accent-text`.
 
 ## Desarrollo
 
@@ -55,11 +73,14 @@ npx --no-install pa app push --non-interactive --solution-id fad88cef-0fb4-f111-
 | **Inicio** | «En qué centrarte hoy» (recomendaciones calculadas: vencidas, bloqueadas, objetivos por revisar o sin tareas…), resumen en texto, KPIs, objetivos propios con avance, carga del equipo, gráficos. |
 | **Mi día** (pop-up abajo a la derecha) | To Do personal estilo Microsoft To Do: Mi día, Importante, Planificado, Mis tareas, Personales. Alta rápida, reordenar arrastrando. |
 | **Informes** | Informe semanal, de proyecto y de rendimiento del equipo. Botón *Imprimir / Guardar PDF* (solo se imprime el informe, en A4). |
-| **Objetivos semanales** | Una columna por persona. Ciclo: planificación → propuesta → aprobada → cerrada. Los revisa Jesús (el revisor) y solo él aprueba la semana. Al cerrar, cada objetivo queda cumplido / no cumplido. Arrastrar para reordenar o reasignar. |
-| **Tareas** | Cualquier tarea se marca como hecha con su casilla, sin abrirla. Vistas guardadas (personales o del equipo) de cuatro tipos: **Tablero** Kanban, **Lista** con columnas configurables y edición en línea, **Calendario** de vencimientos y **Gantt** editable (mover y estirar barras). Filtros, agrupación y orden por vista. Subtareas. |
+| **Objetivos semanales** | Una columna por persona y una **General** para lo que es del equipo entero, todas en una fila. Sin ceremonia: cualquiera apunta objetivos, suyos o de otro, y se marcan con su casilla. Desde cada objetivo se añaden tareas escribiendo y con Enter. Arrastrar para reordenar o pasar de columna. |
+| **Tareas** | Alta rápida: se escribe el título y con Enter la tarea existe (el formulario completo, en «Más opciones»). Cualquier tarea se marca como hecha con su casilla, sin abrirla. Vistas guardadas (personales o del equipo) de cuatro tipos: **Tablero** Kanban, **Lista** con columnas configurables y edición en línea, **Calendario** de vencimientos y **Gantt** editable (mover y estirar barras). Filtros, agrupación y orden por vista. Subtareas. |
 | **Proyectos** | Tarjetas con salud del proyecto (tareas completadas sobre el total y tareas vencidas) y detalle con sus tareas y objetivos. |
 | **Análisis** | Cumplimiento por persona y semana, tareas completadas por semana, histórico de semanas, carga actual, salud de proyectos. |
-| **Equipo** | Marco, Jesús y Alejandro: rol, color y quién es el revisor de objetivos. |
+| **Skills y agentes de IA** | Catálogo de lo que el equipo ha montado con IA (skills de Claude, agentes de Copilot Studio, prompts, flujos): qué hace, **cómo se usa**, dónde vive y quién lo lleva. Filtro por estado y plataforma, búsqueda, y el enlace se abre (URL) o se copia (ruta). Tabla `loc_recursoia`. |
+| **Reuniones** | Reuniones con su orden del día; cada tema se marca tratado o aplazado y los pendientes pasan a la siguiente reunión con un botón. Se sincronizan con el calendario de Outlook. |
+| **Contenido** | Calendario de redes sociales (YouTube, LinkedIn, Instagram, TikTok, blog, newsletter, X), agrupado por cuándo se publica. Alta rápida con canal y fecha; el estado avanza con un clic. Tabla `loc_contenido`. |
+| **Equipo** | Las personas del equipo: rol y color (el color se usa en los gráficos). |
 | **CRM** (secciones CRM, Ventas, Compras y Catálogo del menú) | Inicio con indicadores, pipeline y facturación; listas con vistas, filtros, orden, borrado en lote y exportación a Excel; fichas con pestañas, paneles laterales y flujo Calificar → Desarrollar → Proponer → Cerrar. Cadena oportunidad → oferta → pedido → factura (imprimible como documento), compras y actividades «referentes a» cualquier registro. Avisos de vencidos, enlaces directos y botón Atrás (`#crm/…`) y copia de seguridad JSON en el inicio del CRM. Guarda en sus 13 tablas de Dataverse (ver abajo); con `VITE_DEMO=1` usa datos de ejemplo en el navegador. La factura oficial (Verifactu/SII) sigue en el ERP. |
 
 ### Tablas del CRM

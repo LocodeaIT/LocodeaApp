@@ -29,7 +29,7 @@ export default function Proyectos({ abrirTarea }: { abrirTarea: (id: string) => 
   return (
     <div className="pagina">
       <div className="titulo-pagina">
-        <div><h1>Proyectos</h1><div className="sub">Lo que tenemos entre manos, por cliente</div></div>
+        <div><h1>Proyectos.</h1><div className="sub">Lo que tenemos entre manos, por cliente</div></div>
         <div className="acciones">
           <div className="selector">
             {(['activo', 'pausado', 'cerrado', 'todos'] as const).map(f => <button key={f} className={filtro === f ? 'activo' : ''} onClick={() => setFiltro(f)}>{f === 'todos' ? 'Todos' : ETIQUETA_ESTADO_PROYECTO[f]}</button>)}
@@ -83,7 +83,7 @@ function DetalleProyecto({ proyecto: p, onVolver, onEditar, abrirTarea, editar, 
       <button className="btn sutil" onClick={onVolver} style={{ marginBottom: 12 }}><ArrowLeft size={15} /> Proyectos</button>
       <div className="titulo-pagina">
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <span style={{ width: 44, height: 44, borderRadius: 12, background: p.color, display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 800, fontSize: 18 }}>{p.nombre.slice(0, 1)}</span>
+          <span style={{ width: 44, height: 44, borderRadius: 12, background: p.color, display: 'grid', placeItems: 'center', color: 'var(--on-accent)', fontWeight: 500, fontSize: 18 }}>{p.nombre.slice(0, 1)}</span>
           <div><h1>{p.nombre}</h1><div className="sub">{p.cliente} · {ETIQUETA_ESTADO_PROYECTO[p.estado]} · responsable {miembro(p.responsableId)?.nombre ?? '—'}</div></div>
         </div>
         <div className="acciones">

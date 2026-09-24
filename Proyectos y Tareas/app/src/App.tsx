@@ -1,15 +1,16 @@
 import { useMemo, useState, lazy, Suspense } from 'react'
 import {
-  BarChart3, CalendarDays, Check, ChevronsLeft, ChevronsRight, FileText, FolderKanban, Home, KanbanSquare, LogOut, Megaphone, RefreshCw, Search, Target, Users,
+  BarChart3, Bot, CalendarDays, Check, ChevronRight, ChevronsUpDown, FileText, FolderKanban, Home, KanbanSquare, LogOut, Megaphone,
+  PanelLeftClose, PanelLeftOpen, RefreshCw, Search, Target, Users,
 } from 'lucide-react'
 import { useApp, type Pantalla } from './store'
-import { Avatar, Avisos, Desplegable } from './ui/basicos'
-import { Logo } from './ui/Logo'
+import { Avatar, Avisos, Confirmador, Desplegable } from './ui/basicos'
+import { Logo, Wordmark } from './ui/Logo'
 import { esVencida, lunesDe, hoy } from './domain/fechas'
 import { useCrm } from './crm/contexto'
 import { esPantallaCrm } from './crm/navegacion'
 import { buscarEnCrm } from './crm/busqueda'
-import { NavCrm, ResultadosCrm } from './crm/NavCrm'
+import { NavCrm, ResultadosCrm, migasCrm } from './crm/NavCrm'
 // Carga diferida: cada pantalla es su propio paquete, asi el arranque no
 // arrastra los graficos ni las vistas que todavia no se han abierto.
 const Inicio = lazy(() => import('./screens/Inicio'))
@@ -22,6 +23,7 @@ const Equipo = lazy(() => import('./screens/Equipo'))
 const Reuniones = lazy(() => import('./screens/Reuniones'))
 const PantallaCrm = lazy(() => import('./crm/screens/PantallaCrm'))
 const Contenido = lazy(() => import('./screens/Contenido'))
+const SkillsIA = lazy(() => import('./screens/SkillsIA'))
 import Login from './screens/Login'
 import { DetalleTarea } from './screens/DetalleTarea'
 import { MiDiaFlotante } from './screens/MiDia'
@@ -31,6 +33,7 @@ const NAV: { id: Pantalla; nombre: string; icono: typeof Home; seccion?: string 
   { id: 'objetivos', nombre: 'Objetivos semanales', icono: Target, seccion: 'Equipo' },
   { id: 'tareas', nombre: 'Tareas', icono: KanbanSquare },
   { id: 'proyectos', nombre: 'Proyectos', icono: FolderKanban },
+  { id: 'skills', nombre: 'Skills y agentes de IA', icono: Bot },
   { id: 'reuniones', nombre: 'Reuniones', icono: CalendarDays, seccion: 'Seguimiento' },
   { id: 'contenido', nombre: 'Contenido', icono: Megaphone },
   { id: 'analisis', nombre: 'Análisis', icono: BarChart3 },
@@ -62,41 +65,20 @@ export default function App() {
   if (!yo) return <Login />
 
   const pantallaActiva: Pantalla = pantalla === 'midia' ? 'inicio' : pantalla
-  const Pantalla = esPantallaCrm(pantallaActiva) ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, contenido: Contenido, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
+  const Pantalla = esPantallaCrm(pantallaActiva) ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, contenido: Contenido, skills: SkillsIA, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
+  const migas = migasDe(pantallaActiva)
 
   return (
-    <div className={`app ${colapsada ? 'colapsada' : ''}`}>
-      <header className="cabecera no-imprimir">
-        <div className="marca">
-          <button className="btn sutil icono" onClick={() => setColapsada(c => !c)} aria-label="Plegar menú">{colapsada ? <ChevronsRight size={18} /> : <ChevronsLeft size={18} />}</button>
-          <Logo tamano={30} /><b>Locodea</b><small>App</small>
-        </div>
-        <div className="buscador">
-          <Search size={16} />
-          <input placeholder="Buscar tareas, objetivos, proyectos…" value={busqueda} onChange={e => setBusqueda(e.target.value)} />
-          {busqueda.trim() && <ResultadosBusqueda texto={busqueda} onAbrirTarea={id => { setTareaAbierta(id); setBusqueda('') }} onIr={p => { setPantalla(p); setBusqueda('') }} />}
-        </div>
-        <div className="derecha">
-          <Desplegable abierto={menu} setAbierto={setMenu} boton={
-            <button className="boton-usuario" onClick={() => setMenu(m => !m)}>
-              <Avatar miembro={yo} />
-              <span><span className="nombre">{yo.nombre}</span><span className="rol">{yo.rol === 'socio' ? 'Socio' : 'Colaborador'}</span></span>
-            </button>
-          }>
-            <div className="cabecera-menu">Cambiar de usuario</div>
-            {datos.miembros.filter(m => m.activo).map(m => (
-              <button key={m.id} className={`item ${m.id === yo.id ? 'activo' : ''}`} onClick={() => { entrarComo(m.id); setMenu(false) }}>
-                <Avatar miembro={m} tamano="pequeno" /><span style={{ flex: 1 }}>{m.nombre}</span>{m.id === yo.id && <Check size={14} />}
-              </button>
-            ))}
-            <hr />
-            <button className="item" onClick={() => { void recargar(); setMenu(false) }}><RefreshCw size={14} /> Recargar datos</button>
-            <button className="item" onClick={() => { setMenu(false); salir() }}><LogOut size={14} /> Cerrar sesión</button>
-          </Desplegable>
-        </div>
-      </header>
-
+    <div className={`app ${colapsada ? 'plegada' : ''}`}>
       <aside className="lateral no-imprimir">
+        <div className="lateral-marca">
+          <button className="marca-boton" onClick={() => setPantalla('inicio')} title="Ir al inicio">
+            <Wordmark producto="App" />
+            {/* con el menú plegado no cabe la palabra: va el símbolo, como en los sitios cuadrados */}
+            <Logo tamano={30} className="marca-simbolo" />
+          </button>
+        </div>
+
         <nav className="nav">
           {NAV.map(n => (
             <div key={n.id}>
@@ -109,19 +91,67 @@ export default function App() {
           ))}
           <NavCrm pantallaActiva={pantallaActiva} />
         </nav>
+
+        <div className="lateral-pie">
+          <Desplegable abierto={menu} setAbierto={setMenu} boton={
+            <button className="yo" onClick={() => setMenu(m => !m)} title="Cambiar de usuario o cerrar sesión">
+              <Avatar miembro={yo} />
+              <div className="yo-texto"><div className="yo-nombre">{yo.nombre}</div><div className="yo-cargo">{yo.rol === 'socio' ? 'Socio' : 'Colaborador'}</div></div>
+              <ChevronsUpDown size={15} className="yo-chev" />
+            </button>
+          }>
+            <div className="cabecera-menu">Cambiar de usuario</div>
+            {datos.miembros.filter(m => m.activo).map(m => (
+              <button key={m.id} className={`item ${m.id === yo.id ? 'activo' : ''}`} onClick={() => { entrarComo(m.id); setMenu(false) }}>
+                <Avatar miembro={m} tamano="pequeno" /><span style={{ flex: 1 }}>{m.nombre}</span>{m.id === yo.id && <Check size={14} />}
+              </button>
+            ))}
+            <hr />
+            <button className="item" onClick={() => { void recargar(); setMenu(false) }}><RefreshCw size={14} /> Recargar datos</button>
+            <button className="item" onClick={() => { setMenu(false); salir() }}><LogOut size={14} /> Cerrar sesión</button>
+          </Desplegable>
+          <button className="nav-item plegar" onClick={() => setColapsada(c => !c)} title={colapsada ? 'Desplegar menú' : 'Plegar menú'}>
+            {colapsada ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}<span>Plegar menú</span>
+          </button>
+        </div>
       </aside>
 
-      <main className="contenido" key={pantallaActiva}>
-        <Suspense fallback={<div className="carga"><div className="spinner" /></div>}>
-        {Pantalla ? <Pantalla abrirTarea={setTareaAbierta} /> : <PantallaCrm />}
-      </Suspense>
-      </main>
+      <div className="principal">
+        <header className="cabecera no-imprimir">
+          <nav className="migas" aria-label="Estás en">
+            {migas.seccion && <><span>{migas.seccion}</span><ChevronRight size={14} /></>}
+            <b>{migas.nombre}</b>
+          </nav>
+          <div className="buscador">
+            <Search size={16} />
+            <input placeholder="Buscar tareas, objetivos, proyectos…" value={busqueda} onChange={e => setBusqueda(e.target.value)} />
+            {busqueda.trim() && <ResultadosBusqueda texto={busqueda} onAbrirTarea={id => { setTareaAbierta(id); setBusqueda('') }} onIr={p => { setPantalla(p); setBusqueda('') }} />}
+          </div>
+        </header>
+
+        <main className="contenido" key={pantallaActiva}>
+          <Suspense fallback={<div className="carga"><div className="spinner" /></div>}>
+            {Pantalla ? <Pantalla abrirTarea={setTareaAbierta} /> : <PantallaCrm />}
+          </Suspense>
+        </main>
+      </div>
 
       <MiDiaFlotante abrirTarea={setTareaAbierta} />
       {tareaAbierta && <DetalleTarea id={tareaAbierta} onCerrar={() => setTareaAbierta(null)} onAbrirOtra={setTareaAbierta} />}
       <Avisos />
+      <Confirmador />
     </div>
   )
+}
+
+/** Sección y nombre de la pantalla activa, para las migas de la barra superior. */
+function migasDe(id: Pantalla): { seccion?: string; nombre: string } {
+  const crm = migasCrm(id)
+  if (crm) return crm
+  const i = NAV.findIndex(n => n.id === id)
+  if (i < 0) return { nombre: 'Inicio' }
+  const seccion = NAV.slice(0, i + 1).reverse().find(n => n.seccion)?.seccion
+  return { seccion, nombre: NAV[i].nombre }
 }
 
 function ResultadosBusqueda({ texto, onAbrirTarea, onIr }: { texto: string; onAbrirTarea: (id: string) => void; onIr: (p: Pantalla) => void }) {

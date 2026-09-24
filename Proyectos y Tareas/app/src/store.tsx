@@ -7,14 +7,14 @@ import {
 } from 'react'
 import type { Instantanea, Nuevo, Repositorio } from './data/repo'
 import type {
-  Actividad, Contenido, EntidadActividad, Miembro, Objetivo, Proyecto, Reunion, Semana, Tarea, Vista,
+  Actividad, Contenido, EntidadActividad, RecursoIA, Miembro, Objetivo, Proyecto, Reunion, Semana, Tarea, Vista,
 } from './domain/types'
 import { ETIQUETA_ESTADO_TAREA } from './domain/types'
 import { crearEvento, actualizarEvento, borrarEvento } from './data/calendario'
 import { ahoraIso, hoy, lunesDe } from './domain/fechas'
 import { PANTALLAS_CRM, type PantallaCrm } from './crm/navegacion'
 
-export type Pantalla = 'inicio' | 'objetivos' | 'tareas' | 'midia' | 'reuniones' | 'contenido' | 'proyectos' | 'analisis' | 'informes' | 'equipo' | PantallaCrm
+export type Pantalla = 'inicio' | 'objetivos' | 'tareas' | 'midia' | 'reuniones' | 'contenido' | 'skills' | 'proyectos' | 'analisis' | 'informes' | 'equipo' | PantallaCrm
 
 export interface Aviso {
   id: number
@@ -22,9 +22,9 @@ export interface Aviso {
   tono: 'ok' | 'error' | 'info'
 }
 
-const VACIO: Instantanea = { miembros: [], proyectos: [], semanas: [], objetivos: [], tareas: [], actividad: [], vistas: [], reuniones: [], contenidos: [] }
+const VACIO: Instantanea = { miembros: [], proyectos: [], semanas: [], objetivos: [], tareas: [], actividad: [], vistas: [], reuniones: [], contenidos: [], recursosIA: [] }
 
-const PANTALLAS: Pantalla[] = ['inicio', 'objetivos', 'tareas', 'reuniones', 'contenido', 'proyectos', 'analisis', 'informes', 'equipo', ...PANTALLAS_CRM]
+const PANTALLAS: Pantalla[] = ['inicio', 'objetivos', 'tareas', 'reuniones', 'contenido', 'skills', 'proyectos', 'analisis', 'informes', 'equipo', ...PANTALLAS_CRM]
 
 const CLAVE_YO = 'locodea.yo'
 const CLAVE_PANTALLA = 'locodea.pantalla'
@@ -88,6 +88,11 @@ interface Ctx {
   guardarContenido: (c: Contenido | Nuevo<Contenido>) => Promise<Contenido>
   borrarContenido: (id: string) => Promise<void>
   contenidoBase: (parcial?: Partial<Contenido>) => Nuevo<Contenido>
+
+  // skills y agentes de IA
+  guardarRecursoIA: (r: RecursoIA | Nuevo<RecursoIA>) => Promise<RecursoIA>
+  borrarRecursoIA: (id: string) => Promise<void>
+  recursoIABase: (parcial?: Partial<RecursoIA>) => Nuevo<RecursoIA>
 
   guardarVista: (v: Vista | Nuevo<Vista>) => Promise<Vista>
   borrarVista: (id: string) => Promise<void>
@@ -390,6 +395,28 @@ export function Proveedor({ repo, children }: { repo: Repositorio; children: Rea
     ...parcial,
   }), [yo])
 
+  const guardarRecursoIA = useCallback(async (r: RecursoIA | Nuevo<RecursoIA>) => {
+    if ('id' in r) {
+      return ejecutar(() => repo.actualizarRecursoIA(r),
+        (d, x) => ({ ...d, recursosIA: d.recursosIA.map(y => (y.id === x.id ? x : y)) }), 'No se pudo guardar')
+    }
+    return ejecutar(() => repo.crearRecursoIA(r),
+      (d, x) => ({ ...d, recursosIA: [...d.recursosIA, x] }), 'No se pudo añadir al catálogo')
+  }, [ejecutar, repo])
+
+  const borrarRecursoIA = useCallback(async (id: string) => {
+    await ejecutar(() => repo.borrarRecursoIA(id),
+      d => ({ ...d, recursosIA: d.recursosIA.filter(x => x.id !== id) }), 'No se pudo borrar')
+    avisar('Quitado del catálogo')
+  }, [ejecutar, repo, avisar])
+
+  const recursoIABase = useCallback((parcial: Partial<RecursoIA> = {}): Nuevo<RecursoIA> => ({
+    nombre: '', tipo: 'skill', plataforma: 'claude', estado: 'idea',
+    descripcion: '', comoUsar: '', enlace: '',
+    responsableId: yo?.id ?? null, proyectoId: null,
+    ...parcial,
+  }), [yo])
+
   const guardarVista = useCallback(async (v: Vista | Nuevo<Vista>) => {
     let r: Vista
     if ('id' in v) {
@@ -417,6 +444,7 @@ export function Proveedor({ repo, children }: { repo: Repositorio; children: Rea
     tareaBase, subtareasDe, guardarVista, borrarVista,
     guardarReunion, borrarReunion, reunionBase,
     guardarContenido, borrarContenido, contenidoBase,
+    guardarRecursoIA, borrarRecursoIA, recursoIABase,
     comentar, recargar,
   }), [
     datos, cargando, error, yo, entrarComo, salir, pantalla, semanaSel, avisos, avisar,
@@ -427,6 +455,7 @@ export function Proveedor({ repo, children }: { repo: Repositorio; children: Rea
     tareaBase, subtareasDe, guardarVista, borrarVista,
     guardarReunion, borrarReunion, reunionBase,
     guardarContenido, borrarContenido, contenidoBase,
+    guardarRecursoIA, borrarRecursoIA, recursoIABase,
     comentar, recargar,
   ])
 

@@ -8,7 +8,7 @@ import {
   Calendar, Check, ChevronDown, Columns3, Filter, GanttChartSquare, KanbanSquare, List, Plus, Save, SlidersHorizontal, Trash2, Users, X,
 } from 'lucide-react'
 import { useApp } from '../../store'
-import { Desplegable, FiltroPersonas, SelectProyecto } from '../../ui/basicos'
+import { Desplegable, FiltroPersonas, SelectProyecto, confirmar } from '../../ui/basicos'
 import { ModalTarea } from '../Modales'
 import type { AgruparPor, ColumnaLista, EstadoTarea, OrdenarPor, Prioridad, Tarea, TipoVista, Vista } from '../../domain/types'
 import { COLUMNAS_LISTA, ETIQUETA_ESTADO_TAREA, ETIQUETA_PRIORIDAD, ORDEN_ESTADOS_TAREA } from '../../domain/types'
@@ -76,7 +76,7 @@ export default function Tareas({ abrirTarea }: { abrirTarea: (id: string) => voi
   const borrar = async () => {
     if (!vista) return
     if (visibles.length <= 1) { avisar('Tiene que quedar al menos una vista', 'error'); return }
-    if (!confirm(`¿Borrar la vista «${vista.nombre}»?`)) return
+    if (!(await confirmar(`¿Borrar la vista «${vista.nombre}»?`, { aceptar: 'Borrar', peligro: true }))) return
     await borrarVista(vista.id)
     setVistaId(null); setVista(null)
   }

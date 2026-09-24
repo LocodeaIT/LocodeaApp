@@ -13,7 +13,7 @@ import {
   AtSign, CalendarDays, CirclePlay, ExternalLink, FileText, Mail, Megaphone, Plus, Trash2, ChevronDown,
 } from 'lucide-react'
 import { useApp } from '../store'
-import { Avatar, ChipProyecto, FiltroPersonas, SelectMiembro, SelectProyecto, Vacio } from '../ui/basicos'
+import { Avatar, ChipProyecto, FiltroPersonas, SelectMiembro, SelectProyecto, Vacio, confirmar } from '../ui/basicos'
 import { Select } from '../ui/Select'
 import type { CanalContenido, Contenido as Pieza, EstadoContenido } from '../domain/types'
 import {
@@ -98,7 +98,7 @@ export default function Contenido() {
     <div className="pagina">
       <div className="titulo-pagina">
         <div>
-          <h1>Contenido</h1>
+          <h1>Contenido.</h1>
           <div className="sub">
             Qué publicamos, en qué canal y qué día.
             {pendientes > 0 && <> · <b>{pendientes}</b> {pendientes === 1 ? 'pieza' : 'piezas'} por publicar</>}
@@ -210,7 +210,7 @@ function Fila({ pieza: p, abierta, onAbrir, onGuardar, onBorrar }: {
             <input defaultValue={p.enlace} placeholder="https://…"
               onBlur={e => { if (e.target.value !== p.enlace) onGuardar({ ...p, enlace: e.target.value }) }} /></label>
           <div className="contenido-pie">
-            <button className="btn peligro pequeno" onClick={() => { if (confirm('¿Borrar esta pieza de contenido?')) onBorrar() }}>
+            <button className="btn peligro pequeno" onClick={async () => { if (await confirmar('¿Borrar esta pieza de contenido?', { aceptar: 'Borrar', peligro: true })) onBorrar() }}>
               <Trash2 size={13} /> Borrar
             </button>
           </div>

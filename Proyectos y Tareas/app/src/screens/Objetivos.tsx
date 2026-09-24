@@ -87,7 +87,7 @@ export default function Objetivos({ abrirTarea }: { abrirTarea: (id: string) => 
     <div className="pagina">
       <div className="titulo-pagina">
         <div>
-          <h1>Objetivos semanales</h1>
+          <h1>Objetivos semanales.</h1>
           <div className="sub">
             Apunta lo que quieres sacar esta semana, tuyo o de un compañero. Se marca cuando está hecho.
             {resumen && resumen.total > 0 && <> · <b>{resumen.cumplidos} de {resumen.total}</b> cumplidos</>}

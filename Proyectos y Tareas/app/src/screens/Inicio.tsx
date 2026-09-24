@@ -71,14 +71,16 @@ export default function Inicio({ abrirTarea }: { abrirTarea: (id: string) => voi
 
   return (
     <div className="pagina">
-      <div className="bienvenida">
+      {/* Cabecera como en el resto de code apps de locodea.: la fecha de
+          antetítulo, un saludo de una frase con punto y el estado de la semana. */}
+      <div className="titulo-pagina">
         <div>
-          <h1>Hola, {yo!.nombre.split(' ')[0]} 👋</h1>
-          <p style={{ textTransform: 'capitalize' }}>{fechaLarga(hoy())}</p>
-          <p>{etiquetaSemana(lunes)}{resumen && resumen.total > 0 && ` · ${resumen.cumplidos} de ${resumen.total} objetivos cumplidos`}</p>
+          <div className="antetitulo">{fechaLarga(hoy())}</div>
+          <h1>{saludo()}, {yo!.nombre.split(' ')[0]}.</h1>
+          <div className="sub">{etiquetaSemana(lunes)}{resumen && resumen.total > 0 && ` · ${resumen.cumplidos} de ${resumen.total} objetivos cumplidos`}.</div>
         </div>
         <div className="acciones">
-          {!misObjetivos.length && <button className="btn blanco" onClick={irSemana}><Target size={15} /> Añadir objetivos</button>}
+          {!misObjetivos.length && <button className="btn primario" onClick={irSemana}><Target size={15} /> Añadir objetivos</button>}
           <button className="btn" onClick={() => setPantalla('tareas')}><Sun size={15} /> Tareas</button>
         </div>
       </div>
@@ -176,11 +178,11 @@ export default function Inicio({ abrirTarea }: { abrirTarea: (id: string) => voi
               <div className="grafico" style={{ height: 200 }}>
                 <ResponsiveContainer>
                   <AreaChart data={serie} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-                    <defs><linearGradient id="gEquipo" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#0f6cbd" stopOpacity=".25" /><stop offset="100%" stopColor="#0f6cbd" stopOpacity="0" /></linearGradient></defs>
-                    <XAxis dataKey="semana" tickFormatter={etiquetaSemanaCorta} tick={{ fontSize: 11, fill: '#8a8a8a' }} axisLine={false} tickLine={false} />
-                    <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#8a8a8a' }} axisLine={false} tickLine={false} />
+                    <defs><linearGradient id="gEquipo" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--bronze)" stopOpacity=".25" /><stop offset="100%" stopColor="var(--bronze)" stopOpacity="0" /></linearGradient></defs>
+                    <XAxis dataKey="semana" tickFormatter={etiquetaSemanaCorta} tick={{ fontSize: 11, fill: 'var(--faint)' }} axisLine={false} tickLine={false} />
+                    <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: 'var(--faint)' }} axisLine={false} tickLine={false} />
                     <Tooltip content={({ active, payload, label }) => active && payload?.length ? <div className="tooltip-grafico"><b>{etiquetaSemana(String(label))}</b><div>Equipo: {payload[0].value}%</div></div> : null} />
-                    <Area type="monotone" dataKey="equipo" stroke="#0f6cbd" strokeWidth={2.5} fill="url(#gEquipo)" dot={{ r: 3, fill: '#0f6cbd' }} isAnimationActive />
+                    <Area type="monotone" dataKey="equipo" stroke="var(--bronze)" strokeWidth={2.5} fill="url(#gEquipo)" dot={{ r: 3, fill: 'var(--bronze)' }} isAnimationActive />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -235,4 +237,9 @@ export default function Inicio({ abrirTarea }: { abrirTarea: (id: string) => voi
       </div>
     </div>
   )
+}
+
+function saludo(): string {
+  const h = new Date().getHours()
+  return h < 14 ? 'Buenos días' : h < 21 ? 'Buenas tardes' : 'Buenas noches'
 }

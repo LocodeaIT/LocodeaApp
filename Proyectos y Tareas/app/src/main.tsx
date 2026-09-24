@@ -1,9 +1,15 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+// DM Sans empaquetada: la CSP de las Code Apps solo admite fuentes propias,
+// así que un <link> a Google Fonts no carga una vez publicada la app.
+import '@fontsource/dm-sans/400.css'
+import '@fontsource/dm-sans/500.css'
+import '@fontsource/dm-sans/600.css'
 import './bronce.css'
 import './index.css'
 import './vistas.css'
 import './extras.css'
+import './sistema.css'
 import App from './App'
 import { Proveedor } from './store'
 import { repoDataverse } from './data/dataverse'

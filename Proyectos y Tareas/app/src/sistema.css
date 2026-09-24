@@ -1,0 +1,214 @@
+/* ============================================================================
+ * Capa «locodea.»: los componentes de la app llevados al sistema de diseño de
+ * las code apps de Locodea (CRM, Formación, Almacén).
+ *
+ * Se carga la última de las hojas propias de la app, así que manda sobre
+ * index.css, vistas.css y extras.css sin tener que tocar sus reglas una a una.
+ * Solo usa tokens (bronce.css): nada de colores escritos a mano.
+ *
+ * Rasgos del sistema: DM Sans con negritas en 500; muy redondo (campos 14,
+ * tarjetas 24, paneles 32, botones y etiquetas en píldora); casi sin bordes,
+ * con un anillo de 1 px al 5 %; un solo panel de noche por pantalla, con el
+ * resplandor cobrizo abajo; bronce medido y, como texto, siempre --accent-text.
+ * ========================================================================== */
+
+/* Sin el borde que el navegador pone a los botones: como selector de elemento
+   pierde frente a cualquier clase, así que no pisa bordes puestos a propósito. */
+button { border: 0; }
+
+/* ------------------------------------------------------------------ tarjetas */
+.tarjeta { border-radius: var(--r-24); box-shadow: var(--shadow-card); }
+.tarjeta.padded { padding: 24px; }
+.tarjeta.arena { background: var(--sand-2); box-shadow: none; }
+.tarjeta-cabecera { margin-bottom: 18px; min-height: 30px; }
+.tarjeta-cabecera h3 { font-size: 18px; }
+.tarjeta-cabecera .sub { color: var(--muted); font-size: 13px; }
+.tarjeta-cabecera > svg { color: var(--bronze); }
+/* el único panel de noche de la pantalla */
+.tarjeta.tinta { background: var(--glow-dark), var(--dark); color: #fff; box-shadow: none; border-radius: var(--r-32); }
+.tarjeta.tinta h2, .tarjeta.tinta h3 { color: #fff; }
+
+/* ------------------------------------------------------------------ etiquetas en píldora */
+.chip { height: 24px; padding: 0 10px; font-size: 12.5px; font-weight: 500; background: var(--sand); color: var(--ink-80); }
+.chip.acento { background: var(--accent-soft); color: var(--accent-text); }
+.chip.contorno { background: transparent; box-shadow: var(--shadow-card); color: var(--muted); }
+.chip.pequeno { height: 22px; font-size: 11.5px; padding: 0 9px; }
+.chip.activo { background: var(--ink); color: var(--paper); box-shadow: none; }
+
+/* ------------------------------------------------------------------ personas
+   Iniciales en bronce sobre papel, sin pastilla de color: solo el anillo. */
+.avatar {
+  width: 30px; height: 30px; border: 0; padding: 0;
+  background: var(--paper); color: var(--accent-text);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  font: 500 11.5px/1 var(--font); letter-spacing: .01em;
+}
+.avatar.grande { width: 46px; height: 46px; font-size: 15px; }
+.avatar.pequeno { width: 22px; height: 22px; font-size: 9.5px; }
+.avatar.vacio { background: var(--sand-2); color: var(--faint); box-shadow: inset 0 0 0 1px var(--line); }
+.avatares .avatar { box-shadow: inset 0 0 0 1px var(--line-strong), 0 0 0 2px var(--paper); margin-left: -6px; }
+.avatares .avatar:first-child { margin-left: 0; }
+.filtro-personas { display: inline-flex; gap: 6px; }
+.filtro-personas .avatar { cursor: pointer; opacity: 1; transition: background var(--rapido), color var(--rapido), box-shadow var(--rapido); }
+.filtro-personas .avatar:hover { box-shadow: inset 0 0 0 1px var(--faint); opacity: 1; }
+.filtro-personas .avatar.activo { background: var(--ink); color: var(--paper); box-shadow: none; }
+
+/* ------------------------------------------------------------------ campos */
+.campo { gap: 7px; }
+.campo label, .campo > span { font-size: 12.5px; font-weight: 500; color: var(--muted); }
+.campo input, .campo textarea {
+  height: 42px; padding: 0 14px; border: 0; border-radius: var(--r-14);
+  background: var(--paper); color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  transition: box-shadow var(--rapido), background var(--rapido);
+}
+.campo textarea { height: auto; min-height: 92px; padding: 11px 14px; line-height: 1.5; }
+.campo input:hover, .campo textarea:hover { box-shadow: inset 0 0 0 1px var(--faint); }
+.campo input:focus, .campo textarea:focus { outline: none; background: var(--paper); box-shadow: inset 0 0 0 1px var(--accent), 0 0 0 4px var(--accent-soft); }
+.campo input::placeholder, .campo textarea::placeholder { color: var(--faint); }
+.ayuda, .ayuda-confirmar { color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+
+/* ------------------------------------------------------------------ desplegable propio
+   Botón = un campo del sistema con el chevron en bronce que gira al abrir.
+   Lista = papel, radio 20, elevación; opciones de radio 12 con hover arena. */
+.select {
+  height: 42px; padding: 0 10px 0 14px; gap: 8px;
+  border: 0; border-radius: var(--r-14);
+  background: var(--paper); color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+.select:hover { background: var(--paper); box-shadow: inset 0 0 0 1px var(--faint); }
+.select:focus-visible, .select.abierto { box-shadow: inset 0 0 0 1px var(--accent), 0 0 0 4px var(--accent-soft); }
+.select-flecha { color: var(--accent-text); }
+.select.pequeno { height: 32px; padding: 0 8px 0 12px; border-radius: var(--pill); font-size: 13px; }
+.select.sutil { box-shadow: none; background: transparent; border-radius: var(--r-12); }
+.select.sutil:hover { background: var(--sand-2); box-shadow: none; }
+.select.sutil.abierto, .select.sutil:focus-visible { background: var(--paper); box-shadow: inset 0 0 0 1px var(--accent); }
+.select-lista { border: 0; border-radius: var(--r-20); box-shadow: var(--shadow-3); padding: 8px; }
+.select-opcion { padding: 9px 12px; border-radius: var(--r-12); font-size: 14px; }
+.select-opcion.activa { background: var(--sand-2); }
+.select-opcion.elegida { color: var(--ink); font-weight: 500; }
+.select-opcion .select-check { color: var(--bronze); }
+
+/* ------------------------------------------------------------------ menús flotantes */
+.menu-flotante { border: 0; border-radius: var(--r-20); box-shadow: var(--shadow-3); padding: 8px; }
+.menu-flotante .item { border-radius: var(--r-12); padding: 9px 12px; font-size: 14px; }
+.menu-flotante .item:hover { background: var(--sand-2); }
+.menu-flotante .item.activo { background: var(--sand-2); font-weight: 500; }
+.menu-flotante .item.activo svg { color: var(--bronze); }
+.menu-flotante hr { border: 0; height: 1px; background: var(--line); margin: 6px; }
+.cabecera-menu { font-size: 10.5px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); padding: 8px 12px 4px; }
+
+/* ------------------------------------------------------------------ modales */
+.velo { background: rgba(27, 24, 22, .32); backdrop-filter: blur(6px); }
+.modal { border-radius: var(--r-24); box-shadow: var(--shadow-lift); overflow: hidden; }
+.modal-cabecera { padding: 24px 24px 0; }
+.modal-cabecera h2 { font-size: 24px; letter-spacing: -.03em; }
+.modal-cuerpo { padding: 20px 24px 24px; }
+.modal-pie { background: var(--sand-2); border-top: 0; padding: 14px 24px; }
+.btn.peligro.lleno { background: var(--danger); color: #fff; box-shadow: none; }
+.btn.peligro.lleno:hover { background: color-mix(in srgb, var(--danger) 88%, #000); }
+
+/* ------------------------------------------------------------------ títulos de sección */
+.seccion-titulo { font-size: 11.5px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
+.seccion-titulo.alerta { color: var(--danger); }
+
+/* ------------------------------------------------------------------ cifras */
+.kpi { padding: 22px 24px; gap: 8px; }
+.kpi:hover { transform: none; }
+.kpi .etiqueta { font-size: 13px; font-weight: 500; color: var(--muted); }
+.kpi .etiqueta .ico { width: 30px; height: 30px; border-radius: 10px; background: var(--bronze-soft); color: var(--accent-text); }
+.kpi .valor { font-size: 34px; font-weight: 500; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------------ avisos
+   Píldora de noche centrada abajo, con el icono en bronce claro. */
+.toasts { left: 50%; right: auto; transform: translateX(-50%); bottom: 24px; align-items: center; }
+.toast { border-radius: var(--pill); padding: 11px 20px; box-shadow: var(--shadow-3); font-weight: 500; }
+.toast svg, .toast.ok svg, .toast.info svg { color: var(--bronze-light); }
+.toast.error svg { color: #f09a8d; }
+
+/* ------------------------------------------------------------------ progreso */
+.progreso { background: var(--sand-3); border-radius: var(--pill); }
+
+/* ------------------------------------------------------------------ entrada rápida
+   Las barras de alta rápida son buscadores en píldora del sistema. */
+.componer-tarea { background: var(--sand-2); box-shadow: none; border: 0; height: 48px; }
+.componer-tarea:focus-within { background: var(--paper); box-shadow: inset 0 0 0 1px var(--accent), 0 0 0 4px var(--accent-soft); border: 0; }
+
+/* ------------------------------------------------------------------ pestañas de vistas
+   Píldora de papel en la activa, sobre carril arena, como las pestañas del sistema. */
+.vistas-barra { border-bottom: 0; }
+.vista-pestana { border-radius: var(--pill); font-weight: 500; height: 34px; padding: 0 14px; }
+.vista-pestana.activa { background: var(--paper); color: var(--ink); box-shadow: var(--shadow-card); }
+.vista-pestana.activa::after { display: none; }
+.vistas-pestanas { background: var(--sand-2); border-radius: var(--pill); padding: 4px; gap: 2px; }
+
+/* ------------------------------------------------------------------ tablero */
+.columna { background: var(--sand-2); border-radius: var(--r-24); }
+.columna-cabecera { font-weight: 500; }
+
+/* ------------------------------------------------------------------ vacío */
+.vacio > svg { color: var(--accent-text); }
+
+/* Restos de la etapa Fluent que el sistema no admite. */
+.btn.primario, .btn.primario:hover { box-shadow: none; }
+
+/* ------------------------------------------------------------------ segmentado
+   Pocas opciones siempre visibles (2–5): carril arena y la activa en papel. */
+.btn-grupo { display: inline-flex; background: var(--sand); border-radius: var(--pill); padding: 4px; gap: 2px; flex-wrap: wrap; }
+.btn-grupo button { height: 30px; padding: 0 14px; border: 0; border-radius: var(--pill); background: transparent; font-size: 13px; font-weight: 500; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; transition: background var(--rapido), color var(--rapido); }
+.btn-grupo button:hover { color: var(--ink); }
+.btn-grupo button.activo { background: var(--paper); color: var(--ink); box-shadow: var(--shadow-card); }
+
+/* ------------------------------------------------------------------ icono de marca
+   Glifo simple sobre bronce suave, para tarjetas y cabeceras. */
+.icono-marca { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: var(--r-14); background: var(--bronze-soft); color: var(--accent-text); }
+
+/* Las etiquetas que son botones heredaban el borde por defecto del navegador. */
+button.chip { border: 0; cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 500; }
+button.chip.pequeno { font-size: 11.5px; }
+
+/* Entrada: las personas con el anillo del sistema, no con el borde del navegador. */
+.login-persona { border: 0; box-shadow: var(--shadow-card); }
+.login-persona:hover { box-shadow: inset 0 0 0 1px var(--bronze), var(--shadow-2); }
+
+/* Marca de la barra lateral: la palabra; con el menú plegado, el símbolo. */
+.lateral-marca .marca-simbolo { display: none; }
+.app.plegada .lateral-marca .wordmark { display: none; }
+.app.plegada .lateral-marca .marca-simbolo { display: inline-block; }
+@media (max-width: 900px) {
+  .lateral-marca { padding: 0 18px; }
+  .lateral-marca .wordmark { display: none; }
+  .lateral-marca .marca-simbolo { display: inline-block; }
+}
+
+/* Las columnas en 1fr no encogen por debajo de su contenido más ancho: en
+   pantallas estrechas empujaban la página hacia fuera. Los hijos pueden encoger. */
+.rejilla > * { min-width: 0; }
+
+@media (max-width: 720px) {
+  /* la barra de alta rápida parte en dos líneas: el título arriba, canal y fecha abajo */
+  .componer-tarea { flex-wrap: wrap; height: auto; padding: 10px 14px; border-radius: var(--r-20); row-gap: 8px; }
+  .componer-tarea > input:not([type='date']) { flex: 1 1 calc(100% - 30px); }
+}
+
+/* Una tabla más ancha que la pantalla se desplaza dentro de su tarjeta,
+   no empuja la página entera. */
+.tarjeta:has(> table.tabla), .informe-bloque:has(> table.tabla) { overflow-x: auto; }
+
+@media (max-width: 720px) {
+  /* filas de «Hoy»: título, proyecto y fecha bajan de línea si no caben */
+  .lista-simple > * { flex-wrap: wrap; row-gap: 4px; }
+}
+
+/* ------------------------------------------------------------------ panel lateral
+   Flota con 12 px de margen y radio 24, como en el resto de code apps. */
+.velo.lateral { padding: 12px; }
+.panel { border-radius: var(--r-24); box-shadow: var(--shadow-lift); overflow: hidden; height: 100%; }
+.panel-cabecera { padding: 20px 24px 14px; border-bottom: 0; box-shadow: 0 1px 0 var(--line); }
+.panel-cuerpo { padding: 18px 24px 32px; }
+.panel h2 { font-size: 20px; letter-spacing: -.02em; }
+.panel .titulo-editable { font-size: 20px; letter-spacing: -.02em; border: 0; box-shadow: inset 0 0 0 1px transparent; border-radius: var(--r-12); }
+.panel .titulo-editable:hover { box-shadow: inset 0 0 0 1px var(--line-strong); }
+.panel .titulo-editable:focus { box-shadow: inset 0 0 0 1px var(--accent), 0 0 0 4px var(--accent-soft); }
+@media (max-width: 720px) { .velo.lateral { padding: 0; } .panel { border-radius: 0; } }

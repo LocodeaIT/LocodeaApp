@@ -45,7 +45,7 @@ export default function Analisis(_: { abrirTarea: (id: string) => void }) {
   return (
     <div className="pagina">
       <div className="titulo-pagina">
-        <div><h1>Análisis</h1><div className="sub">Cumplimiento de objetivos, ritmo de tareas y salud de los proyectos</div></div>
+        <div><h1>Análisis.</h1><div className="sub">Cumplimiento de objetivos, ritmo de tareas y salud de los proyectos</div></div>
         <div className="acciones">
           <div className="selector">{([4, 8, 12] as const).map(r => <button key={r} className={rango === r ? 'activo' : ''} onClick={() => setRango(r)}>{r} semanas</button>)}</div>
           <button className="btn" onClick={() => setPantalla('informes')}><FileText size={14} /> Informes PDF</button>
@@ -75,12 +75,12 @@ export default function Analisis(_: { abrirTarea: (id: string) => void }) {
             <div className="grafico alto">
               <ResponsiveContainer>
                 <LineChart data={cumplimiento} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid vertical={false} stroke="#efefef" />
-                  <XAxis dataKey="semana" tickFormatter={etiquetaSemanaCorta} tick={{ fontSize: 11, fill: '#8a8a8a' }} axisLine={false} tickLine={false} />
-                  <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#8a8a8a' }} axisLine={false} tickLine={false} />
+                  <CartesianGrid vertical={false} stroke="var(--grid)" />
+                  <XAxis dataKey="semana" tickFormatter={etiquetaSemanaCorta} tick={{ fontSize: 11, fill: 'var(--faint)' }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: 'var(--faint)' }} axisLine={false} tickLine={false} />
                   <Tooltip content={<Tip />} />
                   <Legend formatter={v => miembro(v)?.nombre.split(' ')[0] ?? 'Equipo'} iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-                  <Line type="monotone" dataKey="equipo" stroke="#242424" strokeWidth={3} dot={{ r: 3 }} connectNulls />
+                  <Line type="monotone" dataKey="equipo" stroke="var(--ink)" strokeWidth={3} dot={{ r: 3 }} connectNulls />
                   {miembros.map(m => <Line key={m.id} type="monotone" dataKey={m.id} stroke={m.color} strokeWidth={2} dot={{ r: 2 }} strokeDasharray="4 3" connectNulls />)}
                 </LineChart>
               </ResponsiveContainer>
@@ -92,10 +92,10 @@ export default function Analisis(_: { abrirTarea: (id: string) => void }) {
           <div className="grafico alto">
             <ResponsiveContainer>
               <BarChart data={velocidad} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid vertical={false} stroke="#efefef" />
-                <XAxis dataKey="semana" tickFormatter={etiquetaSemanaCorta} tick={{ fontSize: 11, fill: '#8a8a8a' }} axisLine={false} tickLine={false} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#8a8a8a' }} axisLine={false} tickLine={false} />
-                <Tooltip content={<Tip />} cursor={{ fill: '#f5f5f5' }} />
+                <CartesianGrid vertical={false} stroke="var(--grid)" />
+                <XAxis dataKey="semana" tickFormatter={etiquetaSemanaCorta} tick={{ fontSize: 11, fill: 'var(--faint)' }} axisLine={false} tickLine={false} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--faint)' }} axisLine={false} tickLine={false} />
+                <Tooltip content={<Tip />} cursor={{ fill: 'var(--sand-2)' }} />
                 <Legend formatter={v => miembro(v)?.nombre.split(' ')[0] ?? v} iconType="circle" wrapperStyle={{ fontSize: 12 }} />
                 {miembros.map(m => <Bar key={m.id} dataKey={m.id} stackId="a" fill={m.color} radius={[3, 3, 0, 0]} />)}
               </BarChart>

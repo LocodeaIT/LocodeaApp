@@ -4,7 +4,7 @@
  */
 import { useState } from 'react'
 import { useApp } from '../store'
-import { Campo, COLORES, Modal, SelectMiembro, SelectProyecto } from '../ui/basicos'
+import { Campo, COLORES, Modal, SelectMiembro, SelectProyecto, confirmar } from '../ui/basicos'
 import { Select } from '../ui/Select'
 import { IconoPrioridad } from '../ui/basicos'
 import type { EstadoProyecto, Objetivo, Prioridad, Proyecto, Tarea } from '../domain/types'
@@ -93,7 +93,7 @@ export function ModalObjetivo({ inicial, semanaId, onCerrar }: { inicial: Objeti
 
   return (
     <Modal titulo={existente ? 'Editar objetivo' : 'Nuevo objetivo'} onCerrar={onCerrar} pie={<>
-      {existente && <button className="btn peligro" style={{ marginRight: 'auto' }} onClick={() => { if (confirm('¿Borrar el objetivo?')) { void borrarObjetivo(existente.id); onCerrar() } }}>Borrar</button>}
+      {existente && <button className="btn peligro" style={{ marginRight: 'auto' }} onClick={async () => { if (await confirmar('¿Borrar el objetivo?', { aceptar: 'Borrar', peligro: true })) { void borrarObjetivo(existente.id); onCerrar() } }}>Borrar</button>}
       <button className="btn" onClick={onCerrar}>Cancelar</button>
       <button className="btn primario" onClick={() => void guardar()} disabled={!titulo.trim()}>{existente ? 'Guardar' : 'Crear objetivo'}</button>
     </>}>
@@ -131,7 +131,7 @@ export function ModalProyecto({ inicial, onCerrar }: { inicial: Proyecto | null;
 
   return (
     <Modal titulo={inicial ? 'Editar proyecto' : 'Nuevo proyecto'} onCerrar={onCerrar} pie={<>
-      {inicial && <button className="btn peligro" style={{ marginRight: 'auto' }} onClick={() => { if (confirm('¿Borrar el proyecto? Sus tareas quedarán sin proyecto.')) { void borrarProyecto(inicial.id); onCerrar() } }}>Borrar</button>}
+      {inicial && <button className="btn peligro" style={{ marginRight: 'auto' }} onClick={async () => { if (await confirmar('¿Borrar el proyecto?', { texto: 'Sus tareas no se borran: quedan sin proyecto.', aceptar: 'Borrar', peligro: true })) { void borrarProyecto(inicial.id); onCerrar() } }}>Borrar</button>}
       <button className="btn" onClick={onCerrar}>Cancelar</button>
       <button className="btn primario" onClick={() => void guardar()} disabled={!nombre.trim()}>Guardar</button>
     </>}>
@@ -150,7 +150,7 @@ export function ModalProyecto({ inicial, onCerrar }: { inicial: Proyecto | null;
         </div>
         <Campo label="Color">
           <div style={{ display: 'flex', gap: 6 }}>
-            {COLORES.map(c => <span key={c} onClick={() => setColor(c)} style={{ width: 24, height: 24, borderRadius: 6, background: c, cursor: 'pointer', boxShadow: color === c ? '0 0 0 2px #fff, 0 0 0 4px ' + c : 'none', transition: 'box-shadow 120ms' }} />)}
+            {COLORES.map(c => <span key={c} onClick={() => setColor(c)} style={{ width: 24, height: 24, borderRadius: 6, background: c, cursor: 'pointer', boxShadow: color === c ? '0 0 0 2px var(--paper), 0 0 0 4px ' + c : 'none', transition: 'box-shadow 120ms' }} />)}
           </div>
         </Campo>
         <Campo label="Descripción"><textarea value={descripcion} onChange={e => setDescripcion(e.target.value)} /></Campo>

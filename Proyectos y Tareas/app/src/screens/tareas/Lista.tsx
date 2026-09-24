@@ -58,7 +58,7 @@ export default function Lista({ vista, tareas, abrirTarea, onNueva }: Props) {
                 ? <button className="btn sutil icono pequeno plegar" onClick={e => { e.stopPropagation(); setPlegadas(alternarSet(plegadas, t.id)) }}>{plegada ? <ChevronRight size={14} /> : <ChevronDown size={14} />}</button>
                 : nivel > 0 ? <CornerDownRight size={13} style={{ color: 'var(--texto-3)', margin: '0 6px' }} /> : <span style={{ width: 26, display: 'inline-block' }} />}
               <span className={`check ${t.estado === 'hecha' ? 'hecho' : ''}`} onClick={e => { e.stopPropagation(); void alternarHecha(t.id) }} />
-              <span className="texto">{t.importante && <Star size={12} fill="#0f6cbd" stroke="#0f6cbd" style={{ marginRight: 4, verticalAlign: -1 }} />}{t.titulo}</span>
+              <span className="texto">{t.importante && <Star size={12} fill="var(--bronze)" stroke="var(--bronze)" style={{ marginRight: 4, verticalAlign: -1 }} />}{t.titulo}</span>
               {subs.length > 0 && <span className="chip pequeno contorno">{subs.length}</span>}
             </span>
           </td>

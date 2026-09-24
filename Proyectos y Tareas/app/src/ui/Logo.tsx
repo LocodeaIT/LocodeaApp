@@ -44,3 +44,16 @@ export function Logo({ tamano = 40, animado = false, className = '' }: {
     </span>
   )
 }
+
+/**
+ * La palabra «locodea.» del sistema: DM Sans 600, minúsculas, tracking −3 % y
+ * el punto en bronce. Es la marca de las cabeceras; el símbolo de arriba se
+ * reserva para la entrada, el favicon y los sitios cuadrados.
+ */
+export function Wordmark({ producto, tam = 22 }: { producto?: string; tam?: number }) {
+  return (
+    <span className="wordmark" style={{ fontSize: tam }} aria-label={producto ? `locodea. ${producto}` : 'locodea.'}>
+      locodea<em>.</em>{producto && <small>{producto}</small>}
+    </span>
+  )
+}

@@ -11,64 +11,99 @@
  * ========================================================================== */
 
 :root {
-  /* paleta base */
+  /* ---------------------------------------------------------------- sistema
+   * Valores del sistema «locodea.» (paleta Bronce), los mismos que usan las
+   * code apps CRM, Formación y Almacén. */
   --paper: #ffffff;
   --ink: #1b1816;
   --bronze: #b07a4a;
-  --bronze-deep: #8f6039;
+  --bronze-hover: #9c6a3e;
+  --bronze-deep: #8e5e34;
+  --bronze-text: #8a5a30;   /* bronce para TEXTO sobre claro (5,9:1) */
+  --bronze-light: #d9b48c;
+  --bronze-soft: rgba(176, 122, 74, .14);
   --sand: #f1ebe2;
-  --sand-deep: #e6dccd;
+  --sand-2: #f8f4ee;
+  --sand-3: #e8dccb;
+  --sand-deep: var(--sand-3);
   --dark: #1b1816;
+  --dark-deep: #12100e;
   --copper-glow: #c98a55;
   --lavender: #e9c8a8;
 
-  /* superficies */
-  --bg: #faf7f2;
+  /* ---------------------------------------------------------------- superficies
+   * Como el CRM, que es la app de referencia con barra lateral: página en
+   * papel, barra lateral en arena clara y tarjetas de papel con el anillo. */
+  --bg: var(--paper);
   --panel: var(--paper);
   --card: var(--paper);
   --bg-soft: var(--sand);
-  --bg-muted: var(--sand-deep);
+  --bg-muted: var(--sand-3);
+  --surface: var(--paper);
+  --surface-2: var(--sand-2);
+  --surface-3: var(--sand);
+  --surface-inverse: var(--dark);
 
   /* escala de tinta: jerarquía por opacidad, no por colores distintos */
   --ink-80: rgba(27, 24, 22, .8);
   --ink-65: rgba(27, 24, 22, .65);
   --ink-60: rgba(27, 24, 22, .6);
-  --ink-40: rgba(27, 24, 22, .42);
+  --ink-40: rgba(27, 24, 22, .45);
   --ink-20: rgba(27, 24, 22, .2);
   --ink-10: rgba(27, 24, 22, .1);
   --ink-6:  rgba(27, 24, 22, .06);
   --ink-3:  rgba(27, 24, 22, .035);
+  --muted: var(--ink-65);
+  --faint: var(--ink-40);
 
   /* el anillo de 1 px es la firma del sistema: sustituye al borde duro */
   --ring: rgba(27, 24, 22, .05);
-  --line: rgba(27, 24, 22, .08);
+  --line: rgba(27, 24, 22, .07);
+  --line-strong: rgba(27, 24, 22, .14);
+  --grid: rgba(27, 24, 22, .06);   /* rejilla de gráficos */
+  --gris-calido: #a89a8a;          /* adición: estados neutros en gráficos */
 
+  /* ---------------------------------------------------------------- acento
+   * Ojo: en esta app --accent-ink siempre ha significado «texto blanco sobre
+   * bronce» (el CRM lo usa así), al revés que en el sistema. Se conserva por
+   * compatibilidad; los nombres del sistema son --on-accent y --accent-text. */
   --accent: var(--bronze);
-  --accent-soft: rgba(176, 122, 74, .14);
-  --accent-ink: #fff;
+  --accent-hover: var(--bronze-hover);
+  --accent-soft: var(--bronze-soft);
+  --on-accent: #ffffff;
+  --accent-text: var(--bronze-text);
+  --accent-ink: var(--on-accent);
   --header: var(--dark);
-  --sitemap: var(--sand);
+  --sitemap: var(--sand-2);
 
-  /* semánticos, apagados para convivir con el bronce */
-  --ok: #4f8a5b;
-  --warn: #c99a3a;
-  --danger: #b5483c;
+  /* adición: estados apagados, legibles como texto; los puntos van en vivo */
+  --ok: #3f7a4f;
+  --ok-dot: #01d062;
+  --warn: #8f6420;
+  --warn-dot: #febc2e;
+  --danger: #a8432f;
   --info: #5b7fa6;
-  --purple: #8a6fb5;
+  --purple: #6a4f9a;
   --orange: #c9773a;
 
-  --r-8: 8px; --r-12: 12px; --r-20: 20px; --r-24: 24px; --r-32: 32px;
+  --r-8: 8px; --r-12: 12px; --r-14: 14px; --r-20: 20px; --r-24: 24px; --r-32: 32px;
   --pill: 99px;
+  --r-pill: var(--pill);
 
-  --font: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font: 'DM Sans', 'Inter', 'Helvetica Neue', Arial, sans-serif;
 
-  /* sombras cálidas: tintadas con la tinta, nunca negro puro */
-  --shadow-1: 0 1px 2px rgba(27, 24, 22, .04);
-  --shadow-2: 0 4px 16px rgba(27, 24, 22, .06);
-  --shadow-3: 0 12px 40px rgba(27, 24, 22, .10);
-  --shadow-4: 0 30px 80px rgba(27, 24, 22, .18);
+  /* sombras del sistema: anillo, tarjeta, elevación; cálidas, nunca negro puro */
+  --shadow-card: 0 0 0 1px rgba(27, 24, 22, .05), 0 1px 2px rgba(0, 0, 0, .03);
+  --shadow-lift: 0 24px 48px -16px rgba(80, 55, 30, .22), 0 0 0 1px rgba(27, 24, 22, .05);
+  --shadow-1: var(--shadow-card);
+  --shadow-2: 0 0 0 1px rgba(27, 24, 22, .05), 0 6px 18px -8px rgba(80, 55, 30, .14);
+  --shadow-3: 0 18px 40px -12px rgba(80, 55, 30, .28), 0 0 0 1px rgba(27, 24, 22, .06);
+  --shadow-4: var(--shadow-lift);
+  /* el resplandor cobrizo del único panel de noche de cada pantalla */
+  --glow-dark: radial-gradient(90% 70% at 50% 115%, rgba(176, 122, 74, .38), transparent 70%);
 
-  --ease: cubic-bezier(.2, .8, .2, 1);
+  --control: 40px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
 
   color-scheme: light;
 }
@@ -113,10 +148,10 @@ h1, h2, h3, h4 {
   font-family: var(--font);
   font-weight: 500;
   letter-spacing: -.03em;
-  line-height: 1.1;
+  line-height: 1.08;
   margin: 0;
 }
-h1 { font-size: 28px; }
+h1 { font-size: 34px; letter-spacing: -.04em; }
 h2 { font-size: 22px; }
 h3 { font-size: 18px; letter-spacing: -.02em; }
 h4 { font-size: 15px; letter-spacing: -.01em; }
@@ -124,7 +159,7 @@ h4 { font-size: 15px; letter-spacing: -.01em; }
 /* En Bronce el énfasis es peso 500, no 700: la jerarquía la marca el color. */
 b, strong { font-weight: 500; }
 
-::selection { background: var(--bronze); color: #fff; }
+::selection { background: var(--accent-soft); }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-thumb { background: var(--ink-10); border-radius: 8px; }

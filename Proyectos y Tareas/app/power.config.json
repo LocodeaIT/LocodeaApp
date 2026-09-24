@@ -132,6 +132,11 @@
           "entitySetName": "loc_contenidos",
           "logicalName": "loc_contenido",
           "isHidden": false
+        },
+        "skillsyagentesdeia": {
+          "entitySetName": "loc_recursoias",
+          "logicalName": "loc_recursoia",
+          "isHidden": false
         }
       },
       "environmentVariableName": ""

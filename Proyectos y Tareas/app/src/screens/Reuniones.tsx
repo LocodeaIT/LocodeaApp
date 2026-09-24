@@ -65,7 +65,7 @@ export default function Reuniones() {
     <div className="pagina">
       <div className="titulo-pagina">
         <div>
-          <h1>Reuniones</h1>
+          <h1>Reuniones.</h1>
           <div className="sub">Cuándo os veis y qué hay que tratar. Se sincroniza con tu calendario de Outlook.</div>
         </div>
         <div className="acciones">

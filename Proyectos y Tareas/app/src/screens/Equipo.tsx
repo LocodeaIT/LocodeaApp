@@ -15,7 +15,7 @@ export default function Equipo(_: { abrirTarea: (id: string) => void }) {
   return (
     <div className="pagina">
       <div className="titulo-pagina">
-        <div><h1>Equipo</h1><div className="sub">Quién forma Locodea y qué papel tiene</div></div>
+        <div><h1>Equipo.</h1><div className="sub">Quién forma Locodea y qué papel tiene</div></div>
         <div className="acciones"><button className="btn primario" onClick={() => setEditar('nuevo')}><Plus size={15} /> Añadir miembro</button></div>
       </div>
       <div className="tarjeta">
@@ -66,7 +66,7 @@ function ModalMiembro({ inicial, onCerrar, onGuardar }: { inicial: Miembro | nul
           <Campo label="Estado"><Select valor={activo ? '1' : '0'} onCambio={v => setActivo(v === '1')} opciones={[{ valor: '1', etiqueta: 'Activo' }, { valor: '0', etiqueta: 'Inactivo' }]} /></Campo>
         </div>
         <Campo label="Color">
-          <div style={{ display: 'flex', gap: 6 }}>{COLORES.map(c => <span key={c} onClick={() => setColor(c)} style={{ width: 24, height: 24, borderRadius: 6, background: c, cursor: 'pointer', boxShadow: color === c ? '0 0 0 2px #fff, 0 0 0 4px ' + c : 'none' }} />)}</div>
+          <div style={{ display: 'flex', gap: 6 }}>{COLORES.map(c => <span key={c} onClick={() => setColor(c)} style={{ width: 24, height: 24, borderRadius: 6, background: c, cursor: 'pointer', boxShadow: color === c ? '0 0 0 2px var(--paper), 0 0 0 4px ' + c : 'none' }} />)}</div>
         </Campo>
       </div>
     </Modal>

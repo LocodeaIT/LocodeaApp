@@ -293,3 +293,52 @@ export const ETIQUETA_ESTADO_CONTENIDO: Record<EstadoContenido, string> = {
 export const ORDEN_ESTADOS_CONTENIDO: EstadoContenido[] = ['idea', 'guion', 'produccion', 'listo', 'publicado']
 
 export const CANALES: CanalContenido[] = ['youtube', 'linkedin', 'instagram', 'tiktok', 'blog', 'newsletter', 'x']
+
+// ─────────────────────────────────────────────── skills y agentes de IA
+
+export type TipoRecursoIA = 'skill' | 'agente' | 'prompt' | 'flujo'
+export type PlataformaIA = 'claude' | 'copilot_studio' | 'copilot_m365' | 'chatgpt' | 'power_automate' | 'otra'
+export type EstadoRecursoIA = 'idea' | 'desarrollo' | 'uso' | 'retirado'
+
+/**
+ * Una skill, un agente, un prompt o un flujo de IA que el equipo ha hecho o
+ * usa. El catálogo existe para que nadie rehaga lo que ya existe: qué hace,
+ * cómo se invoca, dónde vive y a quién preguntar.
+ */
+export interface RecursoIA {
+  id: string
+  nombre: string
+  tipo: TipoRecursoIA
+  plataforma: PlataformaIA
+  estado: EstadoRecursoIA
+  /** Qué hace y cuándo conviene usarlo. */
+  descripcion: string
+  /** Cómo se invoca: comando, disparador, frase de ejemplo. */
+  comoUsar: string
+  /** Dónde vive: ruta de la skill, URL del agente, repositorio. */
+  enlace: string
+  responsableId: string | null
+  proyectoId: string | null
+  creadoEl: string
+}
+
+export const ETIQUETA_TIPO_IA: Record<TipoRecursoIA, string> = {
+  skill: 'Skill', agente: 'Agente', prompt: 'Prompt', flujo: 'Flujo',
+}
+
+export const ETIQUETA_PLATAFORMA_IA: Record<PlataformaIA, string> = {
+  claude: 'Claude',
+  copilot_studio: 'Copilot Studio',
+  copilot_m365: 'Microsoft 365 Copilot',
+  chatgpt: 'ChatGPT',
+  power_automate: 'Power Automate',
+  otra: 'Otra',
+}
+
+export const ETIQUETA_ESTADO_IA: Record<EstadoRecursoIA, string> = {
+  idea: 'Idea', desarrollo: 'En desarrollo', uso: 'En uso', retirado: 'Retirado',
+}
+
+export const TIPOS_IA: TipoRecursoIA[] = ['skill', 'agente', 'prompt', 'flujo']
+export const PLATAFORMAS_IA: PlataformaIA[] = ['claude', 'copilot_studio', 'copilot_m365', 'chatgpt', 'power_automate', 'otra']
+export const ESTADOS_IA: EstadoRecursoIA[] = ['idea', 'desarrollo', 'uso', 'retirado']
