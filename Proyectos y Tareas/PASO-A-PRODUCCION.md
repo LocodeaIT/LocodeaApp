@@ -28,7 +28,15 @@ Todo el esquema y la propia app están dentro de una única solución:
 | Solución | `LocodeaObjetivos` — *Locodea Objetivos y Tareas* |
 | Id | `fad88cef-0fb4-f111-aaab-70a8a5068d0e` |
 | Publicador | Locodea, prefijo `loc`, prefijo de opciones `41200` |
-| Contenido | Las 7 tablas `loc_*` y la code app |
+| Contenido | Las tablas `loc_*` de Proyectos y Tareas, las 13 del CRM y la code app |
+
+Las tablas del CRM (`loc_cuenta`, `loc_contacto`, `loc_potencial`,
+`loc_oportunidad`, `loc_producto`, `loc_oferta`, `loc_pedidoventa`,
+`loc_facturaventa`, `loc_pedidocompra`, `loc_facturacompra`,
+`loc_lineadocumento`, `loc_actividadcrm`, `loc_notacrm`) viajan con la solución
+como el resto. Si hiciera falta crearlas a mano en otro entorno, el script
+`scripts/crm-esquema.mjs --entorno <url>` las crea dentro de la solución y se
+puede repetir sin riesgo.
 
 La app se publica **dentro de la solución** a propósito, para que viaje con ella:
 
@@ -73,7 +81,10 @@ npx --no-install pa app push --non-interactive --solution-id fad88cef-0fb4-f111-
 **Las soluciones llevan el esquema, no las filas.** Los 4 miembros y las 4 vistas
 guardadas **no viajan** en la exportación: hay que volver a crearlos en el
 entorno nuevo, o migrarlos aparte. Lo mismo para los datos de trabajo que haya
-acumulado el equipo — eso necesita una migración de datos explícita.
+acumulado el equipo — eso necesita una migración de datos explícita. Vale
+también para el CRM: cuentas, contactos, oportunidades, documentos y sus líneas
+no viajan con la solución. Sus propietarios apuntan a filas de `loc_miembro`,
+así que en una migración hay que llevar primero los miembros.
 
 **La URL de la app cambia.** Al publicarla en otro entorno se genera un `appId`
 nuevo, así que hay que repartir el enlace otra vez.

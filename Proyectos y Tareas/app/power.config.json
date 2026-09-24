@@ -63,6 +63,71 @@
           "logicalName": "loc_reunion",
           "isHidden": false
         },
+        "cuentas": {
+          "entitySetName": "loc_cuentas",
+          "logicalName": "loc_cuenta",
+          "isHidden": false
+        },
+        "contactos": {
+          "entitySetName": "loc_contactos",
+          "logicalName": "loc_contacto",
+          "isHidden": false
+        },
+        "clientespotenciales": {
+          "entitySetName": "loc_potencials",
+          "logicalName": "loc_potencial",
+          "isHidden": false
+        },
+        "oportunidades": {
+          "entitySetName": "loc_oportunidads",
+          "logicalName": "loc_oportunidad",
+          "isHidden": false
+        },
+        "productos": {
+          "entitySetName": "loc_productos",
+          "logicalName": "loc_producto",
+          "isHidden": false
+        },
+        "ofertas": {
+          "entitySetName": "loc_ofertas",
+          "logicalName": "loc_oferta",
+          "isHidden": false
+        },
+        "pedidosdeventa": {
+          "entitySetName": "loc_pedidoventas",
+          "logicalName": "loc_pedidoventa",
+          "isHidden": false
+        },
+        "facturasdeventa": {
+          "entitySetName": "loc_facturaventas",
+          "logicalName": "loc_facturaventa",
+          "isHidden": false
+        },
+        "pedidosdecompra": {
+          "entitySetName": "loc_pedidocompras",
+          "logicalName": "loc_pedidocompra",
+          "isHidden": false
+        },
+        "facturasdecompra": {
+          "entitySetName": "loc_facturacompras",
+          "logicalName": "loc_facturacompra",
+          "isHidden": false
+        },
+        "l_neasdedocumento": {
+          "entitySetName": "loc_lineadocumentos",
+          "logicalName": "loc_lineadocumento",
+          "isHidden": false
+        },
+        "actividadescrm": {
+          "entitySetName": "loc_actividadcrms",
+          "logicalName": "loc_actividadcrm",
+          "isHidden": false
+        },
+        "notascrm": {
+          "entitySetName": "loc_notacrms",
+          "logicalName": "loc_notacrm",
+          "isHidden": false
+        },
         "contenidos": {
           "entitySetName": "loc_contenidos",
           "logicalName": "loc_contenido",

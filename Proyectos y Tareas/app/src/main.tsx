@@ -14,8 +14,7 @@ import { crmRepoDataverse } from './crm/dataverse'
  * La app corre como Code App sobre Dataverse. Para trabajar el diseño en local
  * sin entorno, `VITE_DEMO=1 npm run dev` arranca con datos de ejemplo en el
  * navegador; ese repositorio se carga aparte y no viaja al paquete publicado.
- * El CRM sigue la misma regla: fuera de la demo usa su repositorio de
- * Dataverse, que de momento solo avisa de que faltan las tablas.
+ * El CRM sigue la misma regla: fuera de la demo usa sus tablas de Dataverse.
  */
 const demo = import.meta.env.VITE_DEMO === '1'
 const repo = demo ? (await import('./data/demo')).repoDemo : repoDataverse

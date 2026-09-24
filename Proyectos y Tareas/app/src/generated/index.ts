@@ -5,10 +5,23 @@
 
 // Models
 export * as CommonModels from './models/CommonModels';
+export * as Loc_actividadcrmsModel from './models/Loc_actividadcrmsModel';
 export * as Loc_actividadsModel from './models/Loc_actividadsModel';
 export * as Loc_contenidosModel from './models/Loc_contenidosModel';
+export * as Loc_contactosModel from './models/Loc_contactosModel';
+export * as Loc_cuentasModel from './models/Loc_cuentasModel';
+export * as Loc_facturacomprasModel from './models/Loc_facturacomprasModel';
+export * as Loc_facturaventasModel from './models/Loc_facturaventasModel';
+export * as Loc_lineadocumentosModel from './models/Loc_lineadocumentosModel';
 export * as Loc_miembrosModel from './models/Loc_miembrosModel';
+export * as Loc_notacrmsModel from './models/Loc_notacrmsModel';
 export * as Loc_objetivosModel from './models/Loc_objetivosModel';
+export * as Loc_ofertasModel from './models/Loc_ofertasModel';
+export * as Loc_oportunidadsModel from './models/Loc_oportunidadsModel';
+export * as Loc_pedidocomprasModel from './models/Loc_pedidocomprasModel';
+export * as Loc_pedidoventasModel from './models/Loc_pedidoventasModel';
+export * as Loc_potencialsModel from './models/Loc_potencialsModel';
+export * as Loc_productosModel from './models/Loc_productosModel';
 export * as Loc_proyectosModel from './models/Loc_proyectosModel';
 export * as Loc_reunionsModel from './models/Loc_reunionsModel';
 export * as Loc_semanasModel from './models/Loc_semanasModel';
@@ -17,10 +30,23 @@ export * as Loc_vistasModel from './models/Loc_vistasModel';
 export * as Office365OutlookModel from './models/Office365OutlookModel';
 
 // Services
+export * from './services/Loc_actividadcrmsService';
 export * from './services/Loc_actividadsService';
 export * from './services/Loc_contenidosService';
+export * from './services/Loc_contactosService';
+export * from './services/Loc_cuentasService';
+export * from './services/Loc_facturacomprasService';
+export * from './services/Loc_facturaventasService';
+export * from './services/Loc_lineadocumentosService';
 export * from './services/Loc_miembrosService';
+export * from './services/Loc_notacrmsService';
 export * from './services/Loc_objetivosService';
+export * from './services/Loc_ofertasService';
+export * from './services/Loc_oportunidadsService';
+export * from './services/Loc_pedidocomprasService';
+export * from './services/Loc_pedidoventasService';
+export * from './services/Loc_potencialsService';
+export * from './services/Loc_productosService';
 export * from './services/Loc_proyectosService';
 export * from './services/Loc_reunionsService';
 export * from './services/Loc_semanasService';

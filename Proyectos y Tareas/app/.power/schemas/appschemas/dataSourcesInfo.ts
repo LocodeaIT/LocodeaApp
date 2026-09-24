@@ -5,6 +5,13 @@
  */
 
 export const dataSourcesInfo = {
+  "loc_actividadcrms": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_actividadcrmid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "loc_actividads": {
     "tableId": "",
     "version": "",
@@ -19,6 +26,41 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "loc_contactos": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_contactoid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_cuentas": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_cuentaid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_facturacompras": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_facturacompraid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_facturaventas": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_facturaventaid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_lineadocumentos": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_lineadocumentoid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "loc_miembros": {
     "tableId": "",
     "version": "",
@@ -26,10 +68,59 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "loc_notacrms": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_notacrmid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "loc_objetivos": {
     "tableId": "",
     "version": "",
     "primaryKey": "loc_objetivoid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_ofertas": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_ofertaid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_oportunidads": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_oportunidadid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_pedidocompras": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_pedidocompraid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_pedidoventas": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_pedidoventaid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_potencials": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_potencialid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_productos": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_productoid",
     "dataSourceType": "Dataverse",
     "apis": {}
   },

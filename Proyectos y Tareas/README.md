@@ -60,7 +60,26 @@ npx --no-install pa app push --non-interactive --solution-id fad88cef-0fb4-f111-
 | **Proyectos** | Tarjetas con salud del proyecto (tareas completadas sobre el total y tareas vencidas) y detalle con sus tareas y objetivos. |
 | **Análisis** | Cumplimiento por persona y semana, tareas completadas por semana, histórico de semanas, carga actual, salud de proyectos. |
 | **Equipo** | Marco, Jesús y Alejandro: rol, color y quién es el revisor de objetivos. |
-| **CRM** (secciones CRM, Ventas, Compras y Catálogo del menú) | Inicio con indicadores, pipeline y facturación; listas con vistas, filtros, orden, borrado en lote y exportación a Excel; fichas con pestañas, paneles laterales y flujo Calificar → Desarrollar → Proponer → Cerrar. Cadena oportunidad → oferta → pedido → factura (imprimible como documento), compras y actividades «referentes a» cualquier registro. Avisos de vencidos, enlaces directos y botón Atrás (`#crm/…`) y copia de seguridad JSON en el inicio del CRM. **Solo en modo demo** (`VITE_DEMO=1`, datos en el navegador): las tablas de Dataverse están pendientes y, sin ellas, el CRM lo indica en pantalla. La factura oficial (Verifactu/SII) sigue en el ERP. |
+| **CRM** (secciones CRM, Ventas, Compras y Catálogo del menú) | Inicio con indicadores, pipeline y facturación; listas con vistas, filtros, orden, borrado en lote y exportación a Excel; fichas con pestañas, paneles laterales y flujo Calificar → Desarrollar → Proponer → Cerrar. Cadena oportunidad → oferta → pedido → factura (imprimible como documento), compras y actividades «referentes a» cualquier registro. Avisos de vencidos, enlaces directos y botón Atrás (`#crm/…`) y copia de seguridad JSON en el inicio del CRM. Guarda en sus 13 tablas de Dataverse (ver abajo); con `VITE_DEMO=1` usa datos de ejemplo en el navegador. La factura oficial (Verifactu/SII) sigue en el ERP. |
+
+### Tablas del CRM
+
+Las crea `scripts/crm-esquema.mjs` (idempotente, dentro de la solución) y las lee
+`app/src/crm/dataverse.ts`. Todas empiezan vacías.
+
+| Tabla | Qué guarda |
+|---|---|
+| `loc_cuenta`, `loc_contacto` | Clientes y proveedores, y sus personas |
+| `loc_potencial`, `loc_oportunidad` | Clientes potenciales y oportunidades (fase, probabilidad, cierre) |
+| `loc_producto` | Catálogo con precio de venta y coste |
+| `loc_oferta`, `loc_pedidoventa`, `loc_facturaventa` | Documentos de venta, enlazados entre sí (oferta → pedido → factura) |
+| `loc_pedidocompra`, `loc_facturacompra` | Documentos de compra |
+| `loc_lineadocumento` | Líneas de los cinco tipos de documento: una búsqueda a cada tipo (la app las borra con su documento) y otra al producto |
+| `loc_actividadcrm`, `loc_notacrm` | Actividades y notas «referentes a» cualquier registro (tipo + id en texto, como `loc_actividad`) |
+
+Estados y catálogos son columnas de opción (valores `4120001xx`–`4120002xx`),
+los propietarios son búsquedas a `loc_miembro` y la numeración (C1001,
+OF-26001…) la calcula la app y se guarda en `loc_numero`.
 
 ## Flujo semanal (lo importante)
 
@@ -79,15 +98,17 @@ app/src/
   store.tsx  estado global y acciones de negocio
   ui/        componentes base y tarjeta de tarea
   screens/   pantallas; screens/tareas/ tiene las cuatro vistas
-  crm/       módulo CRM: tipos, catálogos, repo (demo.ts + semilla.ts; dataverse.ts pendiente),
+  crm/       módulo CRM: tipos, catálogos, repo (dataverse.ts; demo.ts + semilla.ts),
              store.tsx, registro/ (descripción de cada entidad) y screens/ (inicio, lista y ficha genéricas)
+scripts/
+  crm-esquema.mjs   crea las tablas del CRM en Dataverse (idempotente)
 ```
 
 ## Pendiente
 
 - **Identificar al usuario por su cuenta de Power Apps** en vez del selector de
   entrada, enlazándola con la fila de `loc_miembro`.
-- **CRM en Dataverse**: crear las tablas del CRM en la solución y completar
-  `app/src/crm/dataverse.ts` (hoy devuelve un CRM vacío y marca que faltan).
+- **CRM**: publicar la app con el módulo (`pa app push`) y probarlo con datos
+  reales dentro de Power Apps.
 - **Enlace con el ERP**: `Proyecto.horasPresupuestadas` y las horas reales
   contra el sistema de facturación, que no se construye aquí.

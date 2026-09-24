@@ -12,7 +12,7 @@ producción cuando haya licencias de pago: ver
 | Carpeta | Estado | Qué hace |
 |---|---|---|
 | [`Proyectos y Tareas/`](./Proyectos%20y%20Tareas) | En uso | Objetivos semanales, tareas con subtareas, Mi día, proyectos, reuniones sincronizadas con Outlook, calendario de contenido de redes, informes y análisis |
-| CRM (en `Proyectos y Tareas/app/src/crm/`) | En modo demo | Cuentas, contactos, clientes potenciales, oportunidades, actividades, productos, ofertas, pedidos y facturas de venta y compra. Funciona en local con `VITE_DEMO=1`; las tablas de Dataverse están pendientes |
+| CRM (en `Proyectos y Tareas/app/src/crm/`) | Tablas creadas, sin publicar | Cuentas, contactos, clientes potenciales, oportunidades, actividades, productos, ofertas, pedidos y facturas de venta y compra. Conectado a sus 13 tablas de Dataverse (vacías); en local se prueba con `VITE_DEMO=1` |
 | *ERP* | No se construye | Se **integra** con el ERP existente (contabilidad y facturación oficial quedan fuera) |
 
 La decisión sobre el ERP es deliberada: facturación y contabilidad están
@@ -22,9 +22,12 @@ factura oficial, Verifactu/SII y la contabilidad siguen en el ERP real.
 
 ## Base de datos
 
-Las 9 tablas `loc_*` viven en Dataverse, dentro de la solución
-**LocodeaObjetivos** (publicador `loc`). La solución es la unidad que se exporta
-e importa para llevar la app de un entorno a otro.
+Las tablas `loc_*` viven en Dataverse, dentro de la solución
+**LocodeaObjetivos** (publicador `loc`): las 9 de Proyectos y Tareas y las 13
+del CRM. La solución es la unidad que se exporta e importa para llevar la app de
+un entorno a otro. Las del CRM se crean (o se completan) con
+`node "Proyectos y Tareas/scripts/crm-esquema.mjs"`, que se puede repetir sin
+riesgo.
 
 ## Poner en marcha un módulo
 
