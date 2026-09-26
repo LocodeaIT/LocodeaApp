@@ -11,7 +11,7 @@
  */
 import { useMemo, useState, type ReactNode } from 'react'
 import {
-  ArrowDown, ArrowLeft, ArrowUp, Calendar, Check, ExternalLink, FolderPlus, Layers, Pencil, Plus, Search, Target, Trash2,
+  ArrowDown, ArrowLeft, ArrowUp, Calendar, Check, ExternalLink, FolderPlus, Layers, Pencil, Play, Plus, Search, Target, Trash2,
 } from 'lucide-react'
 import { useApp } from '../store'
 import { Anillo, Avatar, Campo, IconoPrioridad, Modal, Progreso, Vacio, confirmar } from '../ui/basicos'
@@ -304,6 +304,7 @@ function TarjetaApartado({ proyecto: p, apartado: a, tareas, abrirTarea, onEdita
   const { yo, guardarTarea, tareaBase } = useApp()
   const [nueva, setNueva] = useState('')
   const hechas = tareas.filter(t => t.estado === 'hecha').length
+  const enMarcha = tareas.filter(t => t.estado === 'en_curso').length
   const pct = tareas.length ? Math.round((hechas / tareas.length) * 100) : 0
   const nombre = a ? a.nombre : p.apartados.length ? 'Sin apartado' : 'Tareas'
 
@@ -321,7 +322,10 @@ function TarjetaApartado({ proyecto: p, apartado: a, tareas, abrirTarea, onEdita
         <span className="icono-marca"><IconoApartado icono={a?.icono ?? 'general'} tam={19} /></span>
         <div className="grow">
           <h3>{nombre}</h3>
-          <div className="apartado-sub">{tareas.length ? `${hechas} de ${tareas.length} hechas` : 'Sin tareas todavía'}</div>
+          <div className="apartado-sub">
+            {tareas.length ? `${hechas} de ${tareas.length} hechas` : 'Sin tareas todavía'}
+            {enMarcha > 0 && <span className="apartado-en-marcha"> · {enMarcha} en curso</span>}
+          </div>
         </div>
         {onEditar && <button className="btn sutil icono pequeno" onClick={onEditar} title="Editar el apartado" aria-label={`Editar ${nombre}`}><Pencil size={14} /></button>}
       </header>
@@ -344,12 +348,26 @@ function TarjetaApartado({ proyecto: p, apartado: a, tareas, abrirTarea, onEdita
 }
 
 function FilaTarea({ t, abrir, extra }: { t: Tarea; abrir: () => void; extra?: ReactNode }) {
-  const { miembro, alternarHecha } = useApp()
+  const { yo, miembro, alternarHecha, guardarTarea } = useApp()
   const hecha = t.estado === 'hecha'
+  const enCurso = t.estado === 'en_curso'
   const vencida = !hecha && esVencida(t.vence)
-  const estadoVisible = t.estado === 'en_curso' || t.estado === 'bloqueada' || t.estado === 'revision'
+  // «En curso» ya lo dicen el color de la fila y el botón; los otros estados siguen con su etiqueta
+  const estadoVisible = t.estado === 'bloqueada' || t.estado === 'revision'
+  const quien = miembro(t.asignadoId)
+
+  /**
+   * «Estoy con ello»: la tarea pasa a En curso, que es el mismo estado que ve el
+   * tablero de Tareas. Si nadie la tenía, se la queda quien pulsa; si ya era de
+   * alguien, no se le quita. Otro clic la devuelve a Pendiente.
+   */
+  const alternarEnCurso = () => {
+    if (enCurso) { void guardarTarea({ ...t, estado: 'pendiente' }); return }
+    void guardarTarea({ ...t, estado: 'en_curso', asignadoId: t.asignadoId ?? yo?.id ?? null })
+  }
+
   return (
-    <li className={`fila-apartado ${hecha ? 'hecha' : ''}`} onClick={abrir}>
+    <li className={`fila-apartado ${hecha ? 'hecha' : ''} ${enCurso ? 'en-curso' : ''}`} onClick={abrir}>
       <button className={`check ${hecha ? 'hecho' : ''}`} onClick={e => { e.stopPropagation(); void alternarHecha(t.id) }}
         title={hecha ? 'Marcar como pendiente' : 'Marcar como hecha'} aria-label={hecha ? 'Marcar como pendiente' : 'Marcar como hecha'}>
         <Check size={11} strokeWidth={3} />
@@ -358,7 +376,14 @@ function FilaTarea({ t, abrir, extra }: { t: Tarea; abrir: () => void; extra?: R
       {estadoVisible && <span className={`chip pequeno ${t.estado === 'bloqueada' ? 'error' : t.estado === 'revision' ? 'morado' : 'acento'}`}>{ETIQUETA_ESTADO_TAREA[t.estado]}</span>}
       {t.vence && !hecha && <span className={`fa-vence ${vencida ? 'vencida' : ''}`}>{fechaCorta(t.vence)}</span>}
       {extra}
-      {t.asignadoId && <Avatar miembro={miembro(t.asignadoId)} tamano="pequeno" />}
+      {!hecha && (
+        <button className={`boton-en-ello ${enCurso ? 'activo' : ''}`} onClick={e => { e.stopPropagation(); alternarEnCurso() }}
+          aria-pressed={enCurso}
+          title={enCurso ? `En curso${quien ? ` · ${quien.nombre}` : ''}. Pulsa para dejarla pendiente` : 'Marcar que estoy trabajando en ello'}>
+          <Play size={11} fill={enCurso ? 'currentColor' : 'none'} />{enCurso && <span>En ello</span>}
+        </button>
+      )}
+      {t.asignadoId && <Avatar miembro={quien} tamano="pequeno" />}
     </li>
   )
 }
