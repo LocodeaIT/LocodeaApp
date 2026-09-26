@@ -89,6 +89,14 @@
           "x-ms-dataverse-type": "IntegerType",
           "x-ms-schema-name": "ImportSequenceNumber"
         },
+        "loc_apartado": {
+          "type": "string",
+          "title": "Apartado del proyecto",
+          "x-ms-dataverse-attribute": "loc_apartado",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Apartado",
+          "maxLength": 100
+        },
         "loc_asignado": {
           "type": "string",
           "title": "Asignada a",

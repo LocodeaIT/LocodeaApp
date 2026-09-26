@@ -7,6 +7,7 @@ import { Check, CornerLeftUp, GitBranch, MessageSquare, Plus, Send, Star, Sun, T
 import { useApp } from '../store'
 import { Avatar, Panel, SelectMiembro, SelectProyecto, confirmar } from '../ui/basicos'
 import { Select } from '../ui/Select'
+import { IconoApartado } from '../ui/IconoApartado'
 import { ModalTarea, OPCIONES_PRIORIDAD } from './Modales'
 import type { EstadoTarea, Tarea } from '../domain/types'
 import { ETIQUETA_ESTADO_TAREA, ORDEN_ESTADOS_TAREA } from '../domain/types'
@@ -39,6 +40,7 @@ export function DetalleTarea({ id, onCerrar, onAbrirOtra }: { id: string; onCerr
   const t = tarea
   const cambiar = (parcial: Partial<Tarea>) => void guardarTarea({ ...t, ...parcial })
   const actividad = actividadDe('tarea', t.id)
+  const apartadosDelProyecto = datos.proyectos.find(p => p.id === t.proyectoId)?.apartados ?? []
 
   const guardarTitulo = () => { if (titulo.trim() && titulo !== t.titulo) cambiar({ titulo: titulo.trim() }) }
   const guardarDescripcion = () => { if (descripcion !== t.descripcion) cambiar({ descripcion }) }
@@ -75,7 +77,13 @@ export function DetalleTarea({ id, onCerrar, onAbrirOtra }: { id: string; onCerr
         <span className="etiqueta">Asignada a</span>
         <SelectMiembro valor={t.asignadoId} onCambio={v => cambiar({ asignadoId: v })} sutil />
         <span className="etiqueta">Proyecto</span>
-        <SelectProyecto valor={t.proyectoId} onCambio={v => cambiar({ proyectoId: v })} sutil />
+        {/* al cambiar de proyecto el apartado deja de valer: se vacía */}
+        <SelectProyecto valor={t.proyectoId} onCambio={v => cambiar({ proyectoId: v, apartadoId: null })} sutil />
+        {apartadosDelProyecto.length > 0 && <>
+          <span className="etiqueta">Apartado</span>
+          <Select valor={t.apartadoId ?? ''} onCambio={v => cambiar({ apartadoId: v || null })} sutil
+            opciones={[{ valor: '', etiqueta: 'Sin apartado' }, ...apartadosDelProyecto.map(ap => ({ valor: ap.id, etiqueta: ap.nombre, icono: <IconoApartado icono={ap.icono} tam={14} /> }))]} />
+        </>}
         <span className="etiqueta">Objetivo semanal</span>
         <Select valor={t.objetivoId ?? ''} onCambio={v => cambiar({ objetivoId: v || null })} sutil
           opciones={[{ valor: '', etiqueta: 'Ninguno' }, ...objetivosElegibles.map(o => ({ valor: o.id, etiqueta: o.titulo, detalle: miembro(o.responsableId)?.iniciales }))]} />

@@ -328,7 +328,7 @@ export function Proveedor({ repo, children }: { repo: Repositorio; children: Rea
   const comentar = useCallback((entidad: EntidadActividad, entidadId: string, texto: string) => registrar(entidad, entidadId, texto, 'comentario'), [registrar])
 
   const tareaBase = useCallback((parcial: Partial<Tarea> = {}): Nuevo<Tarea> => ({
-    titulo: '', descripcion: '', proyectoId: null, objetivoId: null, asignadoId: yo?.id ?? null, creadoPorId: yo?.id ?? '',
+    titulo: '', descripcion: '', proyectoId: null, apartadoId: null, objetivoId: null, asignadoId: yo?.id ?? null, creadoPorId: yo?.id ?? '',
     estado: 'pendiente', prioridad: 'media', inicio: null, vence: null, padreId: null, estimadoH: null, realH: null,
     orden: datos.tareas.length, ordenTodo: datos.tareas.length, miDia: false, importante: false, personal: false,
     etiquetas: [], checklist: [], completadoEl: null, ...parcial,

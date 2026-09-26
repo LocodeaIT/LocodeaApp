@@ -35,7 +35,8 @@ function migrar(d: Instantanea): Instantanea {
     reuniones: d.reuniones ?? [],
     contenidos: d.contenidos ?? [],
     recursosIA: d.recursosIA ?? generarSeed().recursosIA,
-    tareas: d.tareas.map(t => ({ ...t, inicio: t.inicio ?? null, padreId: t.padreId ?? null })),
+    tareas: d.tareas.map(t => ({ ...t, inicio: t.inicio ?? null, padreId: t.padreId ?? null, apartadoId: t.apartadoId ?? null })),
+    proyectos: d.proyectos.map(p => ({ ...p, interno: p.interno ?? p.cliente?.trim().toLowerCase() === 'locodea', enlaceDocumentos: p.enlaceDocumentos ?? '', apartados: p.apartados ?? [] })),
   }
 }
 

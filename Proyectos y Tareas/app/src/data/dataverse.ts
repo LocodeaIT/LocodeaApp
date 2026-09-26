@@ -14,7 +14,7 @@
  */
 import type { Instantanea, Nuevo, Repositorio } from './repo'
 import type {
-  Actividad, ColumnaLista, EntidadActividad, EstadoObjetivo, EstadoProyecto, EstadoTarea,
+  Actividad, ApartadoProyecto, ColumnaLista, EntidadActividad, EstadoObjetivo, EstadoProyecto, EstadoTarea,
   CanalContenido, Contenido, EstadoContenido, EstadoRecursoIA, PlataformaIA, RecursoIA, TipoRecursoIA, EstadoReunion, FiltrosVista, ItemChecklist, Miembro, Objetivo, Prioridad, Proyecto, Rol,
   Reunion, Semana, Tarea, TemaReunion, TipoVista, AgruparPor, OrdenarPor, Vista,
 } from '../domain/types'
@@ -123,6 +123,10 @@ function aProyecto(f: Fila): Proyecto {
     id: f.loc_proyectoid,
     nombre: txt(f.loc_nombre),
     cliente: txt(f.loc_cliente),
+    // Sin la columna rellena (proyectos anteriores), se deduce: el cliente «Locodea» es un proyecto interno.
+    interno: f.loc_interno ?? txt(f.loc_cliente).trim().toLowerCase() === 'locodea',
+    enlaceDocumentos: txt(f.loc_enlacedocumentos),
+    apartados: leerJson<ApartadoProyecto[]>(f.loc_apartados, []),
     color: txt(f.loc_color) || '#6B6B6B',
     estado: DE_EST_PROYECTO[f.loc_estado] ?? 'activo',
     responsableId: f._loc_responsable_value ?? null,
@@ -136,6 +140,8 @@ function aProyecto(f: Fila): Proyecto {
 
 const deProyecto = (p: Omit<Proyecto, 'id' | 'creadoEl'>): Payload => ({
   loc_nombre: p.nombre, loc_cliente: p.cliente, loc_color: p.color,
+  loc_interno: p.interno, loc_enlacedocumentos: p.enlaceDocumentos,
+  loc_apartados: JSON.stringify(p.apartados ?? []),
   loc_estado: EST_PROYECTO[p.estado], loc_descripcion: p.descripcion,
   loc_fechainicio: p.fechaInicio, loc_fechafin: p.fechaFin,
   loc_horaspresupuestadas: p.horasPresupuestadas,
@@ -179,6 +185,7 @@ function aTarea(f: Fila): Tarea {
     titulo: txt(f.loc_titulo),
     descripcion: txt(f.loc_descripcion),
     proyectoId: f._loc_proyecto_value ?? null,
+    apartadoId: txt(f.loc_apartado) || null,
     objetivoId: f._loc_objetivo_value ?? null,
     asignadoId: f._loc_asignado_value ?? null,
     creadoPorId: f._loc_creadopor_value ?? '',
@@ -210,6 +217,7 @@ const deTarea = (t: Omit<Tarea, 'id' | 'creadoEl'>): Payload => ({
   loc_midia: t.miDia, loc_importante: t.importante, loc_personal: t.personal,
   loc_etiquetas: JSON.stringify(t.etiquetas ?? []),
   loc_checklist: JSON.stringify(t.checklist ?? []),
+  loc_apartado: t.apartadoId,
   loc_completadoel: t.completadoEl,
   'loc_Proyecto@odata.bind': ref('loc_proyectos', t.proyectoId),
   'loc_Objetivo@odata.bind': ref('loc_objetivos', t.objetivoId),

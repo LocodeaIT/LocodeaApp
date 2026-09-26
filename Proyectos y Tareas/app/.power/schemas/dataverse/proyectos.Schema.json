@@ -89,6 +89,14 @@
           "x-ms-dataverse-type": "IntegerType",
           "x-ms-schema-name": "ImportSequenceNumber"
         },
+        "loc_apartados": {
+          "type": "string",
+          "title": "Apartados (JSON)",
+          "x-ms-dataverse-attribute": "loc_apartados",
+          "x-ms-dataverse-type": "MemoType",
+          "x-ms-schema-name": "loc_Apartados",
+          "maxLength": 20000
+        },
         "loc_cliente": {
           "type": "string",
           "title": "Cliente",
@@ -112,6 +120,14 @@
           "x-ms-dataverse-type": "MemoType",
           "x-ms-schema-name": "loc_Descripcion",
           "maxLength": 8000
+        },
+        "loc_enlacedocumentos": {
+          "type": "string",
+          "title": "Carpeta de documentacion (SharePoint)",
+          "x-ms-dataverse-attribute": "loc_enlacedocumentos",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_EnlaceDocumentos",
+          "maxLength": 500
         },
         "loc_estado": {
           "type": "string",
@@ -168,6 +184,38 @@
           "x-ms-dataverse-attribute": "loc_horaspresupuestadas",
           "x-ms-dataverse-type": "DecimalType",
           "x-ms-schema-name": "loc_HorasPresupuestadas"
+        },
+        "loc_interno": {
+          "type": "string",
+          "title": "Proyecto interno",
+          "x-ms-dataverse-attribute": "loc_interno",
+          "x-ms-dataverse-type": "BooleanType",
+          "x-ms-schema-name": "loc_Interno",
+          "enum": [
+            "No",
+            "Si"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "20bbc938-9cb9-f111-aaae-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Proyecto interno",
+          "x-ms-optionSetType": "Boolean"
+        },
+        "loc_internoname": {
+          "type": "string",
+          "title": "loc_internoname",
+          "x-ms-dataverse-attribute": "loc_internoname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_internoName",
+          "x-ms-dataverse-attribute-of": "loc_interno",
+          "x-ms-read-only": true
         },
         "loc_nombre": {
           "type": "string",

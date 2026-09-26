@@ -19,6 +19,7 @@ const P = {
   clinica: 'p-clinica',
   logistica: 'p-logistica',
   interno: 'p-interno',
+  cartera: 'p-cartera',
 }
 
 export function generarSeed(): Instantanea {
@@ -38,10 +39,10 @@ export function generarSeed(): Instantanea {
   ]
 
   const proyectos: Proyecto[] = [
-    { id: P.ortoalresa, nombre: 'Portal de pedidos', cliente: 'Ortoalresa', color: '#0F6CBD', estado: 'activo', responsableId: M.jesus, descripcion: 'Power Pages + Dataverse para que los distribuidores hagan pedidos y consulten estado.', fechaInicio: sumarDias(lunes, -42), fechaFin: sumarDias(lunes, 28), horasPresupuestadas: 180, creadoEl: iso(s3) },
-    { id: P.clinica, nombre: 'App de citas', cliente: 'Clínica Vega', color: '#C239B3', estado: 'activo', responsableId: M.marco, descripcion: 'Canvas app + Power Automate para gestión de citas y recordatorios por WhatsApp.', fechaInicio: sumarDias(lunes, -21), fechaFin: sumarDias(lunes, 21), horasPresupuestadas: 90, creadoEl: iso(s3) },
-    { id: P.logistica, nombre: 'Cuadro de mando logística', cliente: 'TransNorte', color: '#0E7C5B', estado: 'activo', responsableId: M.alejandro, descripcion: 'Power BI sobre SQL de su ERP con alertas de retrasos.', fechaInicio: sumarDias(lunes, -14), fechaFin: sumarDias(lunes, 14), horasPresupuestadas: 60, creadoEl: iso(s2) },
-    { id: P.interno, nombre: 'Locodea interno', cliente: 'Locodea', color: '#6B6B6B', estado: 'activo', responsableId: M.jesus, descripcion: 'Web, comercial, administración y esta misma app.', fechaInicio: null, fechaFin: null, horasPresupuestadas: null, creadoEl: iso(s3) },
+    { id: P.ortoalresa, nombre: 'Portal de pedidos', cliente: 'Ortoalresa', interno: false, enlaceDocumentos: '', apartados: [], color: '#0F6CBD', estado: 'activo', responsableId: M.jesus, descripcion: 'Power Pages + Dataverse para que los distribuidores hagan pedidos y consulten estado.', fechaInicio: sumarDias(lunes, -42), fechaFin: sumarDias(lunes, 28), horasPresupuestadas: 180, creadoEl: iso(s3) },
+    { id: P.clinica, nombre: 'App de citas', cliente: 'Clínica Vega', interno: false, enlaceDocumentos: '', apartados: [], color: '#C239B3', estado: 'activo', responsableId: M.marco, descripcion: 'Canvas app + Power Automate para gestión de citas y recordatorios por WhatsApp.', fechaInicio: sumarDias(lunes, -21), fechaFin: sumarDias(lunes, 21), horasPresupuestadas: 90, creadoEl: iso(s3) },
+    { id: P.logistica, nombre: 'Cuadro de mando logística', cliente: 'TransNorte', interno: false, enlaceDocumentos: '', apartados: [], color: '#0E7C5B', estado: 'activo', responsableId: M.alejandro, descripcion: 'Power BI sobre SQL de su ERP con alertas de retrasos.', fechaInicio: sumarDias(lunes, -14), fechaFin: sumarDias(lunes, 14), horasPresupuestadas: 60, creadoEl: iso(s2) },
+    { id: P.interno, nombre: 'Locodea interno', cliente: 'Locodea', interno: true, enlaceDocumentos: '', apartados: [], color: '#6B6B6B', estado: 'activo', responsableId: M.jesus, descripcion: 'Web, comercial, administración y esta misma app.', fechaInicio: null, fechaFin: null, horasPresupuestadas: null, creadoEl: iso(s3) },
   ]
 
   const semanas: Semana[] = [
@@ -104,6 +105,7 @@ export function generarSeed(): Instantanea {
     titulo,
     descripcion: '',
     proyectoId,
+    apartadoId: null,
     objetivoId: null,
     asignadoId,
     creadoPorId: asignadoId ?? M.jesus,
@@ -216,6 +218,54 @@ export function generarSeed(): Instantanea {
       comoUsar: 'Pegar la transcripción de la demo y pedir «guion de 5 minutos para pymes».',
       enlace: '', responsableId: M.marco, proyectoId: null, creadoEl: iso(s1) },
   ]
+
+  // Cartera de proyectos por tecnología: la misma que se cargó en Dataverse
+  // (generada desde el catálogo de soluciones). Enseña los apartados de proyecto.
+  proyectos.push({
+    id: P.cartera, nombre: 'Desarrollo cartera de proyectos', cliente: 'Locodea', interno: true, enlaceDocumentos: '',
+    color: '#ad6a33', estado: 'activo', responsableId: M.jesus, descripcion: 'Catálogo de soluciones de Locodea por tecnología: lo que ya está desarrollado y lo que queda por hacer.',
+    fechaInicio: null, fechaFin: null, horasPresupuestadas: null, creadoEl: iso(s1),
+    apartados: [
+      { id: 'ap-code-apps', nombre: 'Code Apps', descripcion: '', icono: 'app' },
+      { id: 'ap-power-bi', nombre: 'Power BI', descripcion: '', icono: 'grafico' },
+      { id: 'ap-power-automate', nombre: 'Power Automate', descripcion: 'Hay que pensar los flujos. Más que productos, son casos de uso que se explican con animaciones.', icono: 'flujo' },
+      { id: 'ap-business-central', nombre: 'Business Central', descripcion: 'Personalizaciones y extensiones de Business Central.', icono: 'erp' },
+      { id: 'ap-dynamics-sales', nombre: 'Dynamics 365 Sales', descripcion: 'Personalizaciones de Dynamics 365 Sales.', icono: 'ventas' },
+      { id: 'ap-power-pages', nombre: 'Power Pages', descripcion: '', icono: 'web' },
+      { id: 'ap-locodea-ia', nombre: 'Locodea IA', descripcion: 'Al final se trata de explicar el potencial de tenerlo todo integrado con Claude.', icono: 'ia' },
+      { id: 'ap-contenido', nombre: 'Contenido', descripcion: '', icono: 'contenido' },
+    ],
+  })
+  tareas.push(
+    tarea('Code App CRM', M.jesus, P.cartera, 'hecha', { apartadoId: 'ap-code-apps' }),
+    tarea('Code App Almacén', M.jesus, P.cartera, 'hecha', { apartadoId: 'ap-code-apps' }),
+    tarea('Code App RRHH', M.jesus, P.cartera, 'hecha', { apartadoId: 'ap-code-apps' }),
+    tarea('Code App Formación', M.jesus, P.cartera, 'hecha', { apartadoId: 'ap-code-apps' }),
+    tarea('Code App de inspecciones de calidad de producto', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-code-apps', descripcion: 'Inspecciones de calidad de los productos. Que también se pueda vender como una ayuda para cumplir las normas de calidad.' }),
+    tarea('Code App de vehículos', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-code-apps', descripcion: 'Por concretar: gestión de vehículos o de flota.' }),
+    tarea('Code App de proyectos', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-code-apps', descripcion: 'Tipo Planner Pro: To Do, diagramas de Gantt, etc.' }),
+    tarea('Panel de compras', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-power-bi' }),
+    tarea('Panel comercial', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-power-bi', descripcion: 'Análisis por agentes, mapa del mundo con filtros y animado, etc.' }),
+    tarea('Panel financiero', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-power-bi' }),
+    tarea('Panel de calidad', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-power-bi' }),
+    tarea('Panel de producción', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-power-bi' }),
+    tarea('Panel de stock con el almacén en 3D', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-power-bi', descripcion: 'El stock sobre el Power BI del almacén en 3D.' }),
+    tarea('Panel general', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-power-bi' }),
+    tarea('Definir los casos de uso de flujos', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-power-automate', descripcion: 'Pensarlos y decidir cómo enseñarlos: animaciones o lo que veamos.' }),
+    tarea('Extensión con la funcionalidad completa del SII', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-business-central' }),
+    tarea('Extensión con la funcionalidad completa del DeCA', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-business-central' }),
+    tarea('Módulo de gestión de calidad completo', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-business-central' }),
+    tarea('Personalizaciones a medida: botones, campos y flujos', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-dynamics-sales', descripcion: 'Si el cliente quiere que creemos un botón, un campo o un flujo que haga lo que necesite. Explicarlo con animaciones.' }),
+    tarea('Canvas app dentro de Sales: árbol de productos', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-dynamics-sales', descripcion: 'Personalización con una canvas app embebida en Sales, como un árbol de productos muy completo.' }),
+    tarea('Explorar más personalizaciones en Sales', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-dynamics-sales', descripcion: 'Ver qué otros desarrollos de este tipo se pueden hacer en Sales.' }),
+    tarea('Portal de incidencias de clientes', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-power-pages', descripcion: 'Los clientes registran sus incidencias y los técnicos las resuelven.' }),
+    tarea('Power Pages DeCA con gestión de QR', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-power-pages' }),
+    tarea('Portal de proveedores', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-power-pages', descripcion: 'Suben facturas y certificados y consultan pedidos y pagos. Pensado para compras.' }),
+    tarea('Portal de seguimiento de pedidos', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-power-pages' }),
+    tarea('Servicios de Locodea conectados a Claude por MCP', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-locodea-ia', descripcion: 'Tener conectados todos los servicios de Locodea mediante servidores MCP con Claude, para poder preguntar cualquier cosa.' }),
+    tarea('Integrar Claude con SharePoint, Outlook y Teams', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-locodea-ia', descripcion: 'SharePoint, Outlook, Teams, etc.' }),
+    tarea('Contenido: cómo se vinculan las soluciones entre sí', M.jesus, P.cartera, 'pendiente', { apartadoId: 'ap-contenido', descripcion: 'Un apartado de contenido que enseñe varias de estas soluciones juntas y explique cómo se vinculan.' }),
+  )
 
   return { miembros, proyectos, semanas, objetivos, tareas, actividad, vistas, reuniones: [], contenidos, recursosIA }
 }

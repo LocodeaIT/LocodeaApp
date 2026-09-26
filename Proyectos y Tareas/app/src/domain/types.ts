@@ -20,10 +20,30 @@ export interface Miembro {
 
 export type EstadoProyecto = 'activo' | 'pausado' | 'cerrado'
 
+/** Icono de un apartado: la familia de tecnología o de trabajo que agrupa. */
+export type IconoApartado = 'app' | 'grafico' | 'flujo' | 'erp' | 'ventas' | 'web' | 'ia' | 'contenido' | 'general'
+
+/**
+ * Un apartado de un proyecto: el bloque de trabajo que agrupa sus tareas (una
+ * tecnología, una fase, un entregable). Viaja con su proyecto, como el
+ * checklist con su tarea; el orden es el de la lista.
+ */
+export interface ApartadoProyecto {
+  id: string
+  nombre: string
+  descripcion: string
+  icono: IconoApartado
+}
+
 export interface Proyecto {
   id: string
   nombre: string
   cliente: string
+  /** Proyecto propio de Locodea, sin cliente: la ficha se simplifica. */
+  interno: boolean
+  /** Carpeta de documentación (SharePoint de Locodea). */
+  enlaceDocumentos: string
+  apartados: ApartadoProyecto[]
   color: string
   estado: EstadoProyecto
   responsableId: string | null
@@ -79,6 +99,8 @@ export interface Tarea {
   titulo: string
   descripcion: string
   proyectoId: string | null
+  /** Apartado del proyecto al que pertenece (id dentro de `Proyecto.apartados`). */
+  apartadoId: string | null
   objetivoId: string | null
   asignadoId: string | null
   creadoPorId: string

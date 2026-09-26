@@ -21,13 +21,16 @@ export type Loc_proyectosstatuscode = keyof typeof Loc_proyectosstatuscode;
 
 export interface Loc_proyectosBase {
   importsequencenumber?: number;
+  loc_apartados?: string;
   loc_cliente?: string;
   loc_color?: string;
   loc_descripcion?: string;
+  loc_enlacedocumentos?: string;
   loc_estado?: Loc_proyectosloc_estado;
   loc_fechafin?: string;
   loc_fechainicio?: string;
   loc_horaspresupuestadas?: number;
+  loc_interno?: boolean;
   loc_nombre: string;
   loc_proyectoid: string;
   "loc_Responsable@odata.bind"?: string;
@@ -41,6 +44,7 @@ export interface Loc_proyectosBase {
 export interface Loc_proyectos extends Loc_proyectosBase {
   createdon?: string;
   loc_estadoname?: string;
+  loc_internoname?: string;
   modifiedon?: string;
   ownerid: string;
   statecodename?: string;

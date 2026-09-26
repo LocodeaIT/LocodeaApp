@@ -29,6 +29,7 @@ export type Loc_tareasstatuscode = keyof typeof Loc_tareasstatuscode;
 
 export interface Loc_tareasBase {
   importsequencenumber?: number;
+  loc_apartado?: string;
   "loc_Asignado@odata.bind"?: string;
   loc_checklist?: string;
   loc_completadoel?: string;
