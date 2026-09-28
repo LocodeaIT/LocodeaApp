@@ -14,7 +14,7 @@ import {
   ArrowDown, ArrowLeft, ArrowUp, Calendar, Check, ExternalLink, FolderPlus, Layers, Pencil, Play, Plus, Search, Target, Trash2,
 } from 'lucide-react'
 import { useApp } from '../store'
-import { Anillo, Avatar, Campo, IconoPrioridad, Modal, Progreso, Vacio, confirmar } from '../ui/basicos'
+import { Anillo, Avatar, Campo, IconoPrioridad, Modal, Progreso, Segmentado, Vacio, confirmar } from '../ui/basicos'
 import { Select } from '../ui/Select'
 import { IconoApartado } from '../ui/IconoApartado'
 import { ModalProyecto } from './Modales'
@@ -108,20 +108,6 @@ export default function Proyectos({ abrirTarea }: { abrirTarea: (id: string) => 
       </div>
 
       {creando && <ModalProyecto inicial={null} onCerrar={() => setCreando(false)} onCreado={p => setAbierto(p.id)} />}
-    </div>
-  )
-}
-
-/** Pocas opciones siempre visibles: el segmentado del sistema. */
-function Segmentado<T extends string>({ valor, opciones, onCambio, etiqueta }: {
-  valor: T; opciones: { valor: T; etiqueta: string }[]; onCambio: (v: T) => void; etiqueta: string
-}) {
-  return (
-    <div className="btn-grupo" role="radiogroup" aria-label={etiqueta}>
-      {opciones.map(o => (
-        <button key={o.valor} type="button" role="radio" aria-checked={valor === o.valor}
-          className={valor === o.valor ? 'activo' : ''} onClick={() => onCambio(o.valor)}>{o.etiqueta}</button>
-      ))}
     </div>
   )
 }

@@ -20,6 +20,23 @@ export const Loc_contenidosloc_estado = {
   412000084: 'Publicado'
 } as const;
 export type Loc_contenidosloc_estado = keyof typeof Loc_contenidosloc_estado;
+export const Loc_contenidosloc_formato = {
+  412000100: 'Post',
+  412000101: 'Carrusel',
+  412000102: 'Vídeo corto',
+  412000103: 'Vídeo largo',
+  412000104: 'Directo',
+  412000105: 'Webinar',
+  412000106: 'Newsletter'
+} as const;
+export type Loc_contenidosloc_formato = keyof typeof Loc_contenidosloc_formato;
+export const Loc_contenidosloc_valoracion = {
+  412000090: 'Favorita',
+  412000091: 'Me gusta',
+  412000092: 'No me convence',
+  412000093: 'Descartada'
+} as const;
+export type Loc_contenidosloc_valoracion = keyof typeof Loc_contenidosloc_valoracion;
 export const Loc_contenidosstatecode = {
   0: 'Activo',
   1: 'Inactivo'
@@ -38,10 +55,15 @@ export interface Loc_contenidosBase {
   loc_enlace?: string;
   loc_estado?: Loc_contenidosloc_estado;
   loc_fechapublicacion?: string;
+  loc_formato?: Loc_contenidosloc_formato;
   loc_notas?: string;
+  loc_origen?: string;
   "loc_Proyecto@odata.bind"?: string;
   "loc_Responsable@odata.bind"?: string;
+  loc_serie?: string;
+  loc_tecnologias?: string;
   loc_titulo: string;
+  loc_valoracion?: Loc_contenidosloc_valoracion;
   overriddencreatedon?: string;
   statecode: Loc_contenidosstatecode;
   statuscode?: Loc_contenidosstatuscode;
@@ -53,6 +75,8 @@ export interface Loc_contenidos extends Loc_contenidosBase {
   createdon?: string;
   loc_canalname?: string;
   loc_estadoname?: string;
+  loc_formatoname?: string;
+  loc_valoracionname?: string;
   modifiedon?: string;
   ownerid: string;
   statecodename?: string;

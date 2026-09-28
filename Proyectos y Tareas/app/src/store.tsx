@@ -393,6 +393,7 @@ export function Proveedor({ repo, children }: { repo: Repositorio; children: Rea
   const contenidoBase = useCallback((parcial: Partial<Contenido> = {}): Nuevo<Contenido> => ({
     titulo: '', canal: 'linkedin', estado: 'idea', fecha: null, notas: '', enlace: '',
     responsableId: yo?.id ?? null, proyectoId: null,
+    valoracion: null, formato: null, serie: '', tecnologias: '', origen: '',
     ...parcial,
   }), [yo])
 

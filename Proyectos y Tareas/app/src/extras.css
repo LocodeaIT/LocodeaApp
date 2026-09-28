@@ -228,6 +228,53 @@ body.con-dialogo { overflow: hidden; }
 .chip.activo { background: var(--acento); color: #fff; border-color: transparent; }
 .chip.activo .punto-proyecto { box-shadow: 0 0 0 1.5px rgba(255,255,255,.7); }
 
+/* Banco de ideas: valoracion con estrella, formato, serie y tecnologias.
+   La estrella es la accion rapida (favorita); el resto de valoraciones se
+   eligen al abrir la fila. Las descartadas se atenuan. */
+.contenido-filtros { gap: 10px; }
+.contenido-filtros-dcha { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cuenta-chip { opacity: .6; font-weight: 400; margin-left: 2px; }
+.chip.chip-favorita:not(.activo) svg { color: var(--bronze); }
+
+.estrella { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border: 0; border-radius: 50%;
+  background: transparent; color: var(--ink-20); cursor: pointer; transition: color var(--rapido), background var(--rapido), transform var(--rapido); }
+.estrella:hover { color: var(--bronze); background: var(--accent-soft); }
+.estrella.activa { color: var(--bronze); }
+.estrella.activa svg { fill: var(--bronze); }
+.estrella:active { transform: scale(.9); }
+
+.contenido-meta { flex-wrap: wrap; row-gap: 4px; }
+.contenido-meta .formato { color: var(--ink-65); font-weight: 500; }
+.contenido-meta .serie { color: var(--bronze-text); }
+.contenido-meta .tecno { padding: 1px 8px; border-radius: var(--pill); background: var(--sand); color: var(--ink-65); font-size: 11px; }
+.contenido-meta .tecno.mas { background: transparent; box-shadow: var(--shadow-card); }
+.valoracion-chip { display: inline-flex; align-items: center; gap: 4px; font-weight: 500; }
+.valoracion-chip.gusta { color: var(--ok); }
+.valoracion-chip.nogusta { color: var(--warn); }
+.valoracion-chip.descartada { color: var(--ink-40); }
+
+.tarjeta.contenido.val-favorita { box-shadow: var(--shadow-card), inset 0 0 0 1px var(--bronze-soft); }
+.tarjeta.contenido.val-descartada { opacity: .55; }
+.tarjeta.contenido.val-descartada:hover { opacity: 1; }
+.tarjeta.contenido.val-descartada .contenido-titulo { text-decoration: line-through; text-decoration-color: var(--ink-20); }
+
+.serie-favoritas { display: inline-flex; align-items: center; gap: 3px; margin-left: 8px; color: var(--bronze-text); }
+.serie-favoritas svg { fill: var(--bronze); color: var(--bronze); }
+
+.valorar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.valorar-titulo { font-size: 12.5px; font-weight: 500; color: var(--muted); margin-right: 4px; }
+.valorar-btn { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border: 0; border-radius: var(--pill);
+  background: var(--paper); box-shadow: var(--shadow-card); font-size: 12.5px; font-weight: 500; color: var(--ink-65); cursor: pointer;
+  transition: background var(--rapido), color var(--rapido), box-shadow var(--rapido); }
+.valorar-btn:hover { background: var(--sand); color: var(--ink); }
+.valorar-btn.activo.favorita { background: var(--accent-soft); color: var(--bronze-text); box-shadow: 0 0 0 1px var(--bronze); }
+.valorar-btn.activo.favorita svg { fill: var(--bronze); color: var(--bronze); }
+.valorar-btn.activo.gusta { background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ok); box-shadow: 0 0 0 1px var(--ok); }
+.valorar-btn.activo.nogusta { background: color-mix(in srgb, var(--warn) 16%, transparent); color: var(--ink); box-shadow: 0 0 0 1px var(--warn); }
+.valorar-btn.activo.descartada { background: var(--ink-6); color: var(--ink); box-shadow: 0 0 0 1px var(--ink-40); }
+.fila-campos .campo > span svg, .campo > span svg { vertical-align: -2px; margin-right: 3px; }
+.campo textarea.notas-contenido { min-height: 240px; line-height: 1.55; font-size: 13.5px; white-space: pre-wrap; }
+
 /* El plazo pasado se avisa sin alarmar: solo el titulo del grupo cambia de tono. */
 .seccion-titulo.alerta { color: var(--error); }
 

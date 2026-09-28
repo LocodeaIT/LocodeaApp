@@ -202,6 +202,53 @@
           "x-ms-dataverse-type": "DateTimeType",
           "x-ms-schema-name": "loc_FechaPublicacion"
         },
+        "loc_formato": {
+          "type": "string",
+          "title": "Formato",
+          "x-ms-dataverse-attribute": "loc_formato",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_Formato",
+          "enum": [
+            "Post",
+            "Carrusel",
+            "Vídeo corto",
+            "Vídeo largo",
+            "Directo",
+            "Webinar",
+            "Newsletter"
+          ],
+          "x-ms-enum-values": [
+            412000100,
+            412000101,
+            412000102,
+            412000103,
+            412000104,
+            412000105,
+            412000106
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "aaf762dd-5bbb-f111-aaae-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Formato",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_formatoname": {
+          "type": "string",
+          "title": "loc_formatoname",
+          "x-ms-dataverse-attribute": "loc_formatoname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_formatoName",
+          "x-ms-dataverse-attribute-of": "loc_formato",
+          "x-ms-read-only": true
+        },
         "loc_notas": {
           "type": "string",
           "title": "Guion o notas",
@@ -209,6 +256,14 @@
           "x-ms-dataverse-type": "MemoType",
           "x-ms-schema-name": "loc_Notas",
           "maxLength": 8000
+        },
+        "loc_origen": {
+          "type": "string",
+          "title": "Desarrollo en el que se basa",
+          "x-ms-dataverse-attribute": "loc_origen",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Origen",
+          "maxLength": 200
         },
         "loc_proyecto": {
           "type": "string",
@@ -250,6 +305,22 @@
           "x-ms-read-only": true,
           "maxLength": 200
         },
+        "loc_serie": {
+          "type": "string",
+          "title": "Serie",
+          "x-ms-dataverse-attribute": "loc_serie",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Serie",
+          "maxLength": 150
+        },
+        "loc_tecnologias": {
+          "type": "string",
+          "title": "Tecnologías",
+          "x-ms-dataverse-attribute": "loc_tecnologias",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Tecnologias",
+          "maxLength": 400
+        },
         "loc_titulo": {
           "type": "string",
           "title": "Titulo",
@@ -259,6 +330,44 @@
           "x-ms-dataverse-primary-name": true,
           "required": true,
           "maxLength": 300
+        },
+        "loc_valoracion": {
+          "type": "string",
+          "title": "Valoración",
+          "x-ms-dataverse-attribute": "loc_valoracion",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_Valoracion",
+          "enum": [
+            "Favorita",
+            "Me gusta",
+            "No me convence",
+            "Descartada"
+          ],
+          "x-ms-enum-values": [
+            412000090,
+            412000091,
+            412000092,
+            412000093
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "e300b5d6-5bbb-f111-aaae-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Valoración",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_valoracionname": {
+          "type": "string",
+          "title": "loc_valoracionname",
+          "x-ms-dataverse-attribute": "loc_valoracionname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_valoracionName",
+          "x-ms-dataverse-attribute-of": "loc_valoracion",
+          "x-ms-read-only": true
         },
         "modifiedby": {
           "type": "string",

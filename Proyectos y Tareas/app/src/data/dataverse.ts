@@ -15,7 +15,7 @@
 import type { Instantanea, Nuevo, Repositorio } from './repo'
 import type {
   Actividad, ApartadoProyecto, ColumnaLista, EntidadActividad, EstadoObjetivo, EstadoProyecto, EstadoTarea,
-  CanalContenido, Contenido, EstadoContenido, EstadoRecursoIA, PlataformaIA, RecursoIA, TipoRecursoIA, EstadoReunion, FiltrosVista, ItemChecklist, Miembro, Objetivo, Prioridad, Proyecto, Rol,
+  CanalContenido, Contenido, EstadoContenido, FormatoContenido, Valoracion, EstadoRecursoIA, PlataformaIA, RecursoIA, TipoRecursoIA, EstadoReunion, FiltrosVista, ItemChecklist, Miembro, Objetivo, Prioridad, Proyecto, Rol,
   Reunion, Semana, Tarea, TemaReunion, TipoVista, AgruparPor, OrdenarPor, Vista,
 } from '../domain/types'
 import { FILTROS_VACIOS } from '../domain/types'
@@ -47,6 +47,8 @@ const PRIORIDAD: Record<Prioridad, number> = { alta: 412000050, media: 412000051
 const EST_REUNION: Record<EstadoReunion, number> = { pendiente: 412000060, celebrada: 412000061, cancelada: 412000062 }
 const CANAL: Record<CanalContenido, number> = { youtube: 412000070, linkedin: 412000071, instagram: 412000072, tiktok: 412000073, blog: 412000074, newsletter: 412000075, x: 412000076 }
 const EST_CONTENIDO: Record<EstadoContenido, number> = { idea: 412000080, guion: 412000081, produccion: 412000082, listo: 412000083, publicado: 412000084 }
+const VALORACION: Record<Valoracion, number> = { favorita: 412000090, gusta: 412000091, nogusta: 412000092, descartada: 412000093 }
+const FORMATO: Record<FormatoContenido, number> = { post: 412000100, carrusel: 412000101, corto: 412000102, largo: 412000103, directo: 412000104, webinar: 412000105, newsletter: 412000106 }
 // El CRM ocupa del 100 al 222: el tipo va en el hueco del 90 y el resto abre bloque en el 300.
 const TIPO_IA: Record<TipoRecursoIA, number> = { skill: 412000090, agente: 412000091, prompt: 412000092, flujo: 412000093 }
 const PLATAFORMA_IA: Record<PlataformaIA, number> = { claude: 412000300, copilot_studio: 412000301, copilot_m365: 412000302, chatgpt: 412000303, power_automate: 412000304, otra: 412000305 }
@@ -63,6 +65,8 @@ const DE_TIPO_IA = inverso(TIPO_IA)
 const DE_PLATAFORMA_IA = inverso(PLATAFORMA_IA)
 const DE_EST_IA = inverso(EST_IA)
 const DE_EST_CONTENIDO = inverso(EST_CONTENIDO)
+const DE_VALORACION = inverso(VALORACION)
+const DE_FORMATO = inverso(FORMATO)
 
 // ─────────────────────────────────────────────── utilidades
 
@@ -293,6 +297,11 @@ function aContenido(f: Fila): Contenido {
     enlace: txt(f.loc_enlace),
     responsableId: f._loc_responsable_value ?? null,
     proyectoId: f._loc_proyecto_value ?? null,
+    valoracion: DE_VALORACION[f.loc_valoracion] ?? null,
+    formato: DE_FORMATO[f.loc_formato] ?? null,
+    serie: txt(f.loc_serie),
+    tecnologias: txt(f.loc_tecnologias),
+    origen: txt(f.loc_origen),
     creadoEl: txt(f.createdon),
   }
 }
@@ -323,6 +332,9 @@ const deRecursoIA = (r: Omit<RecursoIA, 'id' | 'creadoEl'>): Payload => ({
 const deContenido = (c: Omit<Contenido, 'id' | 'creadoEl'>): Payload => ({
   loc_titulo: c.titulo, loc_canal: CANAL[c.canal], loc_estado: EST_CONTENIDO[c.estado],
   loc_fechapublicacion: c.fecha, loc_notas: c.notas, loc_enlace: c.enlace,
+  loc_valoracion: c.valoracion ? VALORACION[c.valoracion] : null,
+  loc_formato: c.formato ? FORMATO[c.formato] : null,
+  loc_serie: c.serie ?? '', loc_tecnologias: c.tecnologias ?? '', loc_origen: c.origen ?? '',
   'loc_Responsable@odata.bind': ref('loc_miembros', c.responsableId),
   'loc_Proyecto@odata.bind': ref('loc_proyectos', c.proyectoId),
 })

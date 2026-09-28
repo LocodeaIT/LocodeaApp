@@ -213,3 +213,17 @@ export function Confirmador() {
     </Modal>
   )
 }
+
+/** Pocas opciones siempre visibles: el segmentado del sistema. */
+export function Segmentado<T extends string>({ valor, opciones, onCambio, etiqueta }: {
+  valor: T; opciones: { valor: T; etiqueta: string }[]; onCambio: (v: T) => void; etiqueta: string
+}) {
+  return (
+    <div className="btn-grupo" role="radiogroup" aria-label={etiqueta}>
+      {opciones.map(o => (
+        <button key={o.valor} type="button" role="radio" aria-checked={valor === o.valor}
+          className={valor === o.valor ? 'activo' : ''} onClick={() => onCambio(o.valor)}>{o.etiqueta}</button>
+      ))}
+    </div>
+  )
+}

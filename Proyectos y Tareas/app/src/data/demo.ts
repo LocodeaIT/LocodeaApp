@@ -33,7 +33,8 @@ function migrar(d: Instantanea): Instantanea {
     ...d,
     vistas: d.vistas ?? [],
     reuniones: d.reuniones ?? [],
-    contenidos: d.contenidos ?? [],
+    // Datos guardados antes de que existieran valoración, formato, serie, tecnologías y origen.
+    contenidos: (d.contenidos ?? []).map(c => ({ ...c, valoracion: c.valoracion ?? null, formato: c.formato ?? null, serie: c.serie ?? '', tecnologias: c.tecnologias ?? '', origen: c.origen ?? '' })),
     recursosIA: d.recursosIA ?? generarSeed().recursosIA,
     tareas: d.tareas.map(t => ({ ...t, inicio: t.inicio ?? null, padreId: t.padreId ?? null, apartadoId: t.apartadoId ?? null })),
     proyectos: d.proyectos.map(p => ({ ...p, interno: p.interno ?? p.cliente?.trim().toLowerCase() === 'locodea', enlaceDocumentos: p.enlaceDocumentos ?? '', apartados: p.apartados ?? [] })),

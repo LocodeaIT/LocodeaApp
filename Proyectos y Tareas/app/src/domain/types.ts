@@ -264,6 +264,9 @@ export const ETIQUETA_ESTADO_PROYECTO: Record<EstadoProyecto, string> = {
 
 export type CanalContenido = 'youtube' | 'linkedin' | 'instagram' | 'tiktok' | 'blog' | 'newsletter' | 'x'
 export type EstadoContenido = 'idea' | 'guion' | 'produccion' | 'listo' | 'publicado'
+/** Lo que opina el equipo de una idea. `null` = todavía nadie la ha valorado. */
+export type Valoracion = 'favorita' | 'gusta' | 'nogusta' | 'descartada'
+export type FormatoContenido = 'post' | 'carrusel' | 'corto' | 'largo' | 'directo' | 'webinar' | 'newsletter'
 
 /** Una pieza de contenido: un vídeo, un post, una newsletter. */
 export interface Contenido {
@@ -279,8 +282,39 @@ export interface Contenido {
   enlace: string
   responsableId: string | null
   proyectoId: string | null
+  /** Favorita, me gusta, no me convence o descartada. */
+  valoracion: Valoracion | null
+  formato: FormatoContenido | null
+  /** Serie o bloque al que pertenece (p. ej. «Una app en 60 segundos»). */
+  serie: string
+  /** Tecnologías con las que se hace, separadas por comas. */
+  tecnologias: string
+  /** Desarrollo de la carpeta de locodea. en el que se basa. */
+  origen: string
   creadoEl: string
 }
+
+export const ETIQUETA_VALORACION: Record<Valoracion, string> = {
+  favorita: 'Favorita',
+  gusta: 'Me gusta',
+  nogusta: 'No me convence',
+  descartada: 'Descartada',
+}
+export const VALORACIONES: Valoracion[] = ['favorita', 'gusta', 'nogusta', 'descartada']
+
+export const ETIQUETA_FORMATO: Record<FormatoContenido, string> = {
+  post: 'Post',
+  carrusel: 'Carrusel',
+  corto: 'Vídeo corto',
+  largo: 'Vídeo largo',
+  directo: 'Directo',
+  webinar: 'Webinar',
+  newsletter: 'Newsletter',
+}
+export const FORMATOS: FormatoContenido[] = ['post', 'carrusel', 'corto', 'largo', 'directo', 'webinar', 'newsletter']
+
+/** Separa el texto de tecnologías en etiquetas limpias. */
+export const listaTecnologias = (t: string): string[] => t.split(',').map(x => x.trim()).filter(Boolean)
 
 export const ETIQUETA_CANAL: Record<CanalContenido, string> = {
   youtube: 'YouTube',
