@@ -147,6 +147,16 @@
           "entitySetName": "loc_documentos",
           "logicalName": "loc_documento",
           "isHidden": false
+        },
+        "b_vedas": {
+          "entitySetName": "loc_bovedas",
+          "logicalName": "loc_boveda",
+          "isHidden": false
+        },
+        "secretos": {
+          "entitySetName": "loc_secretos",
+          "logicalName": "loc_secreto",
+          "isHidden": false
         }
       },
       "environmentVariableName": ""

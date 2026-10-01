@@ -19,6 +19,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "loc_bovedas": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_bovedaid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "loc_contactos": {
     "tableId": "",
     "version": "",
@@ -156,6 +163,13 @@ export const dataSourcesInfo = {
     "tableId": "",
     "version": "",
     "primaryKey": "loc_reunionid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_secretos": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_secretoid",
     "dataSourceType": "Dataverse",
     "apis": {}
   },

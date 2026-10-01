@@ -44,6 +44,13 @@ pushear a continuación, antes de dar la tarea por terminada.
   CRM. Esquema con `node scripts/gestion-esquema.mjs`; ejemplos con
   `node scripts/gestion-ejemplos.mjs` (y `--borrar`). Añadió a las facturas
   `loc_importecobrado` / `loc_importepagado` y a la cuenta `loc_regimeniva`.
+- Módulo Bóveda (`app/src/boveda`): contraseñas, claves API y notas seguras
+  cifradas en el navegador (PBKDF2-SHA256 600 000 + AES-256-GCM, Web Crypto).
+  `loc_boveda` guarda solo sal y clave envuelta; `loc_secreto.loc_datos`, el
+  elemento cifrado. Nunca se escribe un secreto en claro en Dataverse, en
+  localStorage ni en la consola. Esquema con `node scripts/boveda-esquema.mjs`.
+  Si se cambia el formato, se sube la versión (`ALGORITMO` / `v1.` en
+  `boveda/cripto.ts`) y se sigue sabiendo leer la anterior.
 - Los scripts de Dataverse llaman al CLI con `npx -y @microsoft/dataverse`; en
   Windows conviene `$env:DATAVERSE_CLI=<ruta a bin/dataverse.js>` para que
   los `&` de las consultas OData no pasen por cmd.

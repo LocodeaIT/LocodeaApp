@@ -13,6 +13,7 @@ producción cuando haya licencias de pago: ver
 |---|---|---|
 | [`Proyectos y Tareas/`](./Proyectos%20y%20Tareas) | En uso | Objetivos semanales, tareas con subtareas, Mi día, proyectos, reuniones sincronizadas con Outlook, calendario de contenido de redes, catálogo de skills y agentes de IA, informes y análisis |
 | CRM (en `Proyectos y Tareas/app/src/crm/`) | Tablas creadas, sin publicar | Cuentas, contactos, clientes potenciales, oportunidades, actividades, productos, ofertas, pedidos y facturas de venta y compra. Conectado a sus 13 tablas de Dataverse (vacías); en local se prueba con `VITE_DEMO=1` |
+| Bóveda (en `Proyectos y Tareas/app/src/boveda/`) | En uso | Contraseñas, claves API y notas seguras del equipo y personales, cifradas en el navegador con AES-256 antes de llegar a Dataverse (`loc_boveda`, `loc_secreto`). Generador, códigos de dos pasos, salud de contraseñas y bloqueo automático |
 | *ERP* | No se construye | Se **integra** con el ERP existente (contabilidad y facturación oficial quedan fuera) |
 
 La decisión sobre el ERP es deliberada: facturación y contabilidad están
