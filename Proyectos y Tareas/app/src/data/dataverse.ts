@@ -287,15 +287,27 @@ function aReunion(f: Fila): Reunion {
 }
 
 function aContenido(f: Fila): Contenido {
+  const canal: CanalContenido = DE_CANAL[f.loc_canal] ?? 'linkedin'
+  // Las filas de antes de loc_canales, loc_enlaces y loc_asignados se leen con
+  // su canal, su enlace y su responsable de siempre.
+  const canales = leerJson<CanalContenido[]>(f.loc_canales, []).filter(c => c in CANAL)
+  const enlaces = leerJson<Partial<Record<CanalContenido, string>>>(f.loc_enlaces, {})
+  if (!Object.keys(enlaces).length && f.loc_enlace) enlaces[canal] = f.loc_enlace
+  const responsableId: string | null = f._loc_responsable_value ?? null
+  const asignadosIds = leerJson<string[]>(f.loc_asignados, [])
   return {
     id: f.loc_contenidoid,
     titulo: txt(f.loc_titulo),
-    canal: DE_CANAL[f.loc_canal] ?? 'linkedin',
+    canal: canales[0] ?? canal,
+    canales: canales.length ? canales : [canal],
     estado: DE_EST_CONTENIDO[f.loc_estado] ?? 'idea',
     fecha: soloFecha(f.loc_fechapublicacion),
     notas: txt(f.loc_notas),
-    enlace: txt(f.loc_enlace),
-    responsableId: f._loc_responsable_value ?? null,
+    enlaces,
+    asignadosIds: asignadosIds.length ? asignadosIds : responsableId ? [responsableId] : [],
+    responsableId: asignadosIds[0] ?? responsableId,
+    perfil: txt(f.loc_perfil) || null,
+    enPlan: f.loc_enplan === true,
     proyectoId: f._loc_proyecto_value ?? null,
     valoracion: DE_VALORACION[f.loc_valoracion] ?? null,
     formato: DE_FORMATO[f.loc_formato] ?? null,
@@ -329,15 +341,27 @@ const deRecursoIA = (r: Omit<RecursoIA, 'id' | 'creadoEl'>): Payload => ({
   'loc_Proyecto@odata.bind': ref('loc_proyectos', r.proyectoId),
 })
 
-const deContenido = (c: Omit<Contenido, 'id' | 'creadoEl'>): Payload => ({
-  loc_titulo: c.titulo, loc_canal: CANAL[c.canal], loc_estado: EST_CONTENIDO[c.estado],
-  loc_fechapublicacion: c.fecha, loc_notas: c.notas, loc_enlace: c.enlace,
-  loc_valoracion: c.valoracion ? VALORACION[c.valoracion] : null,
-  loc_formato: c.formato ? FORMATO[c.formato] : null,
-  loc_serie: c.serie ?? '', loc_tecnologias: c.tecnologias ?? '', loc_origen: c.origen ?? '',
-  'loc_Responsable@odata.bind': ref('loc_miembros', c.responsableId),
-  'loc_Proyecto@odata.bind': ref('loc_proyectos', c.proyectoId),
-})
+const deContenido = (c: Omit<Contenido, 'id' | 'creadoEl'>): Payload => {
+  const canales = c.canales?.length ? c.canales : [c.canal]
+  const enlaces = Object.fromEntries(Object.entries(c.enlaces ?? {}).filter(([, v]) => v?.trim()))
+  const asignados = c.asignadosIds ?? (c.responsableId ? [c.responsableId] : [])
+  return {
+    loc_titulo: c.titulo, loc_canal: CANAL[canales[0]], loc_estado: EST_CONTENIDO[c.estado],
+    loc_fechapublicacion: c.fecha, loc_notas: c.notas,
+    // loc_enlace sigue guardando el del canal principal para quien lea la tabla a pelo.
+    loc_enlace: enlaces[canales[0]] ?? Object.values(enlaces)[0] ?? '',
+    loc_canales: JSON.stringify(canales),
+    loc_enlaces: JSON.stringify(enlaces),
+    loc_asignados: JSON.stringify(asignados),
+    loc_perfil: c.perfil ?? '',
+    loc_enplan: c.enPlan === true,
+    loc_valoracion: c.valoracion ? VALORACION[c.valoracion] : null,
+    loc_formato: c.formato ? FORMATO[c.formato] : null,
+    loc_serie: c.serie ?? '', loc_tecnologias: c.tecnologias ?? '', loc_origen: c.origen ?? '',
+    'loc_Responsable@odata.bind': ref('loc_miembros', asignados[0] ?? null),
+    'loc_Proyecto@odata.bind': ref('loc_proyectos', c.proyectoId),
+  }
+}
 
 const deReunion = (r: Omit<Reunion, 'id' | 'creadoEl'>): Payload => ({
   loc_titulo: r.titulo, loc_fecha: r.fecha, loc_duracionmin: r.duracionMin,

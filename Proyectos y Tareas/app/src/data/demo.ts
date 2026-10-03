@@ -34,7 +34,18 @@ function migrar(d: Instantanea): Instantanea {
     vistas: d.vistas ?? [],
     reuniones: d.reuniones ?? [],
     // Datos guardados antes de que existieran valoración, formato, serie, tecnologías y origen.
-    contenidos: (d.contenidos ?? []).map(c => ({ ...c, valoracion: c.valoracion ?? null, formato: c.formato ?? null, serie: c.serie ?? '', tecnologias: c.tecnologias ?? '', origen: c.origen ?? '' })),
+    contenidos: (d.contenidos ?? []).map(c => {
+      // Y antes de canales, enlaces por canal, asignados, perfil y plan de trabajo.
+      const viejo = c as typeof c & { enlace?: string }
+      return {
+        ...c, valoracion: c.valoracion ?? null, formato: c.formato ?? null, serie: c.serie ?? '', tecnologias: c.tecnologias ?? '', origen: c.origen ?? '',
+        canales: c.canales?.length ? c.canales : [c.canal],
+        enlaces: c.enlaces ?? (viejo.enlace ? { [c.canal]: viejo.enlace } : {}),
+        asignadosIds: c.asignadosIds ?? (c.responsableId ? [c.responsableId] : []),
+        perfil: c.perfil ?? null,
+        enPlan: c.enPlan ?? false,
+      }
+    }),
     recursosIA: d.recursosIA ?? generarSeed().recursosIA,
     tareas: d.tareas.map(t => ({ ...t, inicio: t.inicio ?? null, padreId: t.padreId ?? null, apartadoId: t.apartadoId ?? null })),
     proyectos: d.proyectos.map(p => ({ ...p, interno: p.interno ?? p.cliente?.trim().toLowerCase() === 'locodea', enlaceDocumentos: p.enlaceDocumentos ?? '', apartados: p.apartados ?? [] })),

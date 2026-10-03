@@ -1,0 +1,66 @@
+{
+  "creadas": [
+    "8ae23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "8be23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "8ce23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "8de23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "8ee23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "8fe23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "90e23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "91e23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "92e23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "93e23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "94e23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "95e23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "96e23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "97e23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "98e23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "99e23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "9ae23dfa-17bf-f111-aaaf-70a8a5068d0e",
+    "9be23dfa-17bf-f111-aaaf-70a8a5068d0e"
+  ],
+  "pasadas": [
+    {
+      "id": "5aeb416c-5dbb-f111-aaae-70a8a5068d0e",
+      "antes": {
+        "loc_titulo": "La fábrica en una tablet: instrucciones de montaje en 3D",
+        "loc_notas": "GANCHO: «Así aprende a montar una pieza alguien que entra hoy en planta.»\n\nQUÉ SE ENSEÑA: El operario toca su nombre, abre su orden, gira la bomba en 3D, la separa en piezas y sigue los pasos; al fondo, el plano de la fábrica en vivo.\n\nESTRUCTURA:\n1. 0–3 s: la pieza en 3D separándose en la tablet\n2. 3–20 s: fichar en la orden y sumar unidades\n3. 20–45 s: instrucciones paso a paso\n4. 45–60 s: el responsable ve la planta en vivo\n\nFORMATO Y DURACIÓN: 45–60 s vertical, subtítulos quemados. Publicar también en Shorts y Reels.\nTECNOLOGÍA: Power Apps (Code App), React, Three.js, Dataverse\nSE BASA EN: Code App · Producción\n\nPOR QUÉ PUEDE FUNCIONAR: Lo más visto de «Power Apps producción» tiene 4–6 años («PowerApps. Control de producción»: 10.000). Nadie lo enseña con 3D y tablet moderna.\nQUÉ HAY QUE PREPARAR: Grabación de pantalla limpia de la demo en tablet (datos de demostración).",
+        "loc_enplan": false,
+        "loc_perfil": "",
+        "loc_canales": "",
+        "loc_asignados": "",
+        "loc_canal": 412000071,
+        "loc_formato": 412000102,
+        "loc_Responsable@odata.bind": "/loc_miembros(17d697f2-11b4-f111-aaab-70a8a5068d0e)"
+      }
+    },
+    {
+      "id": "67eb416c-5dbb-f111-aaae-70a8a5068d0e",
+      "antes": {
+        "loc_titulo": "Dónde está mi pedido: seguimiento para una empresa pequeña",
+        "loc_notas": "GANCHO: «El seguimiento que tienen las grandes tiendas, para tu empresa.»\n\nQUÉ SE ENSEÑA: El cliente mete su número de pedido y ve en qué paso está.\n\nESTRUCTURA:\n1. Pantalla del cliente\n2. Cambio de estado desde la oficina\n3. Aviso al cliente\n\nFORMATO Y DURACIÓN: 30 s vertical.\nTECNOLOGÍA: Power Pages, Dataverse, Power Automate\nSE BASA EN: Power Pages · Seguimiento de pedido\n\nPOR QUÉ PUEDE FUNCIONAR: Nate Herk, «I built an AI agent that builds n8n workflows»: 837 reacciones en LinkedIn; Scott Durow, app de Gantt con Code Apps: 165. El patrón «lo he construido yo» con demo visual es el que mejor funciona.\nQUÉ HAY QUE PREPARAR: Terminar la página de seguimiento (es un HTML suelto) y grabarla.",
+        "loc_enplan": false,
+        "loc_perfil": "",
+        "loc_canales": "",
+        "loc_asignados": "",
+        "loc_canal": 412000071,
+        "loc_formato": 412000102,
+        "loc_Responsable@odata.bind": "/loc_miembros(17d697f2-11b4-f111-aaab-70a8a5068d0e)"
+      }
+    },
+    {
+      "id": "c9034b72-5dbb-f111-aaae-70a8a5068d0e",
+      "antes": {
+        "loc_titulo": "Power Pages o una web normal: cuándo compensa cada una",
+        "loc_notas": "GANCHO: «No todo portal necesita Power Pages. Pero cuando lo necesita, ahorra meses.»\n\nQUÉ SE ENSEÑA: Criterio: usuarios externos, datos en Dataverse, permisos y coste.\n\nESTRUCTURA:\n1. Gancho\n2. Cuándo sí\n3. Cuándo no\n4. Pregunta\n\nFORMATO Y DURACIÓN: Post o carrusel.\nTECNOLOGÍA: Power Pages, Dataverse\nSE BASA EN: Power Pages · Portal SAT y DeCA\n\nPOR QUÉ PUEDE FUNCIONAR: En español, los posts de Power Platform y Business Central se quedan en 5–30 reacciones: casi todo son enlaces a blogs y anuncios. Con demos, cifras y opinión se destaca rápido.\nQUÉ HAY QUE PREPARAR: Revisar el coste de Power Pages por usuario.",
+        "loc_enplan": false,
+        "loc_perfil": "",
+        "loc_canales": "",
+        "loc_asignados": "",
+        "loc_canal": 412000071,
+        "loc_formato": 412000100,
+        "loc_Responsable@odata.bind": "/loc_miembros(16d697f2-11b4-f111-aaab-70a8a5068d0e)"
+      }
+    }
+  ]
+}

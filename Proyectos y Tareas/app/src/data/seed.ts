@@ -187,7 +187,43 @@ export function generarSeed(): Instantanea {
     { id: 'a-7', entidad: 'tarea', entidadId: 't-6', autorId: M.jesus, fecha: iso(s0, 11), tipo: 'cambio', texto: 'Marcó la tarea como bloqueada.' },
   ]
 
-  const contenidos: Contenido[] = [
+  // Escritas con un solo canal y un solo enlace; `pieza()` las completa.
+  type ContenidoSeed = Omit<Contenido, 'canales' | 'enlaces' | 'asignadosIds' | 'perfil' | 'enPlan'> & { enlace: string } & Partial<Pick<Contenido, 'canales' | 'perfil' | 'enPlan'>>
+  const pieza = ({ enlace, ...c }: ContenidoSeed): Contenido => ({
+    ...c,
+    canales: c.canales ?? [c.canal],
+    enlaces: enlace ? { [c.canal]: enlace } : {},
+    asignadosIds: c.responsableId ? [c.responsableId] : [],
+    perfil: c.perfil ?? null,
+    enPlan: c.enPlan ?? false,
+  })
+  /** El plan de trabajo: lo que sí vamos a hacer, por perfil y con sus canales (L = LinkedIn, Y = YouTube). */
+  const plan = (n: number, titulo: string, perfil: string, canales: ('linkedin' | 'youtube')[], responsableId: string | null, formato: Contenido['formato'] = null, estado: Contenido['estado'] = 'idea'): ContenidoSeed => ({
+    id: `cp-${n}`, titulo, canal: canales[0], canales, estado, fecha: null, notas: '', enlace: '', responsableId, proyectoId: null,
+    valoracion: null, formato, serie: '', tecnologias: '', origen: '', creadoEl: iso(s0), perfil, enPlan: true,
+  })
+  const banco: ContenidoSeed[] = [
+    plan(1, 'Vídeo de presentación', 'locodea', ['linkedin'], null, 'corto', 'guion'),
+    plan(2, 'Post de la página web', 'locodea', ['linkedin'], null, 'post'),
+    plan(3, 'Post sobre Power Pages', 'locodea', ['linkedin'], null, 'post'),
+    plan(4, 'Post sobre Power Apps', 'locodea', ['linkedin'], null, 'post'),
+    plan(5, 'Post sobre Power BI', 'locodea', ['linkedin'], null, 'post'),
+    plan(6, 'Post sobre Power Automate', 'locodea', ['linkedin'], null, 'post'),
+    plan(7, 'Post sobre Copilot Studio', 'locodea', ['linkedin'], null, 'post'),
+    plan(8, 'Post sobre Claudea', 'locodea', ['linkedin'], null, 'post'),
+    plan(9, 'Vídeo de presentación', M.jesus, ['linkedin', 'youtube'], M.jesus),
+    plan(10, 'Almacén 3D de Power BI', M.jesus, ['linkedin'], M.jesus),
+    plan(11, 'Qué es Power Platform', M.jesus, ['linkedin', 'youtube'], M.jesus, 'largo'),
+    plan(12, 'Post sobre las inspecciones', M.jesus, ['linkedin'], M.jesus, 'post'),
+    plan(13, 'Vídeo sobre el DeCA', M.jesus, ['youtube'], M.jesus, 'largo'),
+    plan(14, 'Enseñar Power BI', M.jesus, ['linkedin', 'youtube'], M.jesus, 'largo'),
+    plan(15, 'Enseñar alguno de los paneles de Power BI', M.jesus, ['linkedin'], M.jesus),
+    plan(16, 'Vídeo de presentación', M.alejandro, ['linkedin', 'youtube'], M.alejandro),
+    plan(17, 'Instrucciones de montaje en 3D', M.alejandro, ['linkedin', 'youtube'], M.alejandro, 'largo'),
+    plan(18, 'Estás tirando dinero cada mes con Microsoft 365', M.alejandro, ['linkedin', 'youtube'], M.alejandro, 'largo'),
+    plan(19, 'Seguimiento de pedidos', M.alejandro, ['linkedin'], M.alejandro),
+    plan(20, 'Enseñar Power Automate', M.alejandro, ['linkedin', 'youtube'], M.alejandro, 'largo'),
+    plan(21, 'Power Pages frente a una web normal', M.alejandro, ['linkedin'], M.alejandro),
     { id: 'c-1', titulo: 'Cómo automatizamos los pedidos de un distribuidor con Power Pages', canal: 'youtube', estado: 'guion', fecha: sumarDias(lunes, 3), notas: 'Caso real del portal. Grabar pantalla del alta de pedido y el aviso de estado.', enlace: '', responsableId: M.jesus, proyectoId: P.ortoalresa, valoracion: null, formato: null, serie: '', tecnologias: '', origen: '', creadoEl: iso(s1) },
     { id: 'c-2', titulo: '3 señales de que tu empresa necesita dejar el Excel', canal: 'linkedin', estado: 'listo', fecha: sumarDias(lunes, 1), notas: 'Post de texto, sin enlace externo para que no penalice el alcance.', enlace: '', responsableId: M.marco, proyectoId: null, valoracion: null, formato: null, serie: '', tecnologias: '', origen: '', creadoEl: iso(s1) },
     { id: 'c-3', titulo: 'Demo: recordatorios de cita por WhatsApp en 60 segundos', canal: 'instagram', estado: 'produccion', fecha: sumarDias(lunes, 5), notas: 'Vertical, con subtítulos. Sale el flujo de Power Automate.', enlace: '', responsableId: M.marco, proyectoId: P.clinica, valoracion: null, formato: null, serie: '', tecnologias: '', origen: '', creadoEl: iso(s1) },
@@ -202,6 +238,7 @@ export function generarSeed(): Instantanea {
     { id: 'c-11', titulo: 'Este flujo lee las facturas de proveedor con IA y las cuadra con el pedido', canal: 'youtube', estado: 'idea', fecha: null, notas: '', enlace: '', responsableId: M.jesus, proyectoId: null, valoracion: 'nogusta', formato: 'largo', serie: 'Automatiza esto', tecnologias: 'Power Automate, AI Builder, Dataverse, Outlook', origen: 'Code App · Compras (flujo nuevo)', creadoEl: iso(s1) },
     { id: 'c-12', titulo: 'Digitaliza la mayor parte de tus procesos con Microsoft 365', canal: 'linkedin', estado: 'idea', fecha: null, notas: '', enlace: '', responsableId: M.jesus, proyectoId: null, valoracion: 'descartada', formato: 'webinar', serie: 'Webinars y directos', tecnologias: 'Power Apps, Power Automate, Power BI, Copilot Studio', origen: 'Todo el catálogo', creadoEl: iso(s1) },
   ]
+  const contenidos = banco.map(pieza)
 
   // Lo que el propio equipo usa: sirve de ejemplo de cómo rellenar el catálogo.
   const recursosIA: RecursoIA[] = [

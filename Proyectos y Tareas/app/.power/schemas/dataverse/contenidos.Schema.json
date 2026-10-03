@@ -89,6 +89,14 @@
           "x-ms-dataverse-type": "IntegerType",
           "x-ms-schema-name": "ImportSequenceNumber"
         },
+        "loc_asignados": {
+          "type": "string",
+          "title": "Asignados",
+          "x-ms-dataverse-attribute": "loc_asignados",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Asignados",
+          "maxLength": 1000
+        },
         "loc_canal": {
           "type": "string",
           "title": "Canal",
@@ -127,6 +135,14 @@
           "x-ms-optionsetdisplayname": "Canal",
           "x-ms-optionSetType": "Picklist"
         },
+        "loc_canales": {
+          "type": "string",
+          "title": "Canales",
+          "x-ms-dataverse-attribute": "loc_canales",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Canales",
+          "maxLength": 200
+        },
         "loc_canalname": {
           "type": "string",
           "title": "loc_canalname",
@@ -153,6 +169,46 @@
           "x-ms-dataverse-type": "StringType",
           "x-ms-schema-name": "loc_Enlace",
           "maxLength": 500
+        },
+        "loc_enlaces": {
+          "type": "string",
+          "title": "Enlaces por canal",
+          "x-ms-dataverse-attribute": "loc_enlaces",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Enlaces",
+          "maxLength": 2000
+        },
+        "loc_enplan": {
+          "type": "string",
+          "title": "En el plan de trabajo",
+          "x-ms-dataverse-attribute": "loc_enplan",
+          "x-ms-dataverse-type": "BooleanType",
+          "x-ms-schema-name": "loc_EnPlan",
+          "enum": [
+            "No",
+            "Sí"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "770a86da-17bf-f111-aaaf-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "En el plan de trabajo",
+          "x-ms-optionSetType": "Boolean"
+        },
+        "loc_enplanname": {
+          "type": "string",
+          "title": "loc_enplanname",
+          "x-ms-dataverse-attribute": "loc_enplanname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_enplanName",
+          "x-ms-dataverse-attribute-of": "loc_enplan",
+          "x-ms-read-only": true
         },
         "loc_estado": {
           "type": "string",
@@ -264,6 +320,14 @@
           "x-ms-dataverse-type": "StringType",
           "x-ms-schema-name": "loc_Origen",
           "maxLength": 200
+        },
+        "loc_perfil": {
+          "type": "string",
+          "title": "Dónde se publica",
+          "x-ms-dataverse-attribute": "loc_perfil",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Perfil",
+          "maxLength": 100
         },
         "loc_proyecto": {
           "type": "string",

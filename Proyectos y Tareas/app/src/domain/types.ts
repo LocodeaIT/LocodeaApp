@@ -268,19 +268,31 @@ export type EstadoContenido = 'idea' | 'guion' | 'produccion' | 'listo' | 'publi
 export type Valoracion = 'favorita' | 'gusta' | 'nogusta' | 'descartada'
 export type FormatoContenido = 'post' | 'carrusel' | 'corto' | 'largo' | 'directo' | 'webinar' | 'newsletter'
 
+/** Perfil que no es de una persona: la página de empresa de locodea. */
+export const PERFIL_LOCODEA = 'locodea'
+
 /** Una pieza de contenido: un vídeo, un post, una newsletter. */
 export interface Contenido {
   id: string
   titulo: string
+  /** Canal principal: siempre el primero de `canales`. */
   canal: CanalContenido
+  /** Todos los canales en los que sale (p. ej. LinkedIn y YouTube). */
+  canales: CanalContenido[]
   estado: EstadoContenido
   /** Día en que se publica o se quiere publicar. Vacío = todavía sin fecha. */
   fecha: string | null
   /** Guion, ideas, enlaces de referencia. */
   notas: string
-  /** URL de la pieza ya publicada. */
-  enlace: string
+  /** URL de la pieza ya publicada, una por canal. */
+  enlaces: Partial<Record<CanalContenido, string>>
+  /** Quién lo hace. El primero es el responsable (`responsableId`). */
+  asignadosIds: string[]
   responsableId: string | null
+  /** Dónde se publica: `PERFIL_LOCODEA` (página de empresa) o el id de un miembro. Vacío = sin decidir. */
+  perfil: string | null
+  /** Está en el plan de trabajo: lo vamos a hacer, no es solo una idea del banco. */
+  enPlan: boolean
   proyectoId: string | null
   /** Favorita, me gusta, no me convence o descartada. */
   valoracion: Valoracion | null
@@ -349,6 +361,17 @@ export const ETIQUETA_ESTADO_CONTENIDO: Record<EstadoContenido, string> = {
 export const ORDEN_ESTADOS_CONTENIDO: EstadoContenido[] = ['idea', 'guion', 'produccion', 'listo', 'publicado']
 
 export const CANALES: CanalContenido[] = ['youtube', 'linkedin', 'instagram', 'tiktok', 'blog', 'newsletter', 'x']
+
+/** Cambia los canales manteniendo `canal` (el principal) al día. Nunca deja la pieza sin canal. */
+export function conCanales<T extends Pick<Contenido, 'canal' | 'canales'>>(p: T, canales: CanalContenido[]): T {
+  const cs = canales.length ? canales : [p.canal]
+  return { ...p, canales: cs, canal: cs[0] }
+}
+
+/** Cambia quién lo hace manteniendo `responsableId` (el primero) al día. */
+export function conAsignados<T extends Pick<Contenido, 'asignadosIds' | 'responsableId'>>(p: T, ids: string[]): T {
+  return { ...p, asignadosIds: ids, responsableId: ids[0] ?? null }
+}
 
 // ─────────────────────────────────────────────── skills y agentes de IA
 

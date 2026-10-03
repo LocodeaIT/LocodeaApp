@@ -284,6 +284,79 @@ body.con-dialogo { overflow: hidden; }
   border: 1px solid var(--borde-suave); border-radius: var(--pill); background: var(--paper); padding: 5px 10px; }
 .componer-tarea .fecha-componer:focus { outline: none; color: var(--texto); border-color: var(--acento); }
 
+/* ─────────────────────────────────────────────── plan de trabajo de contenido */
+/* En el plan el compositor lleva perfil, canales y personas: que quepa en dos líneas sin romperse. */
+.componer-tarea.componer-plan { flex-wrap: wrap; height: auto; min-height: 48px; padding-top: 8px; padding-bottom: 8px; row-gap: 8px; border-radius: var(--r-20); }
+.componer-tarea.componer-plan > input:not([type='date']) { flex: 1 1 280px; min-width: 200px; }
+
+/* Canales como interruptores: el color del canal solo aparece cuando está marcado. */
+.botones-canal { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; flex: none; }
+.canal-boton { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 10px; border: 0; border-radius: var(--pill);
+  background: var(--paper); color: var(--muted); box-shadow: var(--shadow-card); font: inherit; font-size: 12px; font-weight: 500; cursor: pointer;
+  transition: background var(--rapido), color var(--rapido), box-shadow var(--rapido); }
+.canal-boton:hover { color: var(--ink); box-shadow: inset 0 0 0 1px var(--canal); }
+.canal-boton.activo { background: color-mix(in srgb, var(--canal) 12%, var(--paper)); color: var(--canal); box-shadow: inset 0 0 0 1px var(--canal); }
+
+/* Chip de canal en la fila: si ya está publicado es un enlace. */
+.canal-chip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px; border-radius: var(--pill); font-size: 11px; font-weight: 500;
+  color: var(--canal); background: color-mix(in srgb, var(--canal) 9%, transparent); text-decoration: none; }
+.canal-chip.publicado { background: var(--canal); color: #fff; }
+.canal-chip.publicado:hover { filter: brightness(1.1); }
+.perfil-chip { display: inline-flex; align-items: center; gap: 4px; color: var(--ink-65); font-weight: 500; }
+
+.avatar.perfil-locodea { background: var(--accent-soft); color: var(--accent-text); }
+.avatar.mas { background: var(--sand-2); color: var(--muted); }
+
+/* Herramientas del plan: agrupar y ocultar lo publicado. */
+.plan-agrupar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.etiqueta-agrupar { font-size: 12.5px; color: var(--muted); }
+
+/* Cada grupo del plan, con su avance de publicadas a la derecha. */
+.grupo-plan { margin-top: 18px; }
+.grupo-plan .seccion-titulo { gap: 12px; }
+.seccion-nombre { display: inline-flex; align-items: center; gap: 8px; }
+.avance-grupo { display: inline-flex; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 12px; white-space: nowrap; }
+.avance-grupo .progreso { width: 80px; }
+
+.btn.al-plan { height: 26px; padding: 0 10px; font-size: 12px; flex: none; }
+
+/* Quién lo hace: botones con nombre (en la ficha) y avatares apilados con menú (en la fila). */
+.selector-personas { display: flex; flex-wrap: wrap; gap: 6px; }
+.persona-boton { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px 0 4px; border: 0; border-radius: var(--pill);
+  background: var(--paper); color: var(--muted); box-shadow: var(--shadow-card); font: inherit; font-size: 13px; cursor: pointer; }
+.persona-boton:hover { color: var(--ink); }
+.persona-boton.activo { background: var(--accent-soft); color: var(--accent-text); box-shadow: inset 0 0 0 1px var(--bronze); font-weight: 500; }
+.persona-boton .lleva { font-size: 10.5px; color: var(--accent-text); opacity: .8; }
+
+.asignar { position: relative; flex: none; }
+/* La tarjeta recorta sus esquinas; mientras el menú está abierto, no. */
+.tarjeta.contenido:has(.asignar-pop) { overflow: visible; position: relative; z-index: 5; }
+.asignar-boton { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; padding: 2px; border-radius: var(--pill);
+  cursor: pointer; font: inherit; font-size: 12.5px; color: var(--muted); }
+.asignar-boton:hover { background: var(--sand-2); color: var(--ink); }
+.asignar:not(.compacto) .asignar-boton { height: 30px; padding: 0 10px 0 4px; background: var(--paper); box-shadow: var(--shadow-card); }
+.pila-avatares { display: inline-flex; }
+.pila-avatares .avatar + .avatar { margin-left: -6px; box-shadow: 0 0 0 2px var(--paper); }
+.asignar-texto { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.asignar-pop { position: absolute; right: 0; top: calc(100% + 6px); z-index: 60; min-width: 220px; padding: 8px; border-radius: var(--r-20);
+  background: var(--paper); box-shadow: var(--shadow-lift); animation: aparecer-escala var(--rapido) both; transform-origin: top right; }
+.asignar-pop-titulo { padding: 4px 10px 6px; font-size: 11.5px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
+.asignar-opcion { display: flex; align-items: center; gap: 10px; width: 100%; padding: 7px 10px; border: 0; border-radius: var(--r-12);
+  background: transparent; font: inherit; font-size: 14px; color: var(--ink); text-align: left; cursor: pointer; }
+.asignar-opcion:hover { background: var(--sand-2); }
+.asignar-opcion.activo { font-weight: 500; }
+.asignar-opcion.activo svg { color: var(--bronze); }
+.asignar-opcion.quitar { color: var(--muted); font-size: 13px; justify-content: center; margin-top: 4px; }
+
+.contenido-pie { gap: 8px; }
+.contenido-pie .btn:first-child { margin-right: auto; }
+
+@media (max-width: 720px) {
+  .contenido-cima { flex-wrap: wrap; }
+  .contenido-cima .grow { flex: 1 1 calc(100% - 50px); }
+  .avance-grupo .progreso { display: none; }
+}
+
 /* ─────────────────────────────────────────────── skills y agentes de IA */
 .herramientas-ia { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
 .buscar-ia { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 14px; margin-left: auto; min-width: min(240px, 100%);

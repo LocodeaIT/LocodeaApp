@@ -50,14 +50,19 @@ export type Loc_contenidosstatuscode = keyof typeof Loc_contenidosstatuscode;
 
 export interface Loc_contenidosBase {
   importsequencenumber?: number;
+  loc_asignados?: string;
   loc_canal?: Loc_contenidosloc_canal;
+  loc_canales?: string;
   loc_contenidoid: string;
   loc_enlace?: string;
+  loc_enlaces?: string;
+  loc_enplan?: boolean;
   loc_estado?: Loc_contenidosloc_estado;
   loc_fechapublicacion?: string;
   loc_formato?: Loc_contenidosloc_formato;
   loc_notas?: string;
   loc_origen?: string;
+  loc_perfil?: string;
   "loc_Proyecto@odata.bind"?: string;
   "loc_Responsable@odata.bind"?: string;
   loc_serie?: string;
@@ -74,6 +79,7 @@ export interface Loc_contenidosBase {
 export interface Loc_contenidos extends Loc_contenidosBase {
   createdon?: string;
   loc_canalname?: string;
+  loc_enplanname?: string;
   loc_estadoname?: string;
   loc_formatoname?: string;
   loc_valoracionname?: string;

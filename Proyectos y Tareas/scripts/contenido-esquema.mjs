@@ -7,9 +7,16 @@
  *   - loc_serie        (texto)     serie o bloque al que pertenece la idea
  *   - loc_tecnologias  (texto)     tecnologías con las que se hace, separadas por comas
  *   - loc_origen       (texto)     desarrollo de la carpeta en el que se basa
+ *   - loc_enplan       (sí/no)     está en el plan de trabajo (lo vamos a hacer)
+ *   - loc_canales      (texto)     canales en los que sale, JSON: ["linkedin","youtube"]
+ *   - loc_enlaces      (texto)     enlace publicado por canal, JSON: {"youtube":"https://…"}
+ *   - loc_asignados    (texto)     quién lo hace, JSON con ids de loc_miembro (el primero es el responsable)
+ *   - loc_perfil       (texto)     dónde se publica: "locodea" (página de empresa) o el id de un miembro
  *
  * Es idempotente: comprueba cada columna antes de crearla.
- * Se autentica con la sesión de Azure CLI (az login con la cuenta de locodea.).
+ * Se autentica con la sesión de Azure CLI en el inquilino de locodea.:
+ *   az login --tenant 406c94c5-51ea-41d0-85db-630c9083922e --allow-no-subscriptions
+ * (pide el token a ese inquilino, así que no hace falta que sea la cuenta por defecto).
  *
  * Uso (desde esta carpeta):
  *   node contenido-esquema.mjs                 # entorno Locodea PROD
@@ -25,13 +32,14 @@ const opcion = n => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : u
 const SIMULAR = args.includes('--simular')
 const ENTORNO = (opcion('--entorno') ?? 'https://org1d0382e8.crm17.dynamics.com').replace(/\/$/, '')
 const SOLUCION = opcion('--solucion') ?? 'LocodeaObjetivos'
+const INQUILINO = opcion('--inquilino') ?? '406c94c5-51ea-41d0-85db-630c9083922e'
 const IDIOMA = 3082
 const API = `${ENTORNO}/api/data/v9.2/`
 
 // ─────────────────────────────────────────────── acceso a la API con el token de Azure CLI
 
 const token = execFileSync(process.platform === 'win32' ? 'az.cmd' : 'az',
-  ['account', 'get-access-token', '--resource', ENTORNO, '--query', 'accessToken', '-o', 'tsv'],
+  ['account', 'get-access-token', '--subscription', INQUILINO, '--resource', ENTORNO, '--query', 'accessToken', '-o', 'tsv'],
   { encoding: 'utf8', shell: process.platform === 'win32' }).trim()
 
 class ErrorHttp extends Error {
@@ -78,6 +86,15 @@ const opciones = (esquema, nombre, valores) => ({
   },
 })
 
+const siNo = (esquema, nombre) => ({
+  '@odata.type': 'Microsoft.Dynamics.CRM.BooleanAttributeMetadata', SchemaName: esquema, DisplayName: etiqueta(nombre),
+  RequiredLevel: nivel(), DefaultValue: false,
+  OptionSet: {
+    '@odata.type': 'Microsoft.Dynamics.CRM.BooleanOptionSetMetadata', OptionSetType: 'Boolean',
+    TrueOption: { Value: 1, Label: etiqueta('Sí') }, FalseOption: { Value: 0, Label: etiqueta('No') },
+  },
+})
+
 // ─────────────────────────────────────────────── columnas
 
 const COLUMNAS = [
@@ -89,6 +106,12 @@ const COLUMNAS = [
   texto('loc_Serie', 'Serie', 150),
   texto('loc_Tecnologias', 'Tecnologías', 400),
   texto('loc_Origen', 'Desarrollo en el que se basa', 200),
+  // Plan de trabajo: canales, enlaces por canal, varias personas y dónde se publica.
+  siNo('loc_EnPlan', 'En el plan de trabajo'),
+  texto('loc_Canales', 'Canales', 200),
+  texto('loc_Enlaces', 'Enlaces por canal', 2000),
+  texto('loc_Asignados', 'Asignados', 1000),
+  texto('loc_Perfil', 'Dónde se publica', 100),
 ]
 
 // ─────────────────────────────────────────────── ejecución
