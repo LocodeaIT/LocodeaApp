@@ -10,6 +10,18 @@ import { EscalaTiempo, ResumenPotencial } from '../screens/Hechos'
 import { colNo, colPropietario, esMio, filtroPropietario, opcionesPropietario, ordenTexto } from './comunes'
 import type { Entidad } from './tipos'
 
+/** Tramos del filtro de ingresos estimados: [clave, etiqueta, desde (incluido), hasta (excluido)]. */
+const TRAMOS_INGRESOS: [string, string, number, number][] = [
+  ['sin', 'Sin importe', 0, 0],
+  ['hasta5k', 'Hasta 5.000 €', 0.01, 5000],
+  ['5k-20k', '5.000 – 20.000 €', 5000, 20000],
+  ['20k-50k', '20.000 – 50.000 €', 20000, 50000],
+  ['mas50k', 'Más de 50.000 €', 50000, Infinity],
+]
+
+const tramoIngresos = (importe: number) =>
+  !importe ? 'sin' : TRAMOS_INGRESOS.find(([, , desde, hasta]) => importe >= desde && importe < hasta)?.[0] ?? ''
+
 export const potenciales: Entidad<Potencial> = {
   col: 'potenciales', uno: 'Cliente potencial', muchos: 'Clientes potenciales', icono: ICONO_COL.potenciales,
   vistas: [
@@ -23,6 +35,11 @@ export const potenciales: Entidad<Potencial> = {
   filtros: [
     { clave: 'origen', titulo: 'Origen', opciones: () => opcionesDe(ORIGEN) },
     { clave: 'puntuacion', titulo: 'Puntuación', opciones: () => opcionesDe(PUNTUACION) },
+    {
+      clave: 'ingresos', titulo: 'Ingresos',
+      opciones: () => TRAMOS_INGRESOS.map(([valor, etiqueta]) => ({ valor, etiqueta })),
+      valor: l => tramoIngresos(l.importeEst),
+    },
     filtroPropietario(),
   ],
   columnas: [
