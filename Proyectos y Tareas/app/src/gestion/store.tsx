@@ -23,6 +23,8 @@ export interface GestionCtx {
   guardarGasto: (g: Gasto) => Promise<Gasto>
   guardarDocumento: (d: DocumentoGestion) => Promise<DocumentoGestion>
   borrar: (col: ColGestion, id: string) => Promise<void>
+  /** Foto de un gasto (la lista no las descarga). */
+  cargarFoto: (id: string) => Promise<string>
   restablecerDemo: () => Promise<void>
   recargar: () => Promise<void>
 }
@@ -83,11 +85,13 @@ export function GestionProveedor({ repo, children }: { repo: GestionRepositorio;
   }, [repo, aplicar, avisar])
 
   const guardarGasto = useCallback(async (g: Gasto) => {
-    const conNo = g.no ? g : { ...g, no: siguienteNoGasto(actual.current.gastos) }
+    // el número se pide al repositorio justo antes de crear: si dos personas apuntan a la vez no repiten
+    const no = g.no || (repo.siguienteNumeroGasto ? await repo.siguienteNumeroGasto().catch(() => '') : '') || siguienteNoGasto(actual.current.gastos)
+    const conNo = g.no ? g : { ...g, no }
     const r = await guardarGenerico('gastos', conNo)
     avisar(g.id ? 'Gasto guardado' : 'Gasto apuntado')
     return r
-  }, [guardarGenerico, avisar])
+  }, [guardarGenerico, avisar, repo])
 
   const guardarDocumento = useCallback(async (d: DocumentoGestion) => {
     const r = await guardarGenerico('documentos', d)
@@ -107,6 +111,18 @@ export function GestionProveedor({ repo, children }: { repo: GestionRepositorio;
     }
   }, [repo, aplicar, avisar])
 
+  const cargarFoto = useCallback(async (id: string) => {
+    try {
+      const foto = await repo.cargarFoto(id)
+      if (foto) aplicar(d => ({ ...d, gastos: d.gastos.map(x => (x.id === id ? { ...x, foto } : x)) }))
+      return foto
+    } catch (e) {
+      console.error(e)
+      avisar('No se pudo cargar la foto', 'error')
+      return ''
+    }
+  }, [repo, aplicar, avisar])
+
   const restablecerDemo = useCallback(async () => {
     if (!repo.restablecer) return
     const d = await repo.restablecer()
@@ -117,8 +133,8 @@ export function GestionProveedor({ repo, children }: { repo: GestionRepositorio;
 
   const valor = useMemo<GestionCtx>(() => ({
     datos, cargando, error, disponible: repo.disponible, puedeGestionarDatos: !!repo.restablecer, yoId: yo?.id ?? null,
-    guardarGasto, guardarDocumento, borrar, restablecerDemo, recargar,
-  }), [datos, cargando, error, repo, yo, guardarGasto, guardarDocumento, borrar, restablecerDemo, recargar])
+    guardarGasto, guardarDocumento, borrar, cargarFoto, restablecerDemo, recargar,
+  }), [datos, cargando, error, repo, yo, guardarGasto, guardarDocumento, borrar, cargarFoto, restablecerDemo, recargar])
 
   return <Contexto.Provider value={valor}>{children}</Contexto.Provider>
 }

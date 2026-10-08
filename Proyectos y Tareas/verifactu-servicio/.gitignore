@@ -1,0 +1,12 @@
+# Configuración local con valores reales: nunca se versiona (usa local.settings.example.json)
+local.settings.json
+
+# Compilado y dependencias
+dist/
+node_modules/
+
+# Certificados: nunca en el repositorio, solo en Azure Key Vault
+*.pfx
+*.p12
+*.pem
+*.key

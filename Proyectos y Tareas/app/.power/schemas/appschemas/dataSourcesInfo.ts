@@ -19,6 +19,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "loc_asientos": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_asientoid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "loc_bovedas": {
     "tableId": "",
     "version": "",
@@ -51,6 +58,13 @@ export const dataSourcesInfo = {
     "tableId": "",
     "version": "",
     "primaryKey": "loc_documentoid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_envioverifactus": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_envioverifactuid",
     "dataSourceType": "Dataverse",
     "apis": {}
   },
@@ -131,10 +145,24 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "loc_perfilfiscals": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_perfilfiscalid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "loc_potencials": {
     "tableId": "",
     "version": "",
     "primaryKey": "loc_potencialid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_presentacions": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_presentacionid",
     "dataSourceType": "Dataverse",
     "apis": {}
   },
@@ -156,6 +184,13 @@ export const dataSourcesInfo = {
     "tableId": "",
     "version": "",
     "primaryKey": "loc_recursoiaid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_registrofacturacions": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_registrofacturacionid",
     "dataSourceType": "Dataverse",
     "apis": {}
   },
@@ -184,6 +219,13 @@ export const dataSourcesInfo = {
     "tableId": "",
     "version": "",
     "primaryKey": "loc_tareaid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_verifactuconfigs": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_verifactuconfigid",
     "dataSourceType": "Dataverse",
     "apis": {}
   },

@@ -4,7 +4,7 @@
  * pago, historial del documento y escala de tiempo.
  */
 import {
-  Ban, Check, Euro, Lock, LockOpen, PackageCheck, Phone, Receipt, ReceiptText, RotateCcw, Send, ShoppingCart, Truck,
+  Ban, Check, Euro, FilePen, Lock, LockOpen, PackageCheck, Phone, Receipt, ReceiptText, RotateCcw, Send, ShoppingCart, Truck,
 } from 'lucide-react'
 import type { Opcion } from '../../ui/Select'
 import type { CrmCtx } from '../contexto'
@@ -20,6 +20,10 @@ import { estadoFactura, totalDoc, totales } from '../documentos'
 import { eur, fecha } from '../formato'
 import { hoy, sumarDias } from '../../domain/fechas'
 import { ICONO_COL } from '../iconos'
+import {
+  CLAVE_RETENCION, ESTADO_VERIFACTU, FISCAL_COMPRA, FISCAL_VENTA, RETENCION_POR_DEFECTO, TIPO_FACTURA, TIPO_OPERACION_COMPRA,
+  TIPO_OPERACION_VENTA, operacionCompraPorDefecto, operacionVentaPorDefecto, ventaConIva,
+} from '../fiscal'
 import { ChipEstado, Enlace, Fecha } from '../ui'
 import { EscalaTiempo, HistorialDoc, Parte, TotalesDoc } from '../screens/Hechos'
 import {
@@ -42,6 +46,8 @@ interface Config<T extends Documento> {
   /** Segunda columna de fecha (validez, entrega, vencimiento…). */
   colFecha: Columna<T>
   campos: Campo<T>[]
+  /** Pestaña «Fiscal» (facturas): lo que la Gestoría necesita para declarar. */
+  fiscal?: Campo<T>[]
   tituloDetalles?: string
   nuevo: (base: Base, c: CrmCtx) => T
   antesDeGuardar?: (o: T) => T
@@ -59,6 +65,28 @@ function campoCuenta<T extends Documento>(compra: boolean): Campo<T> {
       return { ...d, contactoId: contactoValido ? d.contactoId : null, condicionesPago: a?.condicionesPago ?? d.condicionesPago, metodoPago: a?.metodoPago ?? d.metodoPago }
     },
   }
+}
+
+/** Las líneas llevan IVA solo si la operación lo lleva: al cambiar a una operación sin IVA se ponen a 0 y al volver, al 21 %. */
+function ivaDeLineas<T extends Documento>(d: T, conIva: boolean): T {
+  return { ...d, lineas: d.lineas.map(l => (conIva ? (Number(l.iva) ? l : { ...l, iva: 21 }) : { ...l, iva: 0 })) }
+}
+
+function campoCuentaVenta(): Campo<FacturaVenta> {
+  const base = campoCuenta<FacturaVenta>(false)
+  return {
+    ...base,
+    alCambiar: (d, c) => {
+      const x = base.alCambiar!(d, c)
+      const tipoOperacion = operacionVentaPorDefecto(c.datos.cuentas.find(a => a.id === x.cuentaId))
+      return ivaDeLineas({ ...x, tipoOperacion }, ventaConIva(tipoOperacion))
+    },
+  }
+}
+
+function campoCuentaCompra(): Campo<FacturaCompra> {
+  const base = campoCuenta<FacturaCompra>(true)
+  return { ...base, alCambiar: (d, c) => ({ ...base.alCambiar!(d, c), tipoOperacion: operacionCompraPorDefecto(c.datos.cuentas.find(a => a.id === d.cuentaId)) }) }
 }
 
 const campoContacto = <T extends Documento>(): Campo<T> => ({ clave: 'contactoId', titulo: 'Contacto', tipo: 'opciones', opciones: (d, c) => opcionesContactos(c, d.cuentaId) })
@@ -110,6 +138,7 @@ function entidadDocumento<T extends Documento>(cfg: Config<T>): Entidad<T> {
     pestanas: [
       { clave: 'general', titulo: 'General', campos: cfg.campos },
       { clave: 'lineas', titulo: 'Líneas', lineas: true },
+      ...(cfg.fiscal ? [{ clave: 'fiscal', titulo: 'Fiscal', abierta: false, campos: cfg.fiscal }] : []),
       {
         clave: 'detalles', titulo: cfg.tituloDetalles ?? 'Detalles', abierta: false, campos: [
           { clave: 'condicionesPago', titulo: 'Condiciones de pago', tipo: 'opciones', opciones: opcionesDe(CONDICIONES_PAGO) },
@@ -205,7 +234,7 @@ export const facturasVenta = entidadDocumento<FacturaVenta>({
   ],
   colFecha: { clave: 'vencimiento', titulo: 'Vencimiento', orden: f => f.vencimiento, texto: f => fecha(f.vencimiento), celda: f => <Fecha dia={f.vencimiento} avisar={f.estado === 'registrada'} /> },
   campos: [
-    campoNo(), campoCuenta(false), campoContacto(),
+    campoNo(), campoCuentaVenta(), campoContacto(),
     { clave: 'fecha', titulo: 'Fecha de factura', tipo: 'fecha' },
     { clave: 'vencimiento', titulo: 'Fecha de vencimiento', tipo: 'fecha' },
     { clave: 'estado', titulo: 'Estado', mostrar: d => <ChipEstado estado={estadoFactura(d)} etiqueta={ESTADO_FACTURA_VENTA[estadoFactura(d)]} />, resumen: d => ESTADO_FACTURA_VENTA[estadoFactura(d)] ?? '' },
@@ -214,10 +243,32 @@ export const facturasVenta = entidadDocumento<FacturaVenta>({
     { clave: 'pagadaEl', titulo: 'Cobrada el', mostrar: d => (d.pagadaEl ? fecha(d.pagadaEl) : '—') },
     { clave: 'importeCobrado', titulo: 'Cobrado a cuenta', tipo: 'numero', min: 0, paso: 0.01 },
   ],
-  nuevo: b => ({ ...b, estado: 'borrador', pedidoId: null, vencimiento: '', registradaEl: null, pagadaEl: null, importeCobrado: 0 }),
+  fiscal: [
+    {
+      clave: 'tipoOperacion', titulo: 'Tipo de operación', tipo: 'opciones', opciones: opcionesDe(TIPO_OPERACION_VENTA),
+      alCambiar: d => ivaDeLineas(d, ventaConIva(d.tipoOperacion)),
+    },
+    { clave: 'tipoFactura', titulo: 'Tipo de factura', tipo: 'opciones', opciones: opcionesDe(TIPO_FACTURA) },
+    {
+      clave: 'rectificadaId', titulo: 'Factura que rectifica', tipo: 'opciones',
+      opciones: (d, c) => [{ valor: '', etiqueta: '—' }, ...c.datos.facturasVenta.filter(x => x.id !== d.id && x.cuentaId === d.cuentaId && (x.estado === 'registrada' || x.estado === 'pagada')).map(x => ({ valor: x.id, etiqueta: `${x.no} · ${fecha(x.fecha)}` }))],
+    },
+    { clave: 'motivoRectificacion', titulo: 'Motivo de la rectificación' },
+    { clave: 'estadoVerifactu', titulo: 'Verifactu', mostrar: d => <ChipEstado estado={d.estadoVerifactu === 'correcto' || d.estadoVerifactu === 'preparado' ? 'pagada' : d.estadoVerifactu === 'rechazado' ? 'vencida' : 'pendiente'} etiqueta={ESTADO_VERIFACTU[d.estadoVerifactu]} />, resumen: d => ESTADO_VERIFACTU[d.estadoVerifactu] },
+    { clave: 'huella', titulo: 'Huella', mostrar: d => (d.huella ? <code title={d.huella}>{d.huella.slice(0, 16)}…</code> : '—') },
+  ],
+  nuevo: (b, c) => ({ ...b, estado: 'borrador', pedidoId: null, vencimiento: '', registradaEl: null, pagadaEl: null, importeCobrado: 0, ...FISCAL_VENTA, tipoOperacion: operacionVentaPorDefecto(c.datos.cuentas.find(a => a.id === b.cuentaId)) }),
   antesDeGuardar: conVencimiento,
   comandos: (f, c) => [
     f.estado === 'borrador' && estadoCmd(c, 'facturasVenta', f, 'registrada', 'Registrar', Lock, 'acento'),
+    (f.estado === 'registrada' || f.estado === 'pagada') && f.tipoFactura === 'F1' && {
+      texto: 'Crear rectificativa', icono: FilePen,
+      accion: () => c.abrir('facturasVenta', 'nuevo', {
+        cuentaId: f.cuentaId, contactoId: f.contactoId, tipoFactura: 'R4', rectificadaId: f.id, tipoOperacion: f.tipoOperacion,
+        referencia: 'Rectifica la factura ' + f.no, lineas: f.lineas.map(l => ({ ...l, cantidad: -(Number(l.cantidad) || 0) })),
+        condicionesPago: f.condicionesPago, metodoPago: f.metodoPago,
+      }),
+    },
     f.estado === 'registrada' && estadoCmd(c, 'facturasVenta', f, 'pagada', 'Marcar como cobrada', Euro, 'acento'),
     f.estado === 'registrada' && estadoCmd(c, 'facturasVenta', f, 'anulada', 'Anular', Ban),
     estadoFactura(f) === 'vencida' && {
@@ -268,7 +319,7 @@ export const facturasCompra = entidadDocumento<FacturaCompra>({
   ],
   colFecha: { clave: 'vencimiento', titulo: 'Vencimiento', orden: f => f.vencimiento, texto: f => fecha(f.vencimiento), celda: f => <Fecha dia={f.vencimiento} avisar={f.estado === 'pendiente' || f.estado === 'registrada'} /> },
   campos: [
-    campoNo(), campoCuenta(true),
+    campoNo(), campoCuentaCompra(),
     { clave: 'noProveedor', titulo: 'Nº factura del proveedor' },
     campoContacto(),
     { clave: 'fecha', titulo: 'Fecha de factura', tipo: 'fecha' },
@@ -279,7 +330,20 @@ export const facturasCompra = entidadDocumento<FacturaCompra>({
     { clave: 'pagadaEl', titulo: 'Pagada el', mostrar: d => (d.pagadaEl ? fecha(d.pagadaEl) : '—') },
     { clave: 'importePagado', titulo: 'Pagado a cuenta', tipo: 'numero', min: 0, paso: 0.01 },
   ],
-  nuevo: b => ({ ...b, estado: 'pendiente', pedidoId: null, noProveedor: '', vencimiento: '', registradaEl: null, pagadaEl: null, importePagado: 0 }),
+  fiscal: [
+    { clave: 'tipoOperacion', titulo: 'Tipo de operación', tipo: 'opciones', opciones: opcionesDe(TIPO_OPERACION_COMPRA) },
+    { clave: 'fechaRecepcion', titulo: 'Recibida el', tipo: 'fecha' },
+    {
+      clave: 'claveRetencion', titulo: 'Retención', tipo: 'opciones', opciones: opcionesDe(CLAVE_RETENCION),
+      alCambiar: d => ({ ...d, irpf: RETENCION_POR_DEFECTO[d.claveRetencion] }),
+    },
+    { clave: 'irpf', titulo: 'Retención IRPF %', tipo: 'numero', min: 0, paso: 1 },
+    { clave: 'ivaDeducible', titulo: 'IVA deducible', tipo: 'sino' },
+    { clave: 'bienInversion', titulo: 'Bien de inversión (se amortiza)', tipo: 'sino' },
+    { clave: 'vidaUtil', titulo: 'Vida útil (años)', tipo: 'numero', min: 1, paso: 1 },
+    { clave: 'enlace', titulo: 'Enlace al PDF', completo: true },
+  ],
+  nuevo: (b, c) => ({ ...b, estado: 'pendiente', pedidoId: null, noProveedor: '', vencimiento: '', registradaEl: null, pagadaEl: null, importePagado: 0, ...FISCAL_COMPRA, tipoOperacion: operacionCompraPorDefecto(c.datos.cuentas.find(a => a.id === b.cuentaId)), fechaRecepcion: hoy() }),
   antesDeGuardar: conVencimiento,
   comandos: (f, c) => [
     f.estado === 'pendiente' && estadoCmd(c, 'facturasCompra', f, 'registrada', 'Registrar', Lock, 'acento'),

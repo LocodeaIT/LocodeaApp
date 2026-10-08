@@ -24,7 +24,7 @@ import type {
   EstadoActividad, EstadoActivo, EstadoFacturaCompra, EstadoFacturaVenta, EstadoOferta, EstadoOportunidad, EstadoPedidoCompra,
   EstadoPedidoVenta, EstadoPotencial, FacturaCompra, FacturaVenta, Fase, LineaDocumento, MetodoPago, Nota, Oferta, Oportunidad,
   OrigenPotencial, PedidoCompra, PedidoVenta, Potencial, PrioridadCrm, Producto, Puntuacion, RegimenIva, RegistroBase, RegistroDe, TipoActividad,
-  TipoCuenta, TipoProducto, Unidad,
+  TipoCuenta, TipoProducto, Unidad, TipoIdFiscal, TipoOperacionVenta, TipoOperacionCompra, TipoFactura, EstadoVerifactu, ClaveRetencion,
 } from './types'
 import { COLECCIONES } from './types'
 
@@ -70,6 +70,18 @@ const TIPO_ACTIVIDAD: Record<TipoActividad, number> = { tarea: 412000210, llamad
 const EST_ACTIVIDAD: Record<EstadoActividad, number> = { abierta: 412000215, completada: 412000216, cancelada: 412000217 }
 const PRIORIDAD: Record<PrioridadCrm, number> = { baja: 412000220, normal: 412000221, alta: 412000222 }
 const REGIMEN: Record<RegimenIva, number> = { general: 412000440, intracomunitario: 412000441, exento: 412000442, recargo: 412000443, extracomunitario: 412000444 }
+// Datos fiscales de la Gestoría (scripts/gestoria-esquema.mjs)
+const TIPO_ID: Record<TipoIdFiscal, number> = { nif: 412000450, nifiva: 412000451, pasaporte: 412000452, docoficial: 412000453, residencia: 412000454, otro: 412000455, nocensado: 412000456 }
+const VIES = { sin: 412000460, valido: 412000461, invalido: 412000462 }
+const OP_VENTA: Record<TipoOperacionVenta, number> = {
+  interior: 412000470, 'ue-empresa': 412000471, 'ue-particular': 412000472, 'ue-oss': 412000473, 'fuera-ue': 412000474, 'isp-interior': 412000475, exenta: 412000476,
+}
+const TIPO_FACTURA: Record<TipoFactura, number> = { F1: 412000480, F2: 412000481, F3: 412000482, R1: 412000483, R2: 412000484, R3: 412000485, R4: 412000486, R5: 412000487 }
+const EST_VERIFACTU: Record<EstadoVerifactu, number> = {
+  'sin-registro': 412000490, preparado: 412000491, pendiente: 412000492, correcto: 412000493, 'aceptado-errores': 412000494, rechazado: 412000495, anulado: 412000496,
+}
+const OP_COMPRA: Record<TipoOperacionCompra, number> = { interior: 412000500, ue: 412000501, 'fuera-ue': 412000502, importacion: 412000503, 'isp-interior': 412000504, exenta: 412000505 }
+const CLAVE_RET: Record<ClaveRetencion, number> = { ninguna: 412000510, profesional: 412000511, arrendamiento: 412000512, otros: 412000513 }
 
 const DE = {
   tipoCuenta: inverso(TIPO_CUENTA), activo: inverso(ACTIVO), condiciones: inverso(CONDICIONES), metodo: inverso(METODO), origen: inverso(ORIGEN),
@@ -77,7 +89,8 @@ const DE = {
   estOferta: inverso(EST_OFERTA), estPedidoVenta: inverso(EST_PEDIDO_VENTA), estFacturaVenta: inverso(EST_FACTURA_VENTA),
   estPedidoCompra: inverso(EST_PEDIDO_COMPRA), estFacturaCompra: inverso(EST_FACTURA_COMPRA), tipoProducto: inverso(TIPO_PRODUCTO),
   unidad: inverso(UNIDAD), tipoActividad: inverso(TIPO_ACTIVIDAD), estActividad: inverso(EST_ACTIVIDAD), prioridad: inverso(PRIORIDAD),
-  regimen: inverso(REGIMEN),
+  regimen: inverso(REGIMEN), tipoId: inverso(TIPO_ID), opVenta: inverso(OP_VENTA), tipoFactura: inverso(TIPO_FACTURA),
+  estVerifactu: inverso(EST_VERIFACTU), opCompra: inverso(OP_COMPRA), claveRet: inverso(CLAVE_RET),
 }
 
 // ─────────────────────────────────────────────── utilidades
@@ -138,13 +151,18 @@ const cuentas: Tabla<'cuentas'> = {
     ciudad: txt(f.loc_ciudad), provincia: txt(f.loc_provincia), pais: txt(f.loc_pais), web: txt(f.loc_web), telefono: txt(f.loc_telefono),
     email: txt(f.loc_email), empleados: txt(f.loc_empleados), propietarioId: f._loc_propietario_value ?? null,
     condicionesPago: DE.condiciones[f.loc_condicionespago] ?? '30', metodoPago: DE.metodo[f.loc_metodopago] ?? 'transferencia',
-    iva: f.loc_iva ?? 21, iban: txt(f.loc_iban), regimenIva: DE.regimen[f.loc_regimeniva] ?? 'general', notas: txt(f.loc_notas),
+    iva: f.loc_iva ?? 21, iban: txt(f.loc_iban), regimenIva: DE.regimen[f.loc_regimeniva] ?? 'general',
+    codigoPais: txt(f.loc_codigopais).toUpperCase() || 'ES', tipoIdFiscal: DE.tipoId[f.loc_tipoidfiscal] ?? 'nif', particular: f.loc_particular === true,
+    viesValido: f.loc_vies === VIES.valido ? true : f.loc_vies === VIES.invalido ? false : null, viesComprobadoEl: diaONulo(f.loc_viescomprobadoel),
+    notas: txt(f.loc_notas),
   }),
   escribir: a => ({
     loc_numero: a.no, loc_nombre: a.nombre, loc_tipo: TIPO_CUENTA[a.tipo], loc_estado: ACTIVO[a.estado], loc_cif: a.cif, loc_sector: a.sector,
     loc_direccion: a.direccion, loc_cp: a.cp, loc_ciudad: a.ciudad, loc_provincia: a.provincia, loc_pais: a.pais, loc_web: a.web,
     loc_telefono: a.telefono, loc_email: a.email, loc_empleados: a.empleados, loc_condicionespago: CONDICIONES[a.condicionesPago],
     loc_metodopago: METODO[a.metodoPago], loc_iva: num(a.iva), loc_iban: a.iban, loc_regimeniva: REGIMEN[a.regimenIva] ?? REGIMEN.general, loc_notas: a.notas,
+    loc_codigopais: (a.codigoPais || 'ES').slice(0, 2).toUpperCase(), loc_tipoidfiscal: TIPO_ID[a.tipoIdFiscal] ?? TIPO_ID.nif, loc_particular: !!a.particular,
+    loc_vies: a.viesValido === true ? VIES.valido : a.viesValido === false ? VIES.invalido : VIES.sin, loc_viescomprobadoel: fechaONulo(a.viesComprobadoEl),
     'loc_Propietario@odata.bind': ref('loc_miembros', a.propietarioId),
   }),
 }
@@ -261,11 +279,17 @@ const facturasVenta: Tabla<'facturasVenta'> = {
   leer: (f): FacturaVenta => ({
     ...leerDocumento(f, 'loc_facturaventaid'), lineas: [], estado: DE.estFacturaVenta[f.loc_estado] ?? 'borrador', pedidoId: f._loc_pedido_value ?? null,
     vencimiento: dia(f.loc_vencimiento), registradaEl: nulo(f.loc_registradael), pagadaEl: nulo(f.loc_pagadael), importeCobrado: num(f.loc_importecobrado),
+    tipoOperacion: DE.opVenta[f.loc_tipooperacion] ?? 'interior', tipoFactura: DE.tipoFactura[f.loc_tipofactura] ?? 'F1',
+    rectificadaId: f._loc_rectificada_value ?? null, motivoRectificacion: txt(f.loc_motivorectificacion),
+    estadoVerifactu: DE.estVerifactu[f.loc_estadoverifactu] ?? 'sin-registro', huella: txt(f.loc_huella),
   }),
   escribir: x => ({
     ...escribirDocumento(x), loc_estado: EST_FACTURA_VENTA[x.estado], loc_vencimiento: fechaONulo(x.vencimiento),
     loc_registradael: fechaONulo(x.registradaEl), loc_pagadael: fechaONulo(x.pagadaEl), loc_importecobrado: num(x.importeCobrado),
-    'loc_Pedido@odata.bind': ref('loc_pedidoventas', x.pedidoId),
+    loc_tipooperacion: OP_VENTA[x.tipoOperacion] ?? OP_VENTA.interior, loc_tipofactura: TIPO_FACTURA[x.tipoFactura] ?? TIPO_FACTURA.F1,
+    loc_motivorectificacion: (x.motivoRectificacion ?? '').slice(0, 500), loc_estadoverifactu: EST_VERIFACTU[x.estadoVerifactu] ?? EST_VERIFACTU['sin-registro'],
+    loc_huella: (x.huella ?? '').slice(0, 100),
+    'loc_Pedido@odata.bind': ref('loc_pedidoventas', x.pedidoId), 'loc_Rectificada@odata.bind': ref('loc_facturaventas', x.rectificadaId),
   }),
 }
 
@@ -286,11 +310,16 @@ const facturasCompra: Tabla<'facturasCompra'> = {
   leer: (f): FacturaCompra => ({
     ...leerDocumento(f, 'loc_facturacompraid'), lineas: [], estado: DE.estFacturaCompra[f.loc_estado] ?? 'pendiente', pedidoId: f._loc_pedido_value ?? null,
     noProveedor: txt(f.loc_noproveedor), vencimiento: dia(f.loc_vencimiento), registradaEl: nulo(f.loc_registradael), pagadaEl: nulo(f.loc_pagadael),
-    importePagado: num(f.loc_importepagado),
+    importePagado: num(f.loc_importepagado), tipoOperacion: DE.opCompra[f.loc_tipooperacion] ?? 'interior', irpf: num(f.loc_irpf),
+    claveRetencion: DE.claveRet[f.loc_claveretencion] ?? 'ninguna', fechaRecepcion: dia(f.loc_fecharecepcion), bienInversion: f.loc_bieninversion === true,
+    vidaUtil: num(f.loc_vidautil), ivaDeducible: f.loc_ivadeducible !== false, enlace: txt(f.loc_enlace),
   }),
   escribir: x => ({
     ...escribirDocumento(x), loc_estado: EST_FACTURA_COMPRA[x.estado], loc_noproveedor: x.noProveedor, loc_vencimiento: fechaONulo(x.vencimiento),
     loc_registradael: fechaONulo(x.registradaEl), loc_pagadael: fechaONulo(x.pagadaEl), loc_importepagado: num(x.importePagado),
+    loc_tipooperacion: OP_COMPRA[x.tipoOperacion] ?? OP_COMPRA.interior, loc_irpf: num(x.irpf), loc_claveretencion: CLAVE_RET[x.claveRetencion] ?? CLAVE_RET.ninguna,
+    loc_fecharecepcion: fechaONulo(x.fechaRecepcion), loc_bieninversion: !!x.bienInversion, loc_vidautil: Math.round(num(x.vidaUtil)),
+    loc_ivadeducible: x.ivaDeducible !== false, loc_enlace: (x.enlace ?? '').slice(0, 500),
     'loc_Pedido@odata.bind': ref('loc_pedidocompras', x.pedidoId),
   }),
 }

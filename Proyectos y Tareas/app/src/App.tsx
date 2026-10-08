@@ -7,12 +7,15 @@ import { useApp, type Pantalla } from './store'
 import { Avatar, Avisos, Confirmador, Desplegable } from './ui/basicos'
 import { Logo, Wordmark } from './ui/Logo'
 import { esVencida, lunesDe, hoy } from './domain/fechas'
+import { NOMBRE_ROL } from './domain/types'
 import { useCrm } from './crm/contexto'
 import { esPantallaCrm } from './crm/navegacion'
 import { buscarEnCrm } from './crm/busqueda'
 import { NavCrm, ResultadosCrm, migasCrm } from './crm/NavCrm'
 import { esPantallaGestion } from './gestion/navegacion'
 import { NavGestion, migasGestion } from './gestion/NavGestion'
+import { esPantallaGestoria } from './gestoria/navegacion'
+import { NavGestoria, migasGestoria } from './gestoria/NavGestoria'
 import { esPantallaBoveda } from './boveda/navegacion'
 import { NavBoveda, migasBoveda } from './boveda/NavBoveda'
 // Carga diferida: cada pantalla es su propio paquete, asi el arranque no
@@ -27,6 +30,7 @@ const Equipo = lazy(() => import('./screens/Equipo'))
 const Reuniones = lazy(() => import('./screens/Reuniones'))
 const PantallaCrm = lazy(() => import('./crm/screens/PantallaCrm'))
 const PantallaGestion = lazy(() => import('./gestion/screens/PantallaGestion'))
+const PantallaGestoria = lazy(() => import('./gestoria/screens/PantallaGestoria'))
 const PantallaBoveda = lazy(() => import('./boveda/screens/PantallaBoveda'))
 const Contenido = lazy(() => import('./screens/Contenido'))
 const SkillsIA = lazy(() => import('./screens/SkillsIA'))
@@ -71,7 +75,7 @@ export default function App() {
   if (!yo) return <Login />
 
   const pantallaActiva: Pantalla = pantalla === 'midia' ? 'inicio' : pantalla
-  const Pantalla = esPantallaCrm(pantallaActiva) || esPantallaGestion(pantallaActiva) || esPantallaBoveda(pantallaActiva) ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, contenido: Contenido, skills: SkillsIA, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
+  const Pantalla = esPantallaCrm(pantallaActiva) || esPantallaGestion(pantallaActiva) || esPantallaGestoria(pantallaActiva) || esPantallaBoveda(pantallaActiva) ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, contenido: Contenido, skills: SkillsIA, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
   const migas = migasDe(pantallaActiva)
 
   return (
@@ -97,6 +101,7 @@ export default function App() {
           ))}
           <NavCrm pantallaActiva={pantallaActiva} />
           <NavGestion pantallaActiva={pantallaActiva} />
+          <NavGestoria pantallaActiva={pantallaActiva} />
           <NavBoveda pantallaActiva={pantallaActiva} />
         </nav>
 
@@ -104,7 +109,7 @@ export default function App() {
           <Desplegable abierto={menu} setAbierto={setMenu} boton={
             <button className="yo" onClick={() => setMenu(m => !m)} title="Cambiar de usuario o cerrar sesión">
               <Avatar miembro={yo} />
-              <div className="yo-texto"><div className="yo-nombre">{yo.nombre}</div><div className="yo-cargo">{yo.rol === 'socio' ? 'Socio' : 'Colaborador'}</div></div>
+              <div className="yo-texto"><div className="yo-nombre">{yo.nombre}</div><div className="yo-cargo">{NOMBRE_ROL[yo.rol]}</div></div>
               <ChevronsUpDown size={15} className="yo-chev" />
             </button>
           }>
@@ -139,7 +144,7 @@ export default function App() {
 
         <main className="contenido" key={pantallaActiva}>
           <Suspense fallback={<div className="carga"><div className="spinner" /></div>}>
-            {Pantalla ? <Pantalla abrirTarea={setTareaAbierta} /> : esPantallaGestion(pantallaActiva) ? <PantallaGestion /> : esPantallaBoveda(pantallaActiva) ? <PantallaBoveda /> : <PantallaCrm />}
+            {Pantalla ? <Pantalla abrirTarea={setTareaAbierta} /> : esPantallaGestion(pantallaActiva) ? <PantallaGestion /> : esPantallaGestoria(pantallaActiva) ? <PantallaGestoria /> : esPantallaBoveda(pantallaActiva) ? <PantallaBoveda /> : <PantallaCrm />}
           </Suspense>
         </main>
       </div>
@@ -158,6 +163,8 @@ function migasDe(id: Pantalla): { seccion?: string; nombre: string } {
   if (crm) return crm
   const gestion = migasGestion(id)
   if (gestion) return gestion
+  const gestoria = migasGestoria(id)
+  if (gestoria) return gestoria
   const boveda = migasBoveda(id)
   if (boveda) return boveda
   const i = NAV.findIndex(n => n.id === id)

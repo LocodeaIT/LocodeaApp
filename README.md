@@ -13,13 +13,17 @@ producción cuando haya licencias de pago: ver
 |---|---|---|
 | [`Proyectos y Tareas/`](./Proyectos%20y%20Tareas) | En uso | Objetivos semanales, tareas con subtareas, Mi día, proyectos, reuniones sincronizadas con Outlook, calendario de contenido de redes, catálogo de skills y agentes de IA, informes y análisis |
 | CRM (en `Proyectos y Tareas/app/src/crm/`) | Tablas creadas, sin publicar | Cuentas, contactos, clientes potenciales, oportunidades, actividades, productos, ofertas, pedidos y facturas de venta y compra. Conectado a sus 13 tablas de Dataverse (vacías); en local se prueba con `VITE_DEMO=1` |
+| Gestoría (en `Proyectos y Tareas/app/src/gestoria/`) | En uso | La gestoría fiscal y mercantil de Locodea SL: calendario de obligaciones según el perfil fiscal, revisión de los datos del CRM, modelos (303, 349, 111, 115, 123, 347, 390, 190, 180, 193, 369, 202, 200), libros registro, contabilidad por partida doble sacada del CRM, cierre anual, expediente de la sociedad y Verifactu. El CRM registra; la Gestoría declara |
 | Bóveda (en `Proyectos y Tareas/app/src/boveda/`) | En uso | Contraseñas, claves API y notas seguras del equipo y personales, cifradas en el navegador con AES-256 antes de llegar a Dataverse (`loc_boveda`, `loc_secreto`). Generador, códigos de dos pasos, salud de contraseñas y bloqueo automático |
-| *ERP* | No se construye | Se **integra** con el ERP existente (contabilidad y facturación oficial quedan fuera) |
+| *ERP* | No se construye | Locodea SL no usa un ERP: la facturación oficial sale del CRM con Verifactu y la contabilidad la lleva la Gestoría |
 
-La decisión sobre el ERP es deliberada: facturación y contabilidad están
-reguladas (Verifactu, SII) y cambian por ley. El CRM gestiona los documentos
-comerciales (ofertas, pedidos, facturas como documento de trabajo), pero la
-factura oficial, Verifactu/SII y la contabilidad siguen en el ERP real.
+Desde la propuesta del 7 de octubre de 2026 la app hace de gestoría de la
+sociedad: el CRM emite las facturas (numeración correlativa por series y
+registro de Verifactu en cada emisión) y registra compras y gastos; la
+Gestoría calcula los modelos, lleva la contabilidad y controla los plazos.
+Verifactu funciona en modo preparación hasta que la SL tenga su certificado;
+el envío a la AEAT lo hará el servicio de Azure de
+[`Proyectos y Tareas/verifactu-servicio/`](./Proyectos%20y%20Tareas/verifactu-servicio), con el certificado en Key Vault.
 
 ## Base de datos
 

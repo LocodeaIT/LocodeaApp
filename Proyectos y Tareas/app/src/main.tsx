@@ -17,6 +17,8 @@ import { CrmProveedor } from './crm/store'
 import { crmRepoDataverse } from './crm/dataverse'
 import { GestionProveedor } from './gestion/store'
 import { gestionRepoDataverse } from './gestion/dataverse'
+import { GestoriaProveedor } from './gestoria/store'
+import { gestoriaRepoDataverse } from './gestoria/dataverse'
 import { BovedaProveedor } from './boveda/store'
 import { bovedaRepoDataverse } from './boveda/dataverse'
 
@@ -30,13 +32,14 @@ const demo = import.meta.env.VITE_DEMO === '1'
 const repo = demo ? (await import('./data/demo')).repoDemo : repoDataverse
 const crmRepo = demo ? (await import('./crm/demo')).crmRepoDemo : crmRepoDataverse
 const gestionRepo = demo ? (await import('./gestion/demo')).gestionRepoDemo : gestionRepoDataverse
+const gestoriaRepo = demo ? (await import('./gestoria/demo')).gestoriaRepoDemo : gestoriaRepoDataverse
 const bovedaRepo = demo ? (await import('./boveda/demo')).bovedaRepoDemo : bovedaRepoDataverse
 
 if (demo) {
   avisarModoDemostracion()
 } else {
   // Restos de la etapa en la que los datos vivían en el navegador.
-  for (const clave of ['locodea.objetivos.v1', 'locodea.objetivos.v2', 'locodea.objetivos.v3', 'locodea.demo.v1', 'locodea.crm.demo.v1', 'locodea.gestion.demo.v1', 'locodea.boveda.demo.v1']) {
+  for (const clave of ['locodea.objetivos.v1', 'locodea.objetivos.v2', 'locodea.objetivos.v3', 'locodea.demo.v1', 'locodea.crm.demo.v1', 'locodea.gestion.demo.v1', 'locodea.gestoria.demo.v1', 'locodea.boveda.demo.v1', 'locodea.gestion.saldo']) {
     try { localStorage.removeItem(clave) } catch { /* modo privado o sin permisos */ }
   }
 }
@@ -60,9 +63,11 @@ createRoot(document.getElementById('root')!).render(
     <Proveedor repo={repo}>
       <CrmProveedor repo={crmRepo}>
         <GestionProveedor repo={gestionRepo}>
-          <BovedaProveedor repo={bovedaRepo}>
-            <App />
-          </BovedaProveedor>
+          <GestoriaProveedor repo={gestoriaRepo}>
+            <BovedaProveedor repo={bovedaRepo}>
+              <App />
+            </BovedaProveedor>
+          </GestoriaProveedor>
         </GestionProveedor>
       </CrmProveedor>
     </Proveedor>

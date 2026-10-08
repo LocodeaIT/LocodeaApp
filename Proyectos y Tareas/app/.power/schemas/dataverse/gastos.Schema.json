@@ -188,6 +188,38 @@
           "x-ms-optionsetdisplayname": "Deducible",
           "x-ms-optionSetType": "Boolean"
         },
+        "loc_deducibleis": {
+          "type": "string",
+          "title": "Deducible en Sociedades",
+          "x-ms-dataverse-attribute": "loc_deducibleis",
+          "x-ms-dataverse-type": "BooleanType",
+          "x-ms-schema-name": "loc_DeducibleIs",
+          "enum": [
+            "No",
+            "Sí"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "7488eae3-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Deducible en Sociedades",
+          "x-ms-optionSetType": "Boolean"
+        },
+        "loc_deducibleisname": {
+          "type": "string",
+          "title": "loc_deducibleisname",
+          "x-ms-dataverse-attribute": "loc_deducibleisname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_deducibleisName",
+          "x-ms-dataverse-attribute-of": "loc_deducibleis",
+          "x-ms-read-only": true
+        },
         "loc_deduciblename": {
           "type": "string",
           "title": "loc_deduciblename",
@@ -248,6 +280,38 @@
           "x-ms-dataverse-type": "VirtualType",
           "x-ms-schema-name": "loc_estadoName",
           "x-ms-dataverse-attribute-of": "loc_estado",
+          "x-ms-read-only": true
+        },
+        "loc_facturacompleta": {
+          "type": "string",
+          "title": "Factura completa",
+          "x-ms-dataverse-attribute": "loc_facturacompleta",
+          "x-ms-dataverse-type": "BooleanType",
+          "x-ms-schema-name": "loc_FacturaCompleta",
+          "enum": [
+            "No",
+            "Sí"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "7088eae3-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Factura completa",
+          "x-ms-optionSetType": "Boolean"
+        },
+        "loc_facturacompletaname": {
+          "type": "string",
+          "title": "loc_facturacompletaname",
+          "x-ms-dataverse-attribute": "loc_facturacompletaname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_facturacompletaName",
+          "x-ms-dataverse-attribute-of": "loc_facturacompleta",
           "x-ms-read-only": true
         },
         "loc_facturacompra": {

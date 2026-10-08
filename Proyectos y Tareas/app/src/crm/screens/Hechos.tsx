@@ -228,13 +228,15 @@ export function Parte({ doc, compra }: { doc: Documento; compra?: boolean }) {
 
 export function TotalesDoc({ doc }: { doc: Documento }) {
   const t = totales(doc)
-  const f = doc as { pagadaEl?: string | null; registradaEl?: string | null }
+  const f = doc as { pagadaEl?: string | null; registradaEl?: string | null; irpf?: number }
+  const retencion = f.irpf ? Math.round(t.base * f.irpf) / 100 : 0
   return (
     <Hecho titulo="Totales">
       <dl className="crm-kv">
         <dt>Base imponible</dt><dd>{eur(t.base)}</dd>
         <dt>IVA</dt><dd>{eur(t.iva)}</dd>
-        <dt>Total</dt><dd className="grande">{eur(t.total)}</dd>
+        {retencion > 0 && <><dt>Retención IRPF {f.irpf} %</dt><dd>−{eur(retencion)}</dd></>}
+        <dt>{retencion > 0 ? 'Total a pagar' : 'Total'}</dt><dd className="grande">{eur(t.total - retencion)}</dd>
         {f.pagadaEl && <><dt>Pagada el</dt><dd>{fecha(f.pagadaEl)}</dd></>}
         {f.registradaEl && <><dt>Registrada el</dt><dd>{fecha(f.registradaEl)}</dd></>}
       </dl>

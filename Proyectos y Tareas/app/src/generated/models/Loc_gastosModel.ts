@@ -47,9 +47,11 @@ export interface Loc_gastosBase {
   loc_categoria?: Loc_gastosloc_categoria;
   loc_concepto: string;
   loc_deducible?: boolean;
+  loc_deducibleis?: boolean;
   loc_diacargo?: number;
   loc_enlace?: string;
   loc_estado?: Loc_gastosloc_estado;
+  loc_facturacompleta?: boolean;
   "loc_FacturaCompra@odata.bind"?: string;
   loc_fecha?: string;
   loc_foto?: string;
@@ -75,8 +77,10 @@ export interface Loc_gastosBase {
 export interface Loc_gastos extends Loc_gastosBase {
   createdon?: string;
   loc_categorianame?: string;
+  loc_deducibleisname?: string;
   loc_deduciblename?: string;
   loc_estadoname?: string;
+  loc_facturacompletaname?: string;
   loc_metodopagoname?: string;
   loc_recurrentename?: string;
   modifiedon?: string;

@@ -1,25 +1,26 @@
 /**
- * Sección «Gestión» del menú lateral: gastos, caja, trimestre y documentos,
- * con contadores de lo que pide atención (reembolsos, vencidos, caducidades).
+ * Sección «Finanzas» del menú lateral, dentro del CRM: gastos, caja y
+ * documentos de clientes y proveedores, con contadores de lo que pide
+ * atención (reembolsos, vencidos, caducidades). Lo fiscal está en la Gestoría.
  */
-import { CalendarClock, FolderLock, Receipt, Wallet, type LucideIcon } from 'lucide-react'
+import { FolderLock, Receipt, Wallet, type LucideIcon } from 'lucide-react'
 import { useApp } from '../store'
 import { useCrm } from '../crm/contexto'
 import { estadoFactura } from '../crm/documentos'
 import { useGestion } from './store'
 import { estadoCaducidad } from './calculos'
+import { TIPOS_EXPEDIENTE } from './types'
 import type { PantallaGestion } from './navegacion'
 
 const NAV: { id: PantallaGestion; nombre: string; icono: LucideIcon; seccion?: string }[] = [
-  { id: 'gestion-gastos', nombre: 'Gastos', icono: Receipt, seccion: 'Gestión' },
+  { id: 'gestion-gastos', nombre: 'Gastos', icono: Receipt, seccion: 'Finanzas' },
   { id: 'gestion-caja', nombre: 'Caja', icono: Wallet },
-  { id: 'gestion-trimestre', nombre: 'Trimestre', icono: CalendarClock },
   { id: 'gestion-documentos', nombre: 'Documentos', icono: FolderLock },
 ]
 
 export function migasGestion(id: string): { seccion: string; nombre: string } | null {
   const n = NAV.find(x => x.id === id)
-  return n ? { seccion: 'Gestión', nombre: n.nombre } : null
+  return n ? { seccion: 'Finanzas', nombre: n.nombre } : null
 }
 
 export function NavGestion({ pantallaActiva }: { pantallaActiva: string }) {
@@ -28,7 +29,7 @@ export function NavGestion({ pantallaActiva }: { pantallaActiva: string }) {
   const crm = useCrm()
   const reembolsos = datos.gastos.filter(g => g.estado === 'reembolsar').length
   const vencidas = crm.disponible ? crm.datos.facturasVenta.filter(f => estadoFactura(f) === 'vencida').length + crm.datos.facturasCompra.filter(f => estadoFactura(f) === 'vencida').length : 0
-  const caducan = datos.documentos.filter(d => { const e = estadoCaducidad(d); return e === 'caducado' || e === 'pronto' }).length
+  const caducan = datos.documentos.filter(d => !TIPOS_EXPEDIENTE.includes(d.tipo) || d.cuentaId).filter(d => { const e = estadoCaducidad(d); return e === 'caducado' || e === 'pronto' }).length
   const contador: Partial<Record<PantallaGestion, number>> = { 'gestion-gastos': reembolsos, 'gestion-caja': vencidas, 'gestion-documentos': caducan }
   return (
     <div className="gestion-nav">

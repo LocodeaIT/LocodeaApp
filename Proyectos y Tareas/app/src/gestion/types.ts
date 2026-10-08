@@ -10,7 +10,8 @@
 export type CategoriaGasto = 'viajes' | 'dietas' | 'software' | 'hosting' | 'material' | 'formacion' | 'marketing' | 'asesoria' | 'telefonia' | 'suministros' | 'otros'
 export type EstadoGasto = 'pendiente' | 'pagado' | 'reembolsar' | 'reembolsado'
 export type MetodoPagoGasto = 'tarjeta' | 'transferencia' | 'domiciliacion' | 'efectivo'
-export type TipoDocumento = 'contrato' | 'nda' | 'sepa' | 'certificado' | 'escritura' | 'cif' | 'lopd' | 'poder' | 'otro'
+/** Los cinco últimos son documentos fiscales y societarios de Locodea (Expediente de Gestoría). */
+export type TipoDocumento = 'contrato' | 'nda' | 'sepa' | 'certificado' | 'escritura' | 'cif' | 'lopd' | 'poder' | 'otro' | 'censal' | 'notificacion' | 'justificante' | 'cuentas' | 'acta'
 
 export interface RegistroGestion {
   id: string
@@ -38,12 +39,19 @@ export interface Gasto extends RegistroGestion {
   recurrente: boolean
   /** Día del mes en que se cobra el gasto fijo (1–28). */
   diaCargo: number
+  /** IVA deducible: solo si es factura completa a nombre de Locodea y el gasto está afecto a la actividad. */
   deducible: boolean
+  /** Factura completa (con NIF de Locodea y cuota desglosada); un ticket o factura simplificada no da derecho a deducir el IVA. */
+  facturaCompleta: boolean
+  /** Gasto deducible en el Impuesto sobre Sociedades (contabilizado, justificado y relacionado con la actividad). */
+  deducibleIs: boolean
   noFactura: string
   /** Enlace al PDF o al ticket en SharePoint / OneDrive. */
   enlace: string
-  /** Foto del ticket comprimida, como data URL (jpeg). Vacío si no hay. */
+  /** Foto del ticket comprimida, como data URL (jpeg). Vacía si no hay o si aún no se ha descargado (ver `tieneFoto`). */
   foto: string
+  /** Hay foto guardada. La lista no la descarga: se pide al abrir el gasto. */
+  tieneFoto: boolean
   notas: string
   proveedorId: string | null
   proyectoId: string | null
@@ -90,8 +98,12 @@ export const ESTADO_GASTO: Record<EstadoGasto, string> = { pendiente: 'Pendiente
 export const METODO_PAGO_GASTO: Record<MetodoPagoGasto, string> = { tarjeta: 'Tarjeta', transferencia: 'Transferencia', domiciliacion: 'Domiciliación', efectivo: 'Efectivo' }
 export const TIPO_DOCUMENTO: Record<TipoDocumento, string> = {
   contrato: 'Contrato', nda: 'NDA / confidencialidad', sepa: 'Mandato SEPA', certificado: 'Certificado digital', escritura: 'Escritura',
-  cif: 'CIF / NIF', lopd: 'LOPD / RGPD', poder: 'Poder', otro: 'Otro',
+  cif: 'CIF / NIF', lopd: 'LOPD / RGPD', poder: 'Poder', otro: 'Otro', censal: 'Censal (036)', notificacion: 'Notificación de la AEAT',
+  justificante: 'Justificante de presentación', cuentas: 'Cuentas anuales', acta: 'Acta de junta',
 }
+
+/** Tipos que pertenecen al Expediente de Gestoría (documentos propios de la sociedad), no al CRM. */
+export const TIPOS_EXPEDIENTE: TipoDocumento[] = ['certificado', 'escritura', 'cif', 'poder', 'censal', 'notificacion', 'justificante', 'cuentas', 'acta']
 export const TIPOS_IVA = [21, 10, 4, 0]
 
 /** Tono del chip de cada estado (clases `chip` de la app). */

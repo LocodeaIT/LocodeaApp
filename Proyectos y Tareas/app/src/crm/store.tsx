@@ -17,7 +17,9 @@ import type {
 } from './types'
 import { CRM_VACIO } from './types'
 import { DIAS_PAGO, FASE, NOMBRE_REGISTRO, PROBABILIDAD_FASE } from './catalogos'
-import { copiarLineas, siguienteNo, totales } from './documentos'
+import { copiarLineas, siguienteNo, siguienteNoFactura, totales } from './documentos'
+import { avisarFacturaVenta } from './eventos'
+import { FISCAL_COMPRA, FISCAL_CUENTA, FISCAL_VENTA, operacionCompraPorDefecto, operacionVentaPorDefecto } from './fiscal'
 import { cuentaDeReferente, etiquetaEstado } from './consultas'
 import { eur0, normalizar } from './formato'
 import { ContextoCrm, LISTA_INICIAL, type CrmCtx, type EstadoLista, type Ficha } from './contexto'
@@ -146,7 +148,9 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
   const guardar = useCallback(async <K extends ColEntidad>(col: K, obj: RegistroDe<K>): Promise<RegistroDe<K>> => {
     const ahora = ahoraIso()
     const o = { ...obj, id: obj.id || nuevoId(), creadoEl: obj.creadoEl || ahora, actualizadoEl: ahora } as RegistroDe<K>
-    if (!obj.id && !o.no) {
+    // las facturas de venta en borrador no consumen número: lo reciben al registrarse
+    const borradorVenta = col === 'facturasVenta' && (o as unknown as FacturaVenta).estado === 'borrador'
+    if (!obj.id && !o.no && !borradorVenta) {
       const no = siguienteNo(col, actual.current[col])
       if (no) o.no = no
     }
@@ -195,7 +199,7 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
       const c: Cuenta = {
         id: '', no: '', nombre: l.empresa, tipo: 'cliente', estado: 'activo', cif: '', sector: l.sector, direccion: '', cp: '', ciudad: l.ciudad,
         provincia: '', pais: 'España', web: '', telefono: l.telefono, email: l.email, empleados: '', propietarioId: l.propietarioId,
-        condicionesPago: '30', metodoPago: 'transferencia', iva: 21, iban: '', regimenIva: 'general', notas: '', creadoEl: '',
+        condicionesPago: '30', metodoPago: 'transferencia', iva: 21, iban: '', regimenIva: 'general', notas: '', creadoEl: '', ...FISCAL_CUENTA,
       }
       cuentaId = (await guardar('cuentas', c)).id
     }
@@ -257,11 +261,21 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
 
   const cambiarEstadoDocumento = useCallback(async (col: ColDocumento, doc: Documento, estado: string) => {
     if (estado === 'registrada' && !doc.lineas.length) { avisar('No se puede registrar una factura sin líneas.', 'error'); return }
+    if (col === 'facturasVenta' && estado === 'registrada') {
+      const fv = doc as FacturaVenta
+      if (fv.tipoFactura.startsWith('R') && !fv.rectificadaId) { avisar('Una rectificativa tiene que indicar qué factura rectifica (pestaña Fiscal).', 'error'); return }
+    }
     const extra = estado === 'pagada'
       ? { pagadaEl: ahoraIso(), ...(col === 'facturasVenta' ? { importeCobrado: totales(doc).total } : col === 'facturasCompra' ? { importePagado: totales(doc).total } : {}) }
-      : estado === 'registrada' ? { registradaEl: ahoraIso() } : {}
-    await guardar(col, { ...doc, estado, ...extra } as RegistroDe<typeof col>)
+      : estado === 'registrada'
+        ? { registradaEl: ahoraIso(), ...(col === 'facturasVenta' && !doc.no ? { no: siguienteNoFactura((doc as FacturaVenta).tipoFactura, actual.current.facturasVenta) } : {}) }
+        : {}
+    const guardado = await guardar(col, { ...doc, estado, ...extra } as RegistroDe<typeof col>)
     avisar(`${NOMBRE_REGISTRO[col]}: ${etiquetaEstado(col, estado).toLowerCase()}`)
+    // la Gestoría crea el registro de Verifactu de la factura emitida o anulada
+    if (col === 'facturasVenta' && (estado === 'registrada' || estado === 'anulada')) {
+      await avisarFacturaVenta({ tipo: estado, factura: guardado as FacturaVenta })
+    }
   }, [guardar, avisar])
 
   const ofertaAPedido = useCallback(async (q: Oferta) => {
@@ -285,10 +299,11 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
       id: '', no: '', cuentaId: pedido.cuentaId, contactoId: pedido.contactoId, pedidoId: pedido.id, fecha: hoy(), vencimiento: sumarDias(hoy(), DIAS_PAGO[cond] ?? 30),
       estado: 'borrador', propietarioId: pedido.propietarioId, lineas: copiarLineas(pedido.lineas), condicionesPago: cond, metodoPago: pedido.metodoPago,
       referencia: pedido.referencia, notas: '', registradaEl: null, pagadaEl: null, importeCobrado: 0, creadoEl: '',
+      ...FISCAL_VENTA, tipoOperacion: operacionVentaPorDefecto(actual.current.cuentas.find(a => a.id === pedido.cuentaId)),
     }
     const nueva = await guardar('facturasVenta', f)
     await guardar('pedidosVenta', { ...pedido, estado: 'facturado', facturaId: nueva.id })
-    avisar(`Factura ${nueva.no} creada (borrador)`)
+    avisar(`Factura creada en borrador: recibirá su número al registrarla`)
     abrir('facturasVenta', nueva.id)
   }, [guardar, avisar, abrir])
 
@@ -299,6 +314,7 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
       id: '', no: '', cuentaId: pedido.cuentaId, contactoId: pedido.contactoId, pedidoId: pedido.id, noProveedor: '', fecha: hoy(),
       vencimiento: sumarDias(hoy(), DIAS_PAGO[cond] ?? 30), estado: 'pendiente', propietarioId: pedido.propietarioId, lineas: copiarLineas(pedido.lineas),
       condicionesPago: cond, metodoPago: pedido.metodoPago, referencia: pedido.referencia, notas: '', registradaEl: null, pagadaEl: null, importePagado: 0, creadoEl: '',
+      ...FISCAL_COMPRA, tipoOperacion: operacionCompraPorDefecto(actual.current.cuentas.find(a => a.id === pedido.cuentaId)), fechaRecepcion: hoy(),
     }
     const nueva = await guardar('facturasCompra', f)
     await guardar('pedidosCompra', { ...pedido, estado: 'facturado', facturaId: nueva.id })

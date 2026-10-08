@@ -105,6 +105,14 @@
           "x-ms-schema-name": "loc_Ciudad",
           "maxLength": 100
         },
+        "loc_codigopais": {
+          "type": "string",
+          "title": "Código de país",
+          "x-ms-dataverse-attribute": "loc_codigopais",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_CodigoPais",
+          "maxLength": 2
+        },
         "loc_condicionespago": {
           "type": "string",
           "title": "Condiciones de pago",
@@ -301,6 +309,38 @@
           "x-ms-schema-name": "loc_Pais",
           "maxLength": 100
         },
+        "loc_particular": {
+          "type": "string",
+          "title": "Particular",
+          "x-ms-dataverse-attribute": "loc_particular",
+          "x-ms-dataverse-type": "BooleanType",
+          "x-ms-schema-name": "loc_Particular",
+          "enum": [
+            "No",
+            "Sí"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "51f634ca-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Particular",
+          "x-ms-optionSetType": "Boolean"
+        },
+        "loc_particularname": {
+          "type": "string",
+          "title": "loc_particularname",
+          "x-ms-dataverse-attribute": "loc_particularname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_particularName",
+          "x-ms-dataverse-attribute-of": "loc_particular",
+          "x-ms-read-only": true
+        },
         "loc_propietario": {
           "type": "string",
           "title": "Propietario",
@@ -412,6 +452,53 @@
           "x-ms-optionsetdisplayname": "Tipo",
           "x-ms-optionSetType": "Picklist"
         },
+        "loc_tipoidfiscal": {
+          "type": "string",
+          "title": "Tipo de identificación fiscal",
+          "x-ms-dataverse-attribute": "loc_tipoidfiscal",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_TipoIdFiscal",
+          "enum": [
+            "NIF español",
+            "NIF-IVA (UE)",
+            "Pasaporte",
+            "Documento oficial del país",
+            "Certificado de residencia",
+            "Otro documento",
+            "No censado"
+          ],
+          "x-ms-enum-values": [
+            412000450,
+            412000451,
+            412000452,
+            412000453,
+            412000454,
+            412000455,
+            412000456
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "191d03c4-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Tipo de identificación fiscal",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_tipoidfiscalname": {
+          "type": "string",
+          "title": "loc_tipoidfiscalname",
+          "x-ms-dataverse-attribute": "loc_tipoidfiscalname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_tipoidfiscalName",
+          "x-ms-dataverse-attribute-of": "loc_tipoidfiscal",
+          "x-ms-read-only": true
+        },
         "loc_tiponame": {
           "type": "string",
           "title": "loc_tiponame",
@@ -419,6 +506,48 @@
           "x-ms-dataverse-type": "VirtualType",
           "x-ms-schema-name": "loc_tipoName",
           "x-ms-dataverse-attribute-of": "loc_tipo",
+          "x-ms-read-only": true
+        },
+        "loc_vies": {
+          "type": "string",
+          "title": "NIF-IVA en VIES",
+          "x-ms-dataverse-attribute": "loc_vies",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_Vies",
+          "enum": [
+            "Sin comprobar",
+            "Válido",
+            "No válido"
+          ],
+          "x-ms-enum-values": [
+            412000460,
+            412000461,
+            412000462
+          ],
+          "Color": [
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "55f634ca-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "NIF-IVA en VIES",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_viescomprobadoel": {
+          "type": "string",
+          "title": "VIES comprobado el",
+          "x-ms-dataverse-attribute": "loc_viescomprobadoel",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "loc_ViesComprobadoEl"
+        },
+        "loc_viesname": {
+          "type": "string",
+          "title": "loc_viesname",
+          "x-ms-dataverse-attribute": "loc_viesname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_viesName",
+          "x-ms-dataverse-attribute-of": "loc_vies",
           "x-ms-read-only": true
         },
         "loc_web": {

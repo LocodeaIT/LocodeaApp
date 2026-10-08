@@ -20,7 +20,7 @@ export function generarSemillaGestion(): GestionInstantanea {
     metodoPago: Gasto['metodoPago'], pagadorId: string | null, extra: Partial<Gasto> = {},
   ): Gasto => ({
     id, no: 'G-' + (26000 + n), concepto, fecha: d(fecha), base, iva, irpf: extra.irpf ?? 0, total: totalDesdeBase(base, iva, extra.irpf ?? 0),
-    categoria, estado, metodoPago, recurrente: false, diaCargo: 1, deducible: true, noFactura: '', enlace: '', foto: '', notas: '',
+    categoria, estado, metodoPago, recurrente: false, diaCargo: 1, deducible: true, facturaCompleta: true, deducibleIs: true, noFactura: '', enlace: '', foto: '', tieneFoto: false, notas: '',
     proveedorId: null, proyectoId: null, pagadorId, facturaCompraId: null, creadoEl: iso(fecha), ...extra,
   })
 
@@ -30,12 +30,12 @@ export function generarSemillaGestion(): GestionInstantanea {
     gasto('g3', 3, 'Claude Max · equipo', -18, 180, 21, 'software', 'pagado', 'tarjeta', null, { recurrente: true, diaCargo: 15 }),
     gasto('g4', 4, 'Gestoría · cuota mensual', -12, 120, 21, 'asesoria', 'pendiente', 'domiciliacion', null, { recurrente: true, diaCargo: 5, irpf: 15 }),
     gasto('g5', 5, 'Tren Madrid–Sevilla · visita Panaderías Churros', -9, 62.4, 10, 'viajes', 'reembolsar', 'tarjeta', M, { proyectoId: 'p1' }),
-    gasto('g6', 6, 'Comida con el equipo de OrtoAlresa', -7, 84, 10, 'dietas', 'reembolsar', 'efectivo', J, { notas: 'Cuatro personas. Ticket en la foto.' }),
+    gasto('g6', 6, 'Comida con el equipo de OrtoAlresa', -7, 84, 10, 'dietas', 'reembolsar', 'efectivo', J, { notas: 'Cuatro personas. Ticket simplificado: el IVA no se deduce.', facturaCompleta: false, deducible: false }),
     gasto('g7', 7, 'Monitor 27" para el puesto de Marco', -30, 289, 21, 'material', 'pagado', 'transferencia', null, { noFactura: 'A-2026-4471' }),
     gasto('g8', 8, 'Curso Power Platform · PL-400', -45, 495, 21, 'formacion', 'reembolsado', 'tarjeta', A),
     gasto('g9', 9, 'Fibra y móviles · septiembre', -3, 96.5, 21, 'telefonia', 'pendiente', 'domiciliacion', null, { recurrente: true, diaCargo: 20 }),
     gasto('g10', 10, 'Anuncios LinkedIn · campaña Power Apps', -14, 150, 21, 'marketing', 'pagado', 'tarjeta', null, { deducible: true }),
-    gasto('g11', 11, 'Multa de aparcamiento', -5, 90, 0, 'otros', 'pagado', 'tarjeta', A, { deducible: false, notas: 'No deducible.' }),
+    gasto('g11', 11, 'Multa de aparcamiento', -5, 90, 0, 'otros', 'pagado', 'tarjeta', A, { deducible: false, deducibleIs: false, notas: 'Las sanciones no son deducibles en Sociedades.' }),
   ]
 
   const doc = (id: string, nombre: string, tipo: DocumentoGestion['tipo'], caduca: number | null, cuentaId: string | null, responsableId: string | null, extra: Partial<DocumentoGestion> = {}): DocumentoGestion => ({

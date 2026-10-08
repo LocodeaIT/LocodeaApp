@@ -4,7 +4,8 @@
  */
 export const Loc_miembrosloc_rol = {
   412000000: 'Socio',
-  412000001: 'Colaborador'
+  412000001: 'Colaborador',
+  412000002: 'Asesor (solo lectura)'
 } as const;
 export type Loc_miembrosloc_rol = keyof typeof Loc_miembrosloc_rol;
 export const Loc_miembrosstatecode = {

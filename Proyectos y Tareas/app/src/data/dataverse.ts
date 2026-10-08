@@ -39,7 +39,7 @@ function inverso<T extends string>(m: Record<T, number>): Record<number, T> {
   return r
 }
 
-const ROL: Record<Rol, number> = { socio: 412000000, colaborador: 412000001 }
+const ROL: Record<Rol, number> = { socio: 412000000, colaborador: 412000001, asesor: 412000002 }
 const EST_PROYECTO: Record<EstadoProyecto, number> = { activo: 412000010, pausado: 412000011, cerrado: 412000012 }
 const EST_OBJETIVO: Record<EstadoObjetivo, number> = { pendiente: 412000030, cumplido: 412000031 }
 const EST_TAREA: Record<EstadoTarea, number> = { pendiente: 412000040, en_curso: 412000041, bloqueada: 412000042, revision: 412000043, hecha: 412000044 }

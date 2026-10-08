@@ -12,6 +12,10 @@ export interface GestionRepositorio {
   /** Crea o actualiza (según exista el id) y devuelve lo guardado. */
   guardar<K extends ColGestion>(col: K, obj: RegistroGestionDe<K>): Promise<RegistroGestionDe<K>>
   borrar(col: ColGestion, id: string): Promise<void>
+  /** Foto de un gasto (la carga inicial no las trae, para no descargar cientos de imágenes). */
+  cargarFoto(id: string): Promise<string>
+  /** Siguiente número de la serie de gastos consultando lo guardado justo ahora. */
+  siguienteNumeroGasto?(): Promise<string>
   /** Solo demostración. */
   restablecer?(): Promise<GestionInstantanea>
 }

@@ -15,8 +15,9 @@ import { ahoraIso, hoy, lunesDe } from './domain/fechas'
 import { PANTALLAS_CRM, type PantallaCrm } from './crm/navegacion'
 import { PANTALLAS_GESTION, type PantallaGestion } from './gestion/navegacion'
 import { PANTALLAS_BOVEDA, type PantallaBoveda } from './boveda/navegacion'
+import { PANTALLAS_GESTORIA, type PantallaGestoria } from './gestoria/navegacion'
 
-export type Pantalla = 'inicio' | 'objetivos' | 'tareas' | 'midia' | 'reuniones' | 'contenido' | 'skills' | 'proyectos' | 'analisis' | 'informes' | 'equipo' | PantallaCrm | PantallaGestion | PantallaBoveda
+export type Pantalla = 'inicio' | 'objetivos' | 'tareas' | 'midia' | 'reuniones' | 'contenido' | 'skills' | 'proyectos' | 'analisis' | 'informes' | 'equipo' | PantallaCrm | PantallaGestion | PantallaGestoria | PantallaBoveda
 
 export interface Aviso {
   id: number
@@ -26,7 +27,7 @@ export interface Aviso {
 
 const VACIO: Instantanea = { miembros: [], proyectos: [], semanas: [], objetivos: [], tareas: [], actividad: [], vistas: [], reuniones: [], contenidos: [], recursosIA: [] }
 
-const PANTALLAS: Pantalla[] = ['inicio', 'objetivos', 'tareas', 'reuniones', 'contenido', 'skills', 'proyectos', 'analisis', 'informes', 'equipo', ...PANTALLAS_CRM, ...PANTALLAS_GESTION, ...PANTALLAS_BOVEDA]
+const PANTALLAS: Pantalla[] = ['inicio', 'objetivos', 'tareas', 'reuniones', 'contenido', 'skills', 'proyectos', 'analisis', 'informes', 'equipo', ...PANTALLAS_CRM, ...PANTALLAS_GESTION, ...PANTALLAS_GESTORIA, ...PANTALLAS_BOVEDA]
 
 const CLAVE_YO = 'locodea.yo'
 const CLAVE_PANTALLA = 'locodea.pantalla'

@@ -28,6 +28,43 @@ export type CondicionPago = 'contado' | '15' | '30' | '60'
 export type MetodoPago = 'transferencia' | 'domiciliacion' | 'tarjeta'
 /** Régimen de IVA de la cuenta (dato fiscal para la gestoría). */
 export type RegimenIva = 'general' | 'intracomunitario' | 'exento' | 'recargo' | 'extracomunitario'
+/**
+ * Tipo de documento de identificación fiscal del tercero, como lo pide la AEAT
+ * (Verifactu, 349, 347): NIF español, NIF-IVA de otro país de la UE, pasaporte,
+ * documento oficial del país de residencia, certificado de residencia, otro
+ * documento probatorio o no censado.
+ */
+export type TipoIdFiscal = 'nif' | 'nifiva' | 'pasaporte' | 'docoficial' | 'residencia' | 'otro' | 'nocensado'
+/**
+ * Tipo de operación de una factura de venta. Decide el IVA y dónde se declara:
+ *  - interior: cliente en España, IVA español (303).
+ *  - ue-empresa: servicio a empresa de la UE con NIF-IVA válido, sin IVA por
+ *    inversión del sujeto pasivo (303 casilla informativa y 349).
+ *  - ue-particular: particular de la UE, IVA español (303).
+ *  - ue-oss: servicios electrónicos a particulares de la UE por encima de
+ *    10.000 €/año, IVA del país del cliente por ventanilla única (369).
+ *  - fuera-ue: cliente de fuera de la UE, no sujeta por reglas de localización (303 informativa).
+ *  - isp-interior: inversión del sujeto pasivo dentro de España (sin IVA en la factura).
+ *  - exenta: operación exenta (art. 20 LIVA).
+ */
+export type TipoOperacionVenta = 'interior' | 'ue-empresa' | 'ue-particular' | 'ue-oss' | 'fuera-ue' | 'isp-interior' | 'exenta'
+/**
+ * Tipo de operación de una factura de compra:
+ *  - interior: proveedor español con IVA.
+ *  - ue: adquisición intracomunitaria (servicios o bienes) sin IVA: Locodea se
+ *    lo autorrepercute y se lo deduce (303) y va al 349.
+ *  - fuera-ue: servicios de proveedor de fuera de la UE, inversión del sujeto pasivo (303).
+ *  - importacion: bienes importados con DUA (el IVA lo cobra la aduana).
+ *  - isp-interior: inversión del sujeto pasivo dentro de España.
+ *  - exenta: compra exenta o sin IVA (seguros, servicios financieros…).
+ */
+export type TipoOperacionCompra = 'interior' | 'ue' | 'fuera-ue' | 'importacion' | 'isp-interior' | 'exenta'
+/** Tipo de factura de Verifactu: F1 completa, F2 simplificada, F3 en sustitución de simplificadas, R1–R5 rectificativas. */
+export type TipoFactura = 'F1' | 'F2' | 'F3' | 'R1' | 'R2' | 'R3' | 'R4' | 'R5'
+/** Estado de la factura emitida frente a Verifactu. */
+export type EstadoVerifactu = 'sin-registro' | 'preparado' | 'pendiente' | 'correcto' | 'aceptado-errores' | 'rechazado' | 'anulado'
+/** Clave de la retención de una factura de compra: decide el modelo (111 profesionales y otros, 115 alquileres). */
+export type ClaveRetencion = 'ninguna' | 'profesional' | 'arrendamiento' | 'otros'
 export type TipoProducto = 'servicio' | 'licencia' | 'producto'
 export type Unidad = 'hora' | 'dia' | 'mes' | 'ud' | 'proyecto'
 
@@ -62,6 +99,14 @@ export interface Cuenta extends RegistroBase {
   iva: number
   iban: string
   regimenIva: RegimenIva
+  /** Código ISO 3166-1 alfa-2 del país (ES, FR, US…). Decide el tipo de operación por defecto. */
+  codigoPais: string
+  tipoIdFiscal: TipoIdFiscal
+  /** Particular (consumidor final) en lugar de empresa o profesional. */
+  particular: boolean
+  /** Resultado de la última comprobación del NIF-IVA en VIES (null si no se ha comprobado). */
+  viesValido: boolean | null
+  viesComprobadoEl: string | null
   notas: string
 }
 
@@ -176,6 +221,14 @@ export interface FacturaVenta extends DocumentoBase {
   pagadaEl: string | null
   /** Cobros parciales acumulados; la previsión de caja resta esto del total. */
   importeCobrado: number
+  tipoOperacion: TipoOperacionVenta
+  tipoFactura: TipoFactura
+  /** Factura que corrige (solo rectificativas). */
+  rectificadaId: string | null
+  motivoRectificacion: string
+  /** Estado frente a Verifactu y huella del último registro (la cadena completa vive en Gestoría). */
+  estadoVerifactu: EstadoVerifactu
+  huella: string
 }
 
 export interface PedidoCompra extends DocumentoBase {
@@ -196,6 +249,20 @@ export interface FacturaCompra extends DocumentoBase {
   pagadaEl: string | null
   /** Pagos parciales acumulados. */
   importePagado: number
+  tipoOperacion: TipoOperacionCompra
+  /** Retención de IRPF en % (profesionales 15/7, alquileres 19). */
+  irpf: number
+  claveRetencion: ClaveRetencion
+  /** Fecha en que llegó la factura: decide el trimestre en que se deduce el IVA. Vacía = fecha de factura. */
+  fechaRecepcion: string
+  /** Bien de inversión (equipos, mobiliario, software): va al libro de bienes de inversión y se amortiza. */
+  bienInversion: boolean
+  /** Vida útil en años para la amortización lineal. */
+  vidaUtil: number
+  /** El IVA soportado se puede deducir (factura completa a nombre de Locodea y gasto afecto). */
+  ivaDeducible: boolean
+  /** Enlace al PDF de la factura (SharePoint u OneDrive). */
+  enlace: string
 }
 
 export type Documento = Oferta | PedidoVenta | FacturaVenta | PedidoCompra | FacturaCompra

@@ -157,6 +157,36 @@
           "entitySetName": "loc_secretos",
           "logicalName": "loc_secreto",
           "isHidden": false
+        },
+        "perfilesfiscales": {
+          "entitySetName": "loc_perfilfiscals",
+          "logicalName": "loc_perfilfiscal",
+          "isHidden": false
+        },
+        "presentaciones": {
+          "entitySetName": "loc_presentacions",
+          "logicalName": "loc_presentacion",
+          "isHidden": false
+        },
+        "asientos": {
+          "entitySetName": "loc_asientos",
+          "logicalName": "loc_asiento",
+          "isHidden": false
+        },
+        "configuracionesdeverifactu": {
+          "entitySetName": "loc_verifactuconfigs",
+          "logicalName": "loc_verifactuconfig",
+          "isHidden": false
+        },
+        "env_osaverifactu": {
+          "entitySetName": "loc_envioverifactus",
+          "logicalName": "loc_envioverifactu",
+          "isHidden": false
+        },
+        "registrosdefacturaci_n": {
+          "entitySetName": "loc_registrofacturacions",
+          "logicalName": "loc_registrofacturacion",
+          "isHidden": false
         }
       },
       "environmentVariableName": ""

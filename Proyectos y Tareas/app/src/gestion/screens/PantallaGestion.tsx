@@ -1,6 +1,6 @@
 /**
- * Entrada de las pantallas de Gestión (paquete diferido): según la pantalla
- * activa enseña gastos, caja, trimestre o documentos.
+ * Entrada de las pantallas de Finanzas del CRM (paquete diferido): según la
+ * pantalla activa enseña gastos, caja o documentos de clientes y proveedores.
  */
 import { Wallet } from 'lucide-react'
 import { useApp } from '../../store'
@@ -8,7 +8,6 @@ import { Vacio } from '../../ui/basicos'
 import { useGestion } from '../store'
 import { Gastos } from './Gastos'
 import { Caja } from './Caja'
-import { Trimestre } from './Trimestre'
 import { Documentos } from './Documentos'
 
 export default function PantallaGestion() {
@@ -20,7 +19,7 @@ export default function PantallaGestion() {
     return (
       <div className="pagina">
         <div className="tarjeta padded">
-          <Vacio icono={<Wallet size={36} />} titulo="No se pudo cargar Gestión" texto={g.error} accion={<button className="btn primario pequeno" onClick={() => void g.recargar()}>Reintentar</button>} />
+          <Vacio icono={<Wallet size={36} />} titulo="No se pudo cargar Finanzas" texto={g.error} accion={<button className="btn primario pequeno" onClick={() => void g.recargar()}>Reintentar</button>} />
         </div>
       </div>
     )
@@ -29,7 +28,7 @@ export default function PantallaGestion() {
     return (
       <div className="pagina">
         <div className="tarjeta padded">
-          <Vacio icono={<Wallet size={36} />} titulo="Gestión aún no tiene tablas en Dataverse" texto="Gastos y documentos llegarán en cuanto existan sus tablas en el entorno (scripts/gestion-esquema.mjs)." />
+          <Vacio icono={<Wallet size={36} />} titulo="Finanzas aún no tiene tablas en Dataverse" texto="Gastos y documentos llegarán en cuanto existan sus tablas en el entorno (scripts/gestion-esquema.mjs)." />
         </div>
       </div>
     )
@@ -37,8 +36,7 @@ export default function PantallaGestion() {
 
   switch (pantalla) {
     case 'gestion-caja': return <Caja />
-    case 'gestion-trimestre': return <Trimestre />
-    case 'gestion-documentos': return <Documentos />
+    case 'gestion-documentos': return <Documentos ambito="crm" />
     default: return <Gastos />
   }
 }

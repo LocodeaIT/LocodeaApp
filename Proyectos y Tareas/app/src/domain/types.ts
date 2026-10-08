@@ -5,7 +5,10 @@
  * Dataverse) se encarga de traducir a/desde su almacenamiento.
  */
 
-export type Rol = 'socio' | 'colaborador'
+/** asesor: gestor o asesor externo, con acceso de solo lectura a la Gestoría. */
+export type Rol = 'socio' | 'colaborador' | 'asesor'
+
+export const NOMBRE_ROL: Record<Rol, string> = { socio: 'Socio', colaborador: 'Colaborador', asesor: 'Asesor (solo lectura)' }
 
 export interface Miembro {
   id: string

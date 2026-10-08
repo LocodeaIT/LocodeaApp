@@ -5,7 +5,7 @@
  * avisa del mínimo. Desde aquí se marca una factura como cobrada o se apunta
  * un cobro parcial.
  */
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ArrowDownLeft, ArrowUpRight, Check, Euro, TrendingDown, Wallet } from 'lucide-react'
 import { useApp } from '../../store'
 import { useCrm } from '../../crm/contexto'
@@ -14,13 +14,9 @@ import { eur, eur0, fecha } from '../../crm/formato'
 import { totales } from '../../crm/documentos'
 import { fechaCorta, hoy } from '../../domain/fechas'
 import { useGestion } from '../store'
+import { useGestoria } from '../../gestoria/store'
+import { impuestosPrevistos } from '../../gestoria/caja'
 import { pendienteCobro, pendientePago, previsionCaja, type Movimiento } from '../calculos'
-
-const CLAVE_SALDO = 'locodea.gestion.saldo'
-
-function leerSaldo(): number {
-  try { return Number(localStorage.getItem(CLAVE_SALDO)) || 0 } catch { return 0 }
-}
 
 type Vista = 'todo' | 'cobros' | 'pagos'
 
@@ -28,21 +24,27 @@ export function Caja() {
   const { datos } = useGestion()
   const crm = useCrm()
   const { setPantalla } = useApp()
-  const [saldoInicial, setSaldoInicial] = useState(leerSaldo)
+  const gestoria = useGestoria()
+  // el saldo vive en el perfil fiscal (Dataverse): todos ven el mismo; lo cambian los socios
+  const [saldoInicial, setSaldoInicial] = useState(gestoria.perfil.saldoBanco)
+  useEffect(() => { setSaldoInicial(gestoria.perfil.saldoBanco) }, [gestoria.perfil.saldoBanco])
+  const puedeCambiarSaldo = gestoria.acceso === 'completo' && gestoria.disponible
   const [vista, setVista] = useState<Vista>('todo')
   const [parcial, setParcial] = useState<Movimiento | null>(null)
 
-  const prev = useMemo(() => previsionCaja(crm.datos, datos, saldoInicial, 90), [crm.datos, datos, saldoInicial])
+  const impuestos = useMemo(() => (gestoria.disponible ? impuestosPrevistos({ crm: crm.datos, gestion: datos, gestoria: gestoria.datos, perfil: gestoria.perfil, dias: 90 }) : []), [crm.datos, datos, gestoria.datos, gestoria.perfil, gestoria.disponible])
+  const prev = useMemo(() => previsionCaja(crm.datos, datos, saldoInicial, 90, impuestos), [crm.datos, datos, saldoInicial, impuestos])
   const movimientos = prev.movimientos.filter(m => vista === 'todo' || (vista === 'cobros' ? m.importe > 0 : m.importe < 0))
   const maxSemana = Math.max(1, ...prev.semanas.map(s => Math.max(s.cobros, s.pagos)))
 
-  const cambiarSaldo = (v: number) => {
-    setSaldoInicial(v)
-    try { localStorage.setItem(CLAVE_SALDO, String(v)) } catch { /* sin permisos */ }
+  const guardarSaldo = () => {
+    if (!puedeCambiarSaldo || saldoInicial === gestoria.perfil.saldoBanco) return
+    void gestoria.guardarPerfil({ ...gestoria.perfil, saldoBanco: saldoInicial, saldoBancoFecha: hoy() })
   }
 
   const abrir = (m: Movimiento) => {
     if (m.ref.col === 'gastos') { setPantalla('gestion-gastos'); return }
+    if (m.ref.col === 'gestoria') { if (gestoria.acceso !== 'ninguno') setPantalla('gestoria-panel'); return }
     crm.abrir(m.ref.col, m.ref.id)
     setPantalla(m.ref.col === 'facturasVenta' ? 'crm-facturas-venta' : 'crm-facturas-compra')
   }
@@ -67,7 +69,9 @@ export function Caja() {
         <div className="acciones">
           <div className="ges-saldo-inicial">
             <span style={{ fontSize: 13, color: 'var(--muted)' }}>Saldo en el banco hoy</span>
-            <input type="number" step={100} value={saldoInicial || ''} placeholder="0" onChange={e => cambiarSaldo(Number(e.target.value) || 0)} />
+            <input type="number" step={100} value={saldoInicial || ''} placeholder="0" disabled={!puedeCambiarSaldo} title={puedeCambiarSaldo ? 'Se guarda para todos al salir del campo' : 'Lo actualizan los socios'}
+              onChange={e => setSaldoInicial(Number(e.target.value) || 0)} onBlur={guardarSaldo} onKeyDown={e => { if (e.key === 'Enter') guardarSaldo() }} />
+            {gestoria.perfil.saldoBancoFecha && <span style={{ fontSize: 12, color: 'var(--texto-3)' }}>a {fecha(gestoria.perfil.saldoBancoFecha)}</span>}
           </div>
         </div>
       </div>
@@ -108,7 +112,7 @@ export function Caja() {
           ) : movimientos.map((m, i) => (
             <div key={m.ref.col + m.ref.id + m.fecha + i} className="ges-mov clicable" onClick={() => abrir(m)}>
               <span className={`cuando ${m.vencido ? 'vencido' : ''}`} title={m.vencido ? 'Vencido' : undefined}>{m.vencido ? 'Vencido' : fechaCorta(m.fecha)}</span>
-              <span className="que"><b>{m.concepto}</b><small>{[m.tercero, m.tipo === 'fijo' ? 'gasto fijo' : m.tipo === 'gasto' ? 'gasto' : m.tipo === 'cobro' ? 'factura de venta' : 'factura de compra'].filter(Boolean).join(' · ')}</small></span>
+              <span className="que"><b>{m.concepto}</b><small>{[m.tercero, m.tipo === 'fijo' ? 'gasto fijo' : m.tipo === 'gasto' ? 'gasto' : m.tipo === 'impuesto' ? 'impuesto previsto (Gestoría)' : m.tipo === 'cobro' ? 'factura de venta' : 'factura de compra'].filter(Boolean).join(' · ')}</small></span>
               <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
                 <span className={`cuanto ${m.importe < 0 ? 'neg' : 'pos'}`}>{m.importe < 0 ? '−' : '+'}{eur(Math.abs(m.importe))}</span>
                 {(m.tipo === 'cobro' || m.tipo === 'pago') && (

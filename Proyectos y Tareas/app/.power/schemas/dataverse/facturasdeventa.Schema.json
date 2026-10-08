@@ -205,6 +205,53 @@
           "x-ms-dataverse-attribute-of": "loc_estado",
           "x-ms-read-only": true
         },
+        "loc_estadoverifactu": {
+          "type": "string",
+          "title": "Estado Verifactu",
+          "x-ms-dataverse-attribute": "loc_estadoverifactu",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_EstadoVerifactu",
+          "enum": [
+            "Sin registro",
+            "Preparado (sin enviar)",
+            "Pendiente de envío",
+            "Correcto",
+            "Aceptado con errores",
+            "Rechazado",
+            "Anulado"
+          ],
+          "x-ms-enum-values": [
+            412000490,
+            412000491,
+            412000492,
+            412000493,
+            412000494,
+            412000495,
+            412000496
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "d042d9d0-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Estado Verifactu",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_estadoverifactuname": {
+          "type": "string",
+          "title": "loc_estadoverifactuname",
+          "x-ms-dataverse-attribute": "loc_estadoverifactuname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_estadoverifactuName",
+          "x-ms-dataverse-attribute-of": "loc_estadoverifactu",
+          "x-ms-read-only": true
+        },
         "loc_facturaventaid": {
           "type": "string",
           "title": "Factura de venta",
@@ -221,6 +268,14 @@
           "x-ms-dataverse-attribute": "loc_fecha",
           "x-ms-dataverse-type": "DateTimeType",
           "x-ms-schema-name": "loc_Fecha"
+        },
+        "loc_huella": {
+          "type": "string",
+          "title": "Huella Verifactu",
+          "x-ms-dataverse-attribute": "loc_huella",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Huella",
+          "maxLength": 100
         },
         "loc_importecobrado": {
           "type": "string",
@@ -263,6 +318,14 @@
           "x-ms-schema-name": "loc_metodopagoName",
           "x-ms-dataverse-attribute-of": "loc_metodopago",
           "x-ms-read-only": true
+        },
+        "loc_motivorectificacion": {
+          "type": "string",
+          "title": "Motivo de la rectificación",
+          "x-ms-dataverse-attribute": "loc_motivorectificacion",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_MotivoRectificacion",
+          "maxLength": 500
         },
         "loc_notas": {
           "type": "string",
@@ -329,6 +392,26 @@
           "x-ms-read-only": true,
           "maxLength": 200
         },
+        "loc_rectificada": {
+          "type": "string",
+          "title": "Factura rectificada",
+          "x-ms-dataverse-attribute": "loc_rectificada",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "loc_Rectificada",
+          "x-ms-dataverse-navigation-properties": [
+            "loc_Rectificada"
+          ]
+        },
+        "loc_rectificadaname": {
+          "type": "string",
+          "title": "loc_rectificadaname",
+          "x-ms-dataverse-attribute": "loc_rectificadaname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_RectificadaName",
+          "x-ms-dataverse-attribute-of": "loc_rectificada",
+          "x-ms-read-only": true,
+          "maxLength": 20
+        },
         "loc_referencia": {
           "type": "string",
           "title": "Referencia",
@@ -343,6 +426,103 @@
           "x-ms-dataverse-attribute": "loc_registradael",
           "x-ms-dataverse-type": "DateTimeType",
           "x-ms-schema-name": "loc_RegistradaEl"
+        },
+        "loc_tipofactura": {
+          "type": "string",
+          "title": "Tipo de factura",
+          "x-ms-dataverse-attribute": "loc_tipofactura",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_TipoFactura",
+          "enum": [
+            "F1 · Completa",
+            "F2 · Simplificada",
+            "F3 · En sustitución de simplificadas",
+            "R1 · Rectificativa (error fundado en derecho)",
+            "R2 · Rectificativa (concurso)",
+            "R3 · Rectificativa (deudas incobrables)",
+            "R4 · Rectificativa (resto)",
+            "R5 · Rectificativa de simplificada"
+          ],
+          "x-ms-enum-values": [
+            412000480,
+            412000481,
+            412000482,
+            412000483,
+            412000484,
+            412000485,
+            412000486,
+            412000487
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "ca42d9d0-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Tipo de factura",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_tipofacturaname": {
+          "type": "string",
+          "title": "loc_tipofacturaname",
+          "x-ms-dataverse-attribute": "loc_tipofacturaname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_tipofacturaName",
+          "x-ms-dataverse-attribute-of": "loc_tipofactura",
+          "x-ms-read-only": true
+        },
+        "loc_tipooperacion": {
+          "type": "string",
+          "title": "Tipo de operación",
+          "x-ms-dataverse-attribute": "loc_tipooperacion",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_TipoOperacion",
+          "enum": [
+            "Interior (IVA español)",
+            "Empresa de la UE (inversión del sujeto pasivo)",
+            "Particular de la UE",
+            "Ventanilla única (OSS)",
+            "Fuera de la UE",
+            "Inversión del sujeto pasivo interior",
+            "Exenta"
+          ],
+          "x-ms-enum-values": [
+            412000470,
+            412000471,
+            412000472,
+            412000473,
+            412000474,
+            412000475,
+            412000476
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "67f634ca-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Tipo de operación",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_tipooperacionname": {
+          "type": "string",
+          "title": "loc_tipooperacionname",
+          "x-ms-dataverse-attribute": "loc_tipooperacionname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_tipooperacionName",
+          "x-ms-dataverse-attribute-of": "loc_tipooperacion",
+          "x-ms-read-only": true
         },
         "loc_vencimiento": {
           "type": "string",

@@ -173,13 +173,16 @@
           "x-ms-schema-name": "loc_Rol",
           "enum": [
             "Socio",
-            "Colaborador"
+            "Colaborador",
+            "Asesor (solo lectura)"
           ],
           "x-ms-enum-values": [
             412000000,
-            412000001
+            412000001,
+            412000002
           ],
           "Color": [
+            null,
             null,
             null
           ],

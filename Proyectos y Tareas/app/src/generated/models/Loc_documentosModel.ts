@@ -11,7 +11,12 @@ export const Loc_documentosloc_tipo = {
   412000435: 'CIF / NIF',
   412000436: 'LOPD / RGPD',
   412000437: 'Poder',
-  412000438: 'Otro'
+  412000438: 'Otro',
+  412000520: 'Censal (036)',
+  412000521: 'Notificación de la AEAT',
+  412000522: 'Justificante de presentación',
+  412000523: 'Cuentas anuales',
+  412000524: 'Acta de junta'
 } as const;
 export type Loc_documentosloc_tipo = keyof typeof Loc_documentosloc_tipo;
 export const Loc_documentosstatecode = {

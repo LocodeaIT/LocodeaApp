@@ -34,6 +34,22 @@ export const Loc_cuentasloc_tipo = {
   412000102: 'Cliente y proveedor'
 } as const;
 export type Loc_cuentasloc_tipo = keyof typeof Loc_cuentasloc_tipo;
+export const Loc_cuentasloc_tipoidfiscal = {
+  412000450: 'NIF español',
+  412000451: 'NIF-IVA (UE)',
+  412000452: 'Pasaporte',
+  412000453: 'Documento oficial del país',
+  412000454: 'Certificado de residencia',
+  412000455: 'Otro documento',
+  412000456: 'No censado'
+} as const;
+export type Loc_cuentasloc_tipoidfiscal = keyof typeof Loc_cuentasloc_tipoidfiscal;
+export const Loc_cuentasloc_vies = {
+  412000460: 'Sin comprobar',
+  412000461: 'Válido',
+  412000462: 'No válido'
+} as const;
+export type Loc_cuentasloc_vies = keyof typeof Loc_cuentasloc_vies;
 export const Loc_cuentasstatecode = {
   0: 'Activo',
   1: 'Inactivo'
@@ -49,6 +65,7 @@ export interface Loc_cuentasBase {
   importsequencenumber?: number;
   loc_cif?: string;
   loc_ciudad?: string;
+  loc_codigopais?: string;
   loc_condicionespago?: Loc_cuentasloc_condicionespago;
   loc_cp?: string;
   loc_cuentaid: string;
@@ -63,12 +80,16 @@ export interface Loc_cuentasBase {
   loc_notas?: string;
   loc_numero?: string;
   loc_pais?: string;
+  loc_particular?: boolean;
   "loc_Propietario@odata.bind"?: string;
   loc_provincia?: string;
   loc_regimeniva?: Loc_cuentasloc_regimeniva;
   loc_sector?: string;
   loc_telefono?: string;
   loc_tipo?: Loc_cuentasloc_tipo;
+  loc_tipoidfiscal?: Loc_cuentasloc_tipoidfiscal;
+  loc_vies?: Loc_cuentasloc_vies;
+  loc_viescomprobadoel?: string;
   loc_web?: string;
   overriddencreatedon?: string;
   statecode: Loc_cuentasstatecode;
@@ -82,8 +103,11 @@ export interface Loc_cuentas extends Loc_cuentasBase {
   loc_condicionespagoname?: string;
   loc_estadoname?: string;
   loc_metodopagoname?: string;
+  loc_particularname?: string;
   loc_regimenivaname?: string;
+  loc_tipoidfiscalname?: string;
   loc_tiponame?: string;
+  loc_viesname?: string;
   modifiedon?: string;
   ownerid: string;
   statecodename?: string;

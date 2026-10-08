@@ -1,0 +1,668 @@
+{
+  "name": "loc_registrofacturacion",
+  "title": "Registros de facturación",
+  "schema": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "x-ms-dataverse-entity": true,
+      "x-ms-dataverse-entityset": "loc_registrofacturacions",
+      "x-ms-dataverse-primary-id": "loc_registrofacturacionid",
+      "x-ms-dataverse-primary-name": "loc_serienumero",
+      "properties": {
+        "createdby": {
+          "type": "string",
+          "title": "Autor",
+          "x-ms-dataverse-attribute": "createdby",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "CreatedBy",
+          "x-ms-dataverse-navigation-properties": [
+            "createdby"
+          ],
+          "x-ms-read-only": true
+        },
+        "createdbyname": {
+          "type": "string",
+          "title": "createdbyname",
+          "x-ms-dataverse-attribute": "createdbyname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "CreatedByName",
+          "x-ms-dataverse-attribute-of": "createdby",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "createdbyyominame": {
+          "type": "string",
+          "title": "createdbyyominame",
+          "x-ms-dataverse-attribute": "createdbyyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "CreatedByYomiName",
+          "x-ms-dataverse-attribute-of": "createdby",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "createdon": {
+          "type": "string",
+          "title": "Fecha de creación",
+          "x-ms-dataverse-attribute": "createdon",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "CreatedOn",
+          "x-ms-read-only": true
+        },
+        "createdonbehalfby": {
+          "type": "string",
+          "title": "Autor (delegado)",
+          "x-ms-dataverse-attribute": "createdonbehalfby",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "CreatedOnBehalfBy",
+          "x-ms-dataverse-navigation-properties": [
+            "createdonbehalfby"
+          ],
+          "x-ms-read-only": true
+        },
+        "createdonbehalfbyname": {
+          "type": "string",
+          "title": "createdonbehalfbyname",
+          "x-ms-dataverse-attribute": "createdonbehalfbyname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "CreatedOnBehalfByName",
+          "x-ms-dataverse-attribute-of": "createdonbehalfby",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "createdonbehalfbyyominame": {
+          "type": "string",
+          "title": "createdonbehalfbyyominame",
+          "x-ms-dataverse-attribute": "createdonbehalfbyyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "CreatedOnBehalfByYomiName",
+          "x-ms-dataverse-attribute-of": "createdonbehalfby",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "importsequencenumber": {
+          "type": "string",
+          "title": "Número de secuencia de importación",
+          "x-ms-dataverse-attribute": "importsequencenumber",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "ImportSequenceNumber"
+        },
+        "loc_codigoerror": {
+          "type": "string",
+          "title": "Código de error",
+          "x-ms-dataverse-attribute": "loc_codigoerror",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_CodigoError",
+          "maxLength": 20
+        },
+        "loc_csv": {
+          "type": "string",
+          "title": "Código seguro de verificación",
+          "x-ms-dataverse-attribute": "loc_csv",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Csv",
+          "maxLength": 40
+        },
+        "loc_cuotatotal": {
+          "type": "string",
+          "title": "Cuota total",
+          "x-ms-dataverse-attribute": "loc_cuotatotal",
+          "x-ms-dataverse-type": "DecimalType",
+          "x-ms-schema-name": "loc_CuotaTotal"
+        },
+        "loc_descripcionerror": {
+          "type": "string",
+          "title": "Descripción del error",
+          "x-ms-dataverse-attribute": "loc_descripcionerror",
+          "x-ms-dataverse-type": "MemoType",
+          "x-ms-schema-name": "loc_DescripcionError",
+          "maxLength": 4000
+        },
+        "loc_entorno": {
+          "type": "string",
+          "title": "Entorno",
+          "x-ms-dataverse-attribute": "loc_entorno",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_Entorno",
+          "enum": [
+            "Preparación (sin envío)",
+            "Pruebas de la AEAT",
+            "Producción"
+          ],
+          "x-ms-enum-values": [
+            412000560,
+            412000561,
+            412000562
+          ],
+          "Color": [
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "627df1a0-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Entorno",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_entornoname": {
+          "type": "string",
+          "title": "loc_entornoname",
+          "x-ms-dataverse-attribute": "loc_entornoname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_entornoName",
+          "x-ms-dataverse-attribute-of": "loc_entorno",
+          "x-ms-read-only": true
+        },
+        "loc_envio": {
+          "type": "string",
+          "title": "Envío",
+          "x-ms-dataverse-attribute": "loc_envio",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "loc_Envio",
+          "x-ms-dataverse-navigation-properties": [
+            "loc_Envio"
+          ]
+        },
+        "loc_envioname": {
+          "type": "string",
+          "title": "loc_envioname",
+          "x-ms-dataverse-attribute": "loc_envioname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_EnvioName",
+          "x-ms-dataverse-attribute-of": "loc_envio",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "loc_estado": {
+          "type": "string",
+          "title": "Estado",
+          "x-ms-dataverse-attribute": "loc_estado",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_Estado",
+          "enum": [
+            "Simulado",
+            "Pendiente",
+            "Correcto",
+            "Aceptado con errores",
+            "Rechazado"
+          ],
+          "x-ms-enum-values": [
+            412000575,
+            412000576,
+            412000577,
+            412000578,
+            412000579
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "5e7df1a0-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Estado",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_estadoname": {
+          "type": "string",
+          "title": "loc_estadoname",
+          "x-ms-dataverse-attribute": "loc_estadoname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_estadoName",
+          "x-ms-dataverse-attribute-of": "loc_estado",
+          "x-ms-read-only": true
+        },
+        "loc_facturaventa": {
+          "type": "string",
+          "title": "Factura de venta",
+          "x-ms-dataverse-attribute": "loc_facturaventa",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "loc_FacturaVenta",
+          "x-ms-dataverse-navigation-properties": [
+            "loc_FacturaVenta"
+          ]
+        },
+        "loc_facturaventaname": {
+          "type": "string",
+          "title": "loc_facturaventaname",
+          "x-ms-dataverse-attribute": "loc_facturaventaname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_FacturaVentaName",
+          "x-ms-dataverse-attribute-of": "loc_facturaventa",
+          "x-ms-read-only": true,
+          "maxLength": 20
+        },
+        "loc_fechaexpedicion": {
+          "type": "string",
+          "title": "Fecha de expedición",
+          "x-ms-dataverse-attribute": "loc_fechaexpedicion",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "loc_FechaExpedicion"
+        },
+        "loc_fechahorageneracion": {
+          "type": "string",
+          "title": "Fecha y hora de generación",
+          "x-ms-dataverse-attribute": "loc_fechahorageneracion",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_FechaHoraGeneracion",
+          "maxLength": 40
+        },
+        "loc_huella": {
+          "type": "string",
+          "title": "Huella",
+          "x-ms-dataverse-attribute": "loc_huella",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Huella",
+          "maxLength": 100
+        },
+        "loc_huellaanterior": {
+          "type": "string",
+          "title": "Huella anterior",
+          "x-ms-dataverse-attribute": "loc_huellaanterior",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_HuellaAnterior",
+          "maxLength": 100
+        },
+        "loc_importetotal": {
+          "type": "string",
+          "title": "Importe total",
+          "x-ms-dataverse-attribute": "loc_importetotal",
+          "x-ms-dataverse-type": "DecimalType",
+          "x-ms-schema-name": "loc_ImporteTotal"
+        },
+        "loc_nifemisor": {
+          "type": "string",
+          "title": "NIF del emisor",
+          "x-ms-dataverse-attribute": "loc_nifemisor",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_NifEmisor",
+          "maxLength": 20
+        },
+        "loc_orden": {
+          "type": "string",
+          "title": "Orden en la cadena",
+          "x-ms-dataverse-attribute": "loc_orden",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "loc_Orden"
+        },
+        "loc_registrofacturacionid": {
+          "type": "string",
+          "title": "Registro de facturación",
+          "x-ms-dataverse-attribute": "loc_registrofacturacionid",
+          "x-ms-dataverse-type": "UniqueidentifierType",
+          "x-ms-schema-name": "loc_RegistroFacturacionId",
+          "x-ms-dataverse-primary-id": true,
+          "required": true,
+          "x-ms-keyType": "primary"
+        },
+        "loc_serienumero": {
+          "type": "string",
+          "title": "Serie y número",
+          "x-ms-dataverse-attribute": "loc_serienumero",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_SerieNumero",
+          "x-ms-dataverse-primary-name": true,
+          "required": true,
+          "maxLength": 60
+        },
+        "loc_tipo": {
+          "type": "string",
+          "title": "Tipo",
+          "x-ms-dataverse-attribute": "loc_tipo",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_Tipo",
+          "enum": [
+            "Alta",
+            "Anulación"
+          ],
+          "x-ms-enum-values": [
+            412000570,
+            412000571
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "e9b83594-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Tipo",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_tipofactura": {
+          "type": "string",
+          "title": "Tipo de factura",
+          "x-ms-dataverse-attribute": "loc_tipofactura",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_TipoFactura",
+          "enum": [
+            "F1 · Completa",
+            "F2 · Simplificada",
+            "F3 · En sustitución de simplificadas",
+            "R1 · Rectificativa (error fundado en derecho)",
+            "R2 · Rectificativa (concurso)",
+            "R3 · Rectificativa (deudas incobrables)",
+            "R4 · Rectificativa (resto)",
+            "R5 · Rectificativa de simplificada"
+          ],
+          "x-ms-enum-values": [
+            412000480,
+            412000481,
+            412000482,
+            412000483,
+            412000484,
+            412000485,
+            412000486,
+            412000487
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "f1b83594-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Tipo de factura",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_tipofacturaname": {
+          "type": "string",
+          "title": "loc_tipofacturaname",
+          "x-ms-dataverse-attribute": "loc_tipofacturaname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_tipofacturaName",
+          "x-ms-dataverse-attribute-of": "loc_tipofactura",
+          "x-ms-read-only": true
+        },
+        "loc_tiponame": {
+          "type": "string",
+          "title": "loc_tiponame",
+          "x-ms-dataverse-attribute": "loc_tiponame",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_tipoName",
+          "x-ms-dataverse-attribute-of": "loc_tipo",
+          "x-ms-read-only": true
+        },
+        "loc_xml": {
+          "type": "string",
+          "title": "XML del registro",
+          "x-ms-dataverse-attribute": "loc_xml",
+          "x-ms-dataverse-type": "MemoType",
+          "x-ms-schema-name": "loc_Xml",
+          "maxLength": 1048576
+        },
+        "modifiedby": {
+          "type": "string",
+          "title": "Modificado por",
+          "x-ms-dataverse-attribute": "modifiedby",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "ModifiedBy",
+          "x-ms-dataverse-navigation-properties": [
+            "modifiedby"
+          ],
+          "x-ms-read-only": true
+        },
+        "modifiedbyname": {
+          "type": "string",
+          "title": "modifiedbyname",
+          "x-ms-dataverse-attribute": "modifiedbyname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ModifiedByName",
+          "x-ms-dataverse-attribute-of": "modifiedby",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "modifiedbyyominame": {
+          "type": "string",
+          "title": "modifiedbyyominame",
+          "x-ms-dataverse-attribute": "modifiedbyyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ModifiedByYomiName",
+          "x-ms-dataverse-attribute-of": "modifiedby",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "modifiedon": {
+          "type": "string",
+          "title": "Fecha de modificación",
+          "x-ms-dataverse-attribute": "modifiedon",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "ModifiedOn",
+          "x-ms-read-only": true
+        },
+        "modifiedonbehalfby": {
+          "type": "string",
+          "title": "Modificado por (delegado)",
+          "x-ms-dataverse-attribute": "modifiedonbehalfby",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "ModifiedOnBehalfBy",
+          "x-ms-dataverse-navigation-properties": [
+            "modifiedonbehalfby"
+          ],
+          "x-ms-read-only": true
+        },
+        "modifiedonbehalfbyname": {
+          "type": "string",
+          "title": "modifiedonbehalfbyname",
+          "x-ms-dataverse-attribute": "modifiedonbehalfbyname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ModifiedOnBehalfByName",
+          "x-ms-dataverse-attribute-of": "modifiedonbehalfby",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "modifiedonbehalfbyyominame": {
+          "type": "string",
+          "title": "modifiedonbehalfbyyominame",
+          "x-ms-dataverse-attribute": "modifiedonbehalfbyyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ModifiedOnBehalfByYomiName",
+          "x-ms-dataverse-attribute-of": "modifiedonbehalfby",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "overriddencreatedon": {
+          "type": "string",
+          "title": "Fecha de creación del registro",
+          "x-ms-dataverse-attribute": "overriddencreatedon",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "OverriddenCreatedOn"
+        },
+        "ownerid": {
+          "type": "string",
+          "title": "Propietario",
+          "x-ms-dataverse-attribute": "ownerid",
+          "x-ms-dataverse-type": "OwnerType",
+          "x-ms-schema-name": "OwnerId",
+          "required": true
+        },
+        "owneridname": {
+          "type": "string",
+          "title": "owneridname",
+          "x-ms-dataverse-attribute": "owneridname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "OwnerIdName",
+          "x-ms-dataverse-attribute-of": "ownerid",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "owneridtype": {
+          "type": "string",
+          "title": "owneridtype",
+          "x-ms-dataverse-attribute": "owneridtype",
+          "x-ms-dataverse-type": "EntityNameType",
+          "x-ms-schema-name": "OwnerIdType",
+          "x-ms-dataverse-attribute-of": "ownerid",
+          "required": true
+        },
+        "owneridyominame": {
+          "type": "string",
+          "title": "owneridyominame",
+          "x-ms-dataverse-attribute": "owneridyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "OwnerIdYomiName",
+          "x-ms-dataverse-attribute-of": "ownerid",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "owningbusinessunit": {
+          "type": "string",
+          "title": "Unidad de negocio propietaria",
+          "x-ms-dataverse-attribute": "owningbusinessunit",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "OwningBusinessUnit",
+          "x-ms-dataverse-navigation-properties": [
+            "owningbusinessunit"
+          ],
+          "x-ms-read-only": true
+        },
+        "owningbusinessunitname": {
+          "type": "string",
+          "title": "owningbusinessunitname",
+          "x-ms-dataverse-attribute": "owningbusinessunitname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "OwningBusinessUnitName",
+          "x-ms-dataverse-attribute-of": "owningbusinessunit",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "owningteam": {
+          "type": "string",
+          "title": "Equipo propietario",
+          "x-ms-dataverse-attribute": "owningteam",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "OwningTeam",
+          "x-ms-dataverse-navigation-properties": [
+            "owningteam"
+          ],
+          "x-ms-read-only": true
+        },
+        "owninguser": {
+          "type": "string",
+          "title": "Usuario propietario",
+          "x-ms-dataverse-attribute": "owninguser",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "OwningUser",
+          "x-ms-dataverse-navigation-properties": [
+            "owninguser"
+          ],
+          "x-ms-read-only": true
+        },
+        "statecode": {
+          "type": "string",
+          "title": "Estado",
+          "x-ms-dataverse-attribute": "statecode",
+          "x-ms-dataverse-type": "StateType",
+          "x-ms-schema-name": "statecode",
+          "required": true,
+          "enum": [
+            "Activo",
+            "Inactivo"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "f03e272c-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Estado",
+          "x-ms-optionSetType": "State"
+        },
+        "statecodename": {
+          "type": "string",
+          "title": "statecodename",
+          "x-ms-dataverse-attribute": "statecodename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "statecodeName",
+          "x-ms-dataverse-attribute-of": "statecode",
+          "x-ms-read-only": true
+        },
+        "statuscode": {
+          "type": "string",
+          "title": "Razón para el estado",
+          "x-ms-dataverse-attribute": "statuscode",
+          "x-ms-dataverse-type": "StatusType",
+          "x-ms-schema-name": "statuscode",
+          "enum": [
+            "Activo",
+            "Inactivo"
+          ],
+          "x-ms-enum-values": [
+            1,
+            2
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "fa3e272c-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Razón para el estado",
+          "x-ms-optionSetType": "Status"
+        },
+        "statuscodename": {
+          "type": "string",
+          "title": "statuscodename",
+          "x-ms-dataverse-attribute": "statuscodename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "statuscodeName",
+          "x-ms-dataverse-attribute-of": "statuscode",
+          "x-ms-read-only": true
+        },
+        "timezoneruleversionnumber": {
+          "type": "string",
+          "title": "Número de versión de regla de zona horaria",
+          "x-ms-dataverse-attribute": "timezoneruleversionnumber",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "TimeZoneRuleVersionNumber"
+        },
+        "utcconversiontimezonecode": {
+          "type": "string",
+          "title": "Código de zona horaria de conversión UTC",
+          "x-ms-dataverse-attribute": "utcconversiontimezonecode",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "UTCConversionTimeZoneCode"
+        },
+        "versionnumber": {
+          "type": "string",
+          "title": "Número de versión",
+          "x-ms-dataverse-attribute": "versionnumber",
+          "x-ms-dataverse-type": "BigIntType",
+          "x-ms-schema-name": "VersionNumber",
+          "x-ms-read-only": true
+        }
+      },
+      "required": [
+        "createdbyyominame",
+        "createdonbehalfbyyominame",
+        "loc_registrofacturacionid",
+        "loc_serienumero",
+        "modifiedbyyominame",
+        "modifiedonbehalfbyyominame",
+        "ownerid",
+        "owneridname",
+        "owneridtype",
+        "owneridyominame",
+        "owningbusinessunitname",
+        "statecode"
+      ]
+    }
+  }
+}

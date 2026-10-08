@@ -9,6 +9,7 @@ import type { CrmRepositorio } from './repo'
 import type { Coleccion, CrmInstantanea, RegistroBase } from './types'
 import { COLECCIONES } from './types'
 import { generarSemillaCrm } from './semilla'
+import { FISCAL_COMPRA, FISCAL_CUENTA, FISCAL_VENTA } from './fiscal'
 
 const CLAVE = 'locodea.crm.demo.v1'
 
@@ -18,7 +19,12 @@ function leer(): CrmInstantanea {
     if (raw) {
       const d = JSON.parse(raw) as Partial<CrmInstantanea>
       // colecciones nuevas en versiones posteriores del modelo
-      return Object.fromEntries(COLECCIONES.map(c => [c, d[c] ?? []])) as unknown as CrmInstantanea
+      const x = Object.fromEntries(COLECCIONES.map(c => [c, d[c] ?? []])) as unknown as CrmInstantanea
+      // campos fiscales que llegaron con la Gestoría
+      x.cuentas = x.cuentas.map(o => ({ ...FISCAL_CUENTA, ...o }))
+      x.facturasVenta = x.facturasVenta.map(o => ({ ...FISCAL_VENTA, ...o }))
+      x.facturasCompra = x.facturasCompra.map(o => ({ ...FISCAL_COMPRA, ...o }))
+      return x
     }
   } catch { /* datos corruptos: se regeneran */ }
   const semilla = generarSemillaCrm()

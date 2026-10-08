@@ -3,7 +3,7 @@
  * Se apuntan con foto del ticket, categoría y quién lo pagó (para reembolsos).
  * Los gastos fijos entran solos en la previsión de caja cada mes.
  */
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Camera, Check, ExternalLink, HandCoins, ImageOff, Plus, Receipt, RotateCcw, Search, Trash2, Repeat } from 'lucide-react'
 import { useApp } from '../../store'
 import { useCrm } from '../../crm/contexto'
@@ -12,6 +12,7 @@ import { Select, type Opcion } from '../../ui/Select'
 import { eur, fecha, normalizar } from '../../crm/formato'
 import { hoy } from '../../domain/fechas'
 import { useGestion } from '../store'
+import { useGestoria } from '../../gestoria/store'
 import { baseDesdeTotal, cuotaIrpf, cuotaIva, totalDesdeBase } from '../calculos'
 import type { CategoriaGasto, EstadoGasto, Gasto, MetodoPagoGasto } from '../types'
 import { CATEGORIA_GASTO, ESTADO_GASTO, METODO_PAGO_GASTO, TIPOS_IVA, TONO_ESTADO_GASTO, opcionesDe } from '../types'
@@ -33,7 +34,7 @@ const pasaFiltro = (g: Gasto, f: Filtro) =>
   : g.estado === 'pagado' || g.estado === 'reembolsado'
 
 export function Gastos() {
-  const { datos, guardarGasto, borrar } = useGestion()
+  const { datos, guardarGasto, borrar, cargarFoto } = useGestion()
   const { datos: crm } = useCrm()
   const { miembro } = useApp()
   const [filtro, setFiltro] = useState<Filtro>('todos')
@@ -139,11 +140,13 @@ export function Gastos() {
                       <td>
                         {g.foto
                           ? <img className="miniatura" src={g.foto} alt="" onClick={e => { e.stopPropagation(); setFoto(g.foto) }} />
-                          : <span className="sin-foto" title="Sin foto"><ImageOff size={14} /></span>}
+                          : g.tieneFoto
+                            ? <button className="sin-foto" title="Ver la foto del ticket" onClick={e => { e.stopPropagation(); void cargarFoto(g.id).then(f => f && setFoto(f)) }}><Camera size={14} /></button>
+                            : <span className="sin-foto" title="Sin foto"><ImageOff size={14} /></span>}
                       </td>
                       <td className="concepto">
                         <b>{g.concepto}</b>
-                        <small>{[g.no, proveedor(g.proveedorId), g.noFactura, g.recurrente ? `fijo · día ${g.diaCargo}` : '', g.deducible ? '' : 'no deducible'].filter(Boolean).join(' · ')}</small>
+                        <small>{[g.no, proveedor(g.proveedorId), g.noFactura, g.recurrente ? `fijo · día ${g.diaCargo}` : '', g.deducible && g.facturaCompleta ? '' : 'IVA no deducible', g.deducibleIs ? '' : 'no deducible en Sociedades'].filter(Boolean).join(' · ')}</small>
                       </td>
                       <td>{fecha(g.fecha)}</td>
                       <td>{CATEGORIA_GASTO[g.categoria]}</td>
@@ -185,7 +188,8 @@ const MAX_FOTO = 900_000
 function nuevoGasto(yoId: string | null): Gasto {
   return {
     id: '', no: '', concepto: '', fecha: hoy(), base: 0, iva: 21, irpf: 0, total: 0, categoria: 'otros', estado: 'pagado', metodoPago: 'tarjeta',
-    recurrente: false, diaCargo: 1, deducible: true, noFactura: '', enlace: '', foto: '', notas: '', proveedorId: null, proyectoId: null,
+    recurrente: false, diaCargo: 1, deducible: true, facturaCompleta: true, deducibleIs: true, noFactura: '', enlace: '', foto: '', tieneFoto: false, notas: '',
+    proveedorId: null, proyectoId: null,
     pagadorId: yoId, facturaCompraId: null, creadoEl: '',
   }
 }
@@ -220,9 +224,21 @@ function ModalGasto({ inicial, onCerrar, onGuardar, onBorrar, onEstado, onVerFot
   onEstado: (g: Gasto, e: EstadoGasto) => Promise<void>
   onVerFoto: (url: string) => void
 }) {
-  const { yoId } = useGestion()
+  const { yoId, cargarFoto } = useGestion()
   const { datos: crm } = useCrm()
+  const gestoria = useGestoria()
   const [g, setG] = useState<Gasto>({ ...nuevoGasto(yoId), ...inicial } as Gasto)
+  // periodo cerrado: si el 303 del trimestre del gasto ya está presentado, sus importes no se tocan
+  const trimestreOriginal = inicial.fecha ? `${inicial.fecha.slice(0, 4)}-${Math.floor((Number(inicial.fecha.slice(5, 7)) - 1) / 3) + 1}T` : ''
+  const cerrado = !!inicial.id && gestoria.datos.presentaciones.some(p => p.modelo === '303' && p.periodo === trimestreOriginal && ['presentada', 'pagada', 'domiciliada'].includes(p.estado))
+  // la lista no trae las fotos: se descarga al abrir el gasto
+  useEffect(() => {
+    if (!g.id || g.foto || !g.tieneFoto) return
+    let vivo = true
+    void cargarFoto(g.id).then(foto => { if (vivo && foto) setG(x => (x.foto ? x : { ...x, foto })) })
+    return () => { vivo = false }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [g.id])
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const archivo = useRef<HTMLInputElement>(null)
@@ -243,13 +259,16 @@ function ModalGasto({ inicial, onCerrar, onGuardar, onBorrar, onEstado, onVerFot
 
   const elegirFoto = async (f: File | undefined) => {
     if (!f) return
-    try { set({ foto: await comprimirFoto(f) }) } catch { setError('No se pudo leer la imagen.') }
+    try { set({ foto: await comprimirFoto(f), tieneFoto: true }) } catch { setError('No se pudo leer la imagen.') }
   }
 
   const guardar = async () => {
     if (!g.concepto.trim()) { setError('Escribe el concepto.'); return }
     if (!g.fecha) { setError('Falta la fecha.'); return }
     if (!(g.total > 0)) { setError('El total tiene que ser mayor que cero.'); return }
+    if (cerrado && (g.total !== inicial.total || g.iva !== inicial.iva || g.irpf !== inicial.irpf || g.fecha !== inicial.fecha || g.deducible !== inicial.deducible)) {
+      setError('El trimestre de este gasto ya está presentado: no se pueden cambiar importes, fecha ni IVA. Corrígelo con un gasto nuevo en el periodo actual.'); return
+    }
     setError(null); setGuardando(true)
     try { await onGuardar({ ...g, concepto: g.concepto.trim() }) } finally { setGuardando(false) }
   }
@@ -273,26 +292,28 @@ function ModalGasto({ inicial, onCerrar, onGuardar, onBorrar, onEstado, onVerFot
           <div className="acciones">
             <input ref={archivo} type="file" accept="image/*" capture="environment" hidden onChange={e => { void elegirFoto(e.target.files?.[0]); e.target.value = '' }} />
             <button className="btn pequeno" onClick={() => archivo.current?.click()}><Camera size={14} /> {g.foto ? 'Cambiar foto' : 'Foto del ticket'}</button>
-            {g.foto && <button className="btn sutil pequeno" onClick={() => set({ foto: '' })}>Quitar foto</button>}
+            {g.foto && <button className="btn sutil pequeno" onClick={() => set({ foto: '', tieneFoto: false })}>Quitar foto</button>}
             <span style={{ fontSize: 12, color: 'var(--texto-3)', maxWidth: 260 }}>Desde el móvil abre la cámara. Se guarda comprimida junto al gasto.</span>
           </div>
         </div>
 
+        {cerrado && <div className="ges-aviso">El 303 del {trimestreOriginal.slice(5)} {trimestreOriginal.slice(0, 4)} ya está presentado: importes, fecha e IVA quedan bloqueados.</div>}
+
         <Campo label="Concepto"><input autoFocus value={g.concepto} onChange={e => set({ concepto: e.target.value })} placeholder="Tren a Sevilla · cliente Panaderías Churros" /></Campo>
 
         <div className="fila-campos">
-          <Campo label="Fecha"><input type="date" value={g.fecha} onChange={e => set({ fecha: e.target.value })} /></Campo>
+          <Campo label="Fecha"><input type="date" value={g.fecha} disabled={cerrado} onChange={e => set({ fecha: e.target.value })} /></Campo>
           <Campo label="Categoría"><Select valor={g.categoria} opciones={OPC_CATEGORIA} onCambio={v => set({ categoria: v as CategoriaGasto })} /></Campo>
           <Campo label="Proveedor"><Select valor={g.proveedorId ?? ''} opciones={opcProveedor} onCambio={v => set({ proveedorId: v || null })} /></Campo>
         </div>
 
-        <div className="ges-importes">
+        <fieldset className="ges-importes" disabled={cerrado} style={{ border: 0, padding: 0, margin: 0 }}>
           <Campo label="Total (con IVA)"><input type="number" min={0} step={0.01} value={g.total || ''} onChange={e => setTotal(Number(e.target.value) || 0)} placeholder="0,00" /></Campo>
           <Campo label="IVA"><Select valor={String(g.iva)} opciones={OPC_IVA} onCambio={v => setIva(Number(v))} /></Campo>
           <Campo label="Retención IRPF"><Select valor={String(g.irpf)} opciones={OPC_IRPF} onCambio={v => setIrpf(Number(v))} /></Campo>
           <Campo label="Base imponible"><input type="number" min={0} step={0.01} value={g.base || ''} onChange={e => setBase(Number(e.target.value) || 0)} placeholder="0,00" /></Campo>
           <div className="calculado">IVA <b>{eur(cuotaIva(g))}</b>{g.irpf > 0 && <> · IRPF <b>−{eur(cuotaIrpf(g))}</b></>}</div>
-        </div>
+        </fieldset>
 
         <div className="fila-campos">
           <Campo label="Estado"><Select valor={g.estado} opciones={OPC_ESTADO} onCambio={v => set({ estado: v as EstadoGasto })} /></Campo>
@@ -304,7 +325,14 @@ function ModalGasto({ inicial, onCerrar, onGuardar, onBorrar, onEstado, onVerFot
         <div className="fila-campos">
           <label className="ges-check"><input type="checkbox" checked={g.recurrente} onChange={e => set({ recurrente: e.target.checked })} /> Gasto fijo mensual</label>
           {g.recurrente && <Campo label="Día de cargo"><input type="number" min={1} max={28} value={g.diaCargo} onChange={e => set({ diaCargo: Math.min(28, Math.max(1, Number(e.target.value) || 1)) })} /></Campo>}
-          <label className="ges-check"><input type="checkbox" checked={g.deducible} onChange={e => set({ deducible: e.target.checked })} /> Deducible (entra en el 303)</label>
+        </div>
+
+        <div className="fila-campos">
+          <label className="ges-check" title="Con el NIF de Locodea y el IVA desglosado. Un ticket o factura simplificada no permite deducir el IVA.">
+            <input type="checkbox" checked={g.facturaCompleta} onChange={e => set({ facturaCompleta: e.target.checked, deducible: e.target.checked ? g.deducible : false })} /> Factura completa a nombre de Locodea
+          </label>
+          <label className="ges-check"><input type="checkbox" checked={g.deducible} disabled={!g.facturaCompleta} onChange={e => set({ deducible: e.target.checked })} /> IVA deducible (303)</label>
+          <label className="ges-check"><input type="checkbox" checked={g.deducibleIs} onChange={e => set({ deducibleIs: e.target.checked })} /> Gasto deducible en Sociedades</label>
         </div>
 
         <div className="fila-campos">

@@ -1,0 +1,27 @@
+{
+  "name": "verifactu-servicio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Servicio de Azure Functions que remite a la AEAT los registros de facturación VERI*FACTU de Locodea SL",
+  "main": "dist/src/functions/*.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "limpiar": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "prestart": "npm run limpiar && npm run build",
+    "start": "func start",
+    "tipos": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.7.0",
+    "@azure/identity": "^4.10.0",
+    "@azure/keyvault-secrets": "^4.10.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "typescript": "~6.0.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

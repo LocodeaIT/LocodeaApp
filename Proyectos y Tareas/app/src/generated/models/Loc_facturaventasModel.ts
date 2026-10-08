@@ -16,12 +16,43 @@ export const Loc_facturaventasloc_estado = {
   412000173: 'Anulada'
 } as const;
 export type Loc_facturaventasloc_estado = keyof typeof Loc_facturaventasloc_estado;
+export const Loc_facturaventasloc_estadoverifactu = {
+  412000490: 'Sin registro',
+  412000491: 'Preparado (sin enviar)',
+  412000492: 'Pendiente de envío',
+  412000493: 'Correcto',
+  412000494: 'Aceptado con errores',
+  412000495: 'Rechazado',
+  412000496: 'Anulado'
+} as const;
+export type Loc_facturaventasloc_estadoverifactu = keyof typeof Loc_facturaventasloc_estadoverifactu;
 export const Loc_facturaventasloc_metodopago = {
   412000115: 'Transferencia',
   412000116: 'Domiciliación',
   412000117: 'Tarjeta'
 } as const;
 export type Loc_facturaventasloc_metodopago = keyof typeof Loc_facturaventasloc_metodopago;
+export const Loc_facturaventasloc_tipofactura = {
+  412000480: 'F1 · Completa',
+  412000481: 'F2 · Simplificada',
+  412000482: 'F3 · En sustitución de simplificadas',
+  412000483: 'R1 · Rectificativa (error fundado en derecho)',
+  412000484: 'R2 · Rectificativa (concurso)',
+  412000485: 'R3 · Rectificativa (deudas incobrables)',
+  412000486: 'R4 · Rectificativa (resto)',
+  412000487: 'R5 · Rectificativa de simplificada'
+} as const;
+export type Loc_facturaventasloc_tipofactura = keyof typeof Loc_facturaventasloc_tipofactura;
+export const Loc_facturaventasloc_tipooperacion = {
+  412000470: 'Interior (IVA español)',
+  412000471: 'Empresa de la UE (inversión del sujeto pasivo)',
+  412000472: 'Particular de la UE',
+  412000473: 'Ventanilla única (OSS)',
+  412000474: 'Fuera de la UE',
+  412000475: 'Inversión del sujeto pasivo interior',
+  412000476: 'Exenta'
+} as const;
+export type Loc_facturaventasloc_tipooperacion = keyof typeof Loc_facturaventasloc_tipooperacion;
 export const Loc_facturaventasstatecode = {
   0: 'Activo',
   1: 'Inactivo'
@@ -39,17 +70,23 @@ export interface Loc_facturaventasBase {
   "loc_Contacto@odata.bind"?: string;
   "loc_Cuenta@odata.bind"?: string;
   loc_estado?: Loc_facturaventasloc_estado;
+  loc_estadoverifactu?: Loc_facturaventasloc_estadoverifactu;
   loc_facturaventaid: string;
   loc_fecha?: string;
+  loc_huella?: string;
   loc_importecobrado?: number;
   loc_metodopago?: Loc_facturaventasloc_metodopago;
+  loc_motivorectificacion?: string;
   loc_notas?: string;
   loc_numero: string;
   loc_pagadael?: string;
   "loc_Pedido@odata.bind"?: string;
   "loc_Propietario@odata.bind"?: string;
+  "loc_Rectificada@odata.bind"?: string;
   loc_referencia?: string;
   loc_registradael?: string;
+  loc_tipofactura?: Loc_facturaventasloc_tipofactura;
+  loc_tipooperacion?: Loc_facturaventasloc_tipooperacion;
   loc_vencimiento?: string;
   overriddencreatedon?: string;
   statecode: Loc_facturaventasstatecode;
@@ -62,7 +99,10 @@ export interface Loc_facturaventas extends Loc_facturaventasBase {
   createdon?: string;
   loc_condicionespagoname?: string;
   loc_estadoname?: string;
+  loc_estadoverifactuname?: string;
   loc_metodopagoname?: string;
+  loc_tipofacturaname?: string;
+  loc_tipooperacionname?: string;
   modifiedon?: string;
   ownerid: string;
   statecodename?: string;
@@ -80,6 +120,8 @@ export interface Loc_facturaventas extends Loc_facturaventasBase {
   _loc_pedido_value?: string;
   loc_propietario?: object;
   _loc_propietario_value?: string;
+  loc_rectificada?: object;
+  _loc_rectificada_value?: string;
   modifiedby?: object;
   _modifiedby_value?: string;
   modifiedonbehalfby?: object;

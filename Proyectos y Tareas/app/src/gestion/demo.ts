@@ -14,7 +14,10 @@ function leer(): GestionInstantanea {
     const raw = localStorage.getItem(CLAVE)
     if (raw) {
       const d = JSON.parse(raw) as Partial<GestionInstantanea>
-      return Object.fromEntries(COLECCIONES_GESTION.map(c => [c, d[c] ?? []])) as unknown as GestionInstantanea
+      const x = Object.fromEntries(COLECCIONES_GESTION.map(c => [c, d[c] ?? []])) as unknown as GestionInstantanea
+      // campos que llegaron con la Gestoría
+      x.gastos = x.gastos.map(g => ({ ...g, facturaCompleta: g.facturaCompleta ?? true, deducibleIs: g.deducibleIs ?? true, tieneFoto: !!g.foto }))
+      return x
     }
   } catch { /* datos corruptos: se regeneran */ }
   const semilla = generarSemillaGestion()
@@ -58,6 +61,11 @@ export const gestionRepoDemo: GestionRepositorio = {
     const d = estado()
     datos = { ...d, [col]: (d[col] as RegistroGestion[]).filter(x => x.id !== id) }
     escribir(datos)
+  },
+
+  async cargarFoto(id: string) {
+    await espera()
+    return estado().gastos.find(g => g.id === id)?.foto ?? ''
   },
 
   async restablecer() {

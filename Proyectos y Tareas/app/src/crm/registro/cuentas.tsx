@@ -1,8 +1,11 @@
 /** Cuentas: clientes y proveedores. */
-import { Crosshair, FileText, ShoppingBag, UserRound } from 'lucide-react'
+import { BadgeCheck, Crosshair, ExternalLink, FileText, ShoppingBag, UserRound } from 'lucide-react'
 import type { Cuenta } from '../types'
 import { CONDICIONES_PAGO, EMPLEADOS, ESTADO_ACTIVO, METODO_PAGO, REGIMEN_IVA, TIPO_CUENTA, opcionesDe } from '../catalogos'
 import { validarNif } from '../../gestion/calculos'
+import { FISCAL_CUENTA, PAISES, TIPO_ID_FISCAL, esUE, regimenPorPais, tipoIdPorDefecto } from '../fiscal'
+import { fecha } from '../formato'
+import { hoy } from '../../domain/fechas'
 import { facturado, pipelineAbierto } from '../consultas'
 import { eur0 } from '../formato'
 import { ICONO_COL } from '../iconos'
@@ -41,9 +44,10 @@ export const cuentas: Entidad<Cuenta> = {
   nuevo: c => ({
     id: '', no: '', nombre: '', tipo: 'cliente', estado: 'activo', cif: '', sector: '', direccion: '', cp: '', ciudad: '', provincia: '', pais: 'España',
     web: '', telefono: '', email: '', empleados: '', propietarioId: c.yoId, condicionesPago: '30', metodoPago: 'transferencia', iva: 21, iban: '', regimenIva: 'general', notas: '', creadoEl: '',
+    ...FISCAL_CUENTA,
   }),
   titulo: a => a.nombre,
-  validar: d => (!d.nombre.trim() ? 'Escribe el nombre de la cuenta.' : d.regimenIva === 'general' ? validarNif(d.cif) : null),
+  validar: d => (!d.nombre.trim() ? 'Escribe el nombre de la cuenta.' : d.tipoIdFiscal === 'nif' || d.tipoIdFiscal === 'nifiva' ? validarNif(d.cif) : null),
   pestanas: [
     {
       clave: 'general', titulo: 'General', campos: [
@@ -78,9 +82,27 @@ export const cuentas: Entidad<Cuenta> = {
         { clave: 'regimenIva', titulo: 'Régimen de IVA', tipo: 'opciones', opciones: opcionesDe(REGIMEN_IVA) },
       ],
     },
+    {
+      // Lo que la Gestoría necesita para el IVA, el 349, el 347 y Verifactu
+      clave: 'fiscal', titulo: 'Fiscal', abierta: false, campos: [
+        {
+          clave: 'codigoPais', titulo: 'País (fiscal)', tipo: 'opciones',
+          opciones: d => [...Object.entries(PAISES), ...(d.codigoPais && !PAISES[d.codigoPais] ? [[d.codigoPais, d.codigoPais]] : [])].map(([valor, etiqueta]) => ({ valor, etiqueta })),
+          alCambiar: d => ({ ...d, tipoIdFiscal: tipoIdPorDefecto(d.codigoPais), regimenIva: d.regimenIva === 'exento' || d.regimenIva === 'recargo' ? d.regimenIva : regimenPorPais(d.codigoPais), pais: PAISES[d.codigoPais] ?? d.pais, viesValido: null, viesComprobadoEl: null }),
+        },
+        { clave: 'tipoIdFiscal', titulo: 'Documento fiscal', tipo: 'opciones', opciones: opcionesDe(TIPO_ID_FISCAL) },
+        { clave: 'particular', titulo: 'Particular (consumidor final)', tipo: 'sino' },
+        {
+          clave: 'viesValido', titulo: 'NIF-IVA en VIES',
+          mostrar: d => !esUE(d.codigoPais) || d.codigoPais === 'ES' ? 'No aplica' : d.viesValido === null ? 'Sin comprobar' : `${d.viesValido ? 'Válido' : 'No válido'}${d.viesComprobadoEl ? ' · ' + fecha(d.viesComprobadoEl) : ''}`,
+        },
+      ],
+    },
     { clave: 'notas', titulo: 'Notas', abierta: false, campos: [{ clave: 'notas', titulo: 'Notas', tipo: 'area', completo: true }] },
   ],
   comandos: (a, c) => [
+    esUE(a.codigoPais) && a.codigoPais !== 'ES' && !a.particular && { texto: 'Comprobar en VIES', icono: ExternalLink, accion: () => { window.open('https://ec.europa.eu/taxation_customs/vies/#/vat-validation', '_blank', 'noopener') } },
+    esUE(a.codigoPais) && a.codigoPais !== 'ES' && !a.particular && a.viesValido !== true && { texto: 'Marcar NIF-IVA válido', icono: BadgeCheck, accion: () => c.guardar('cuentas', { ...a, viesValido: true, viesComprobadoEl: hoy() }).then(() => undefined) },
     { texto: 'Nuevo contacto', icono: UserRound, accion: () => c.abrir('contactos', 'nuevo', { cuentaId: a.id }) },
     { texto: 'Nueva oportunidad', icono: Crosshair, accion: () => c.abrir('oportunidades', 'nuevo', { cuentaId: a.id }) },
     a.tipo === 'proveedor'

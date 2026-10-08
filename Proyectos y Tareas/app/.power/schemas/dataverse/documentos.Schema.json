@@ -233,7 +233,12 @@
             "CIF / NIF",
             "LOPD / RGPD",
             "Poder",
-            "Otro"
+            "Otro",
+            "Censal (036)",
+            "Notificación de la AEAT",
+            "Justificante de presentación",
+            "Cuentas anuales",
+            "Acta de junta"
           ],
           "x-ms-enum-values": [
             412000430,
@@ -244,9 +249,19 @@
             412000435,
             412000436,
             412000437,
-            412000438
+            412000438,
+            412000520,
+            412000521,
+            412000522,
+            412000523,
+            412000524
           ],
           "Color": [
+            null,
+            null,
+            null,
+            null,
+            null,
             null,
             null,
             null,

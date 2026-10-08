@@ -89,6 +89,76 @@
           "x-ms-dataverse-type": "IntegerType",
           "x-ms-schema-name": "ImportSequenceNumber"
         },
+        "loc_bieninversion": {
+          "type": "string",
+          "title": "Bien de inversión",
+          "x-ms-dataverse-attribute": "loc_bieninversion",
+          "x-ms-dataverse-type": "BooleanType",
+          "x-ms-schema-name": "loc_BienInversion",
+          "enum": [
+            "No",
+            "Sí"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "c9b8c4dd-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Bien de inversión",
+          "x-ms-optionSetType": "Boolean"
+        },
+        "loc_bieninversionname": {
+          "type": "string",
+          "title": "loc_bieninversionname",
+          "x-ms-dataverse-attribute": "loc_bieninversionname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_bieninversionName",
+          "x-ms-dataverse-attribute-of": "loc_bieninversion",
+          "x-ms-read-only": true
+        },
+        "loc_claveretencion": {
+          "type": "string",
+          "title": "Clave de retención",
+          "x-ms-dataverse-attribute": "loc_claveretencion",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_ClaveRetencion",
+          "enum": [
+            "Sin retención",
+            "Profesional",
+            "Arrendamiento",
+            "Otras"
+          ],
+          "x-ms-enum-values": [
+            412000510,
+            412000511,
+            412000512,
+            412000513
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "befe1dd7-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Clave de retención",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_claveretencionname": {
+          "type": "string",
+          "title": "loc_claveretencionname",
+          "x-ms-dataverse-attribute": "loc_claveretencionname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_claveretencionName",
+          "x-ms-dataverse-attribute-of": "loc_claveretencion",
+          "x-ms-read-only": true
+        },
         "loc_condicionespago": {
           "type": "string",
           "title": "Condiciones de pago",
@@ -167,6 +237,14 @@
           "x-ms-read-only": true,
           "maxLength": 200
         },
+        "loc_enlace": {
+          "type": "string",
+          "title": "Enlace al PDF",
+          "x-ms-dataverse-attribute": "loc_enlace",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Enlace",
+          "maxLength": 500
+        },
         "loc_estado": {
           "type": "string",
           "title": "Estado",
@@ -222,12 +300,58 @@
           "x-ms-dataverse-type": "DateTimeType",
           "x-ms-schema-name": "loc_Fecha"
         },
+        "loc_fecharecepcion": {
+          "type": "string",
+          "title": "Fecha de recepción",
+          "x-ms-dataverse-attribute": "loc_fecharecepcion",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "loc_FechaRecepcion"
+        },
         "loc_importepagado": {
           "type": "string",
           "title": "Importe pagado",
           "x-ms-dataverse-attribute": "loc_importepagado",
           "x-ms-dataverse-type": "DecimalType",
           "x-ms-schema-name": "loc_ImportePagado"
+        },
+        "loc_irpf": {
+          "type": "string",
+          "title": "Retención IRPF %",
+          "x-ms-dataverse-attribute": "loc_irpf",
+          "x-ms-dataverse-type": "DecimalType",
+          "x-ms-schema-name": "loc_Irpf"
+        },
+        "loc_ivadeducible": {
+          "type": "string",
+          "title": "IVA deducible",
+          "x-ms-dataverse-attribute": "loc_ivadeducible",
+          "x-ms-dataverse-type": "BooleanType",
+          "x-ms-schema-name": "loc_IvaDeducible",
+          "enum": [
+            "No",
+            "Sí"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "cfb8c4dd-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "IVA deducible",
+          "x-ms-optionSetType": "Boolean"
+        },
+        "loc_ivadeduciblename": {
+          "type": "string",
+          "title": "loc_ivadeduciblename",
+          "x-ms-dataverse-attribute": "loc_ivadeduciblename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_ivadeducibleName",
+          "x-ms-dataverse-attribute-of": "loc_ivadeducible",
+          "x-ms-read-only": true
         },
         "loc_metodopago": {
           "type": "string",
@@ -352,12 +476,63 @@
           "x-ms-dataverse-type": "DateTimeType",
           "x-ms-schema-name": "loc_RegistradaEl"
         },
+        "loc_tipooperacion": {
+          "type": "string",
+          "title": "Tipo de operación",
+          "x-ms-dataverse-attribute": "loc_tipooperacion",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "loc_TipoOperacion",
+          "enum": [
+            "Interior (IVA español)",
+            "Adquisición en la UE",
+            "Servicios de fuera de la UE",
+            "Importación",
+            "Inversión del sujeto pasivo interior",
+            "Exenta o sin IVA"
+          ],
+          "x-ms-enum-values": [
+            412000500,
+            412000501,
+            412000502,
+            412000503,
+            412000504,
+            412000505
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "b7fe1dd7-d6c2-f111-a05c-70a8a5068d0e",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Tipo de operación",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "loc_tipooperacionname": {
+          "type": "string",
+          "title": "loc_tipooperacionname",
+          "x-ms-dataverse-attribute": "loc_tipooperacionname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "loc_tipooperacionName",
+          "x-ms-dataverse-attribute-of": "loc_tipooperacion",
+          "x-ms-read-only": true
+        },
         "loc_vencimiento": {
           "type": "string",
           "title": "Vencimiento",
           "x-ms-dataverse-attribute": "loc_vencimiento",
           "x-ms-dataverse-type": "DateTimeType",
           "x-ms-schema-name": "loc_Vencimiento"
+        },
+        "loc_vidautil": {
+          "type": "string",
+          "title": "Vida útil (años)",
+          "x-ms-dataverse-attribute": "loc_vidautil",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "loc_VidaUtil"
         },
         "modifiedby": {
           "type": "string",

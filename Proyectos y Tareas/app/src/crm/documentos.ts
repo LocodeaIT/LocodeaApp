@@ -2,7 +2,7 @@
  * Documentos de venta y compra: importes de línea, totales, estado visible de
  * las facturas y numeración por series.
  */
-import type { ColEntidad, EstadoFacturaVisible, FacturaCompra, FacturaVenta, LineaDocumento, RegistroBase } from './types'
+import type { ColEntidad, EstadoFacturaVisible, FacturaCompra, FacturaVenta, LineaDocumento, RegistroBase, TipoFactura } from './types'
 import { SERIES } from './catalogos'
 import { hoy } from '../domain/fechas'
 
@@ -30,6 +30,20 @@ export function estadoFactura(f: FacturaVenta | FacturaCompra): EstadoFacturaVis
 export const nuevaLinea = (): LineaDocumento => ({ productoId: '', descripcion: '', cantidad: 1, unidad: '', precio: 0, dto: 0, iva: 21 })
 
 export const copiarLineas = (lineas: LineaDocumento[] | undefined): LineaDocumento[] => (lineas ?? []).map(l => ({ ...l }))
+
+/** Serie de las facturas de venta: las rectificativas van en una serie propia (art. 15 del Reglamento de facturación). */
+export const serieFacturaVenta = (t: TipoFactura): [string, number] => (t.startsWith('R') ? ['FR-', 26000] : ['FV-', 26000])
+
+/**
+ * Número de una factura de venta al registrarla: el siguiente de su serie entre
+ * las que ya tienen número. Los borradores no consumen número, así la
+ * numeración de las emitidas no tiene huecos (lo exige Verifactu).
+ */
+export function siguienteNoFactura(t: TipoFactura, facturas: FacturaVenta[]): string {
+  const [prefijo, base] = serieFacturaVenta(t)
+  const n = facturas.filter(f => String(f.no ?? '').startsWith(prefijo)).reduce((m, f) => Math.max(m, parseInt(String(f.no).slice(prefijo.length).replace(/\D/g, ''), 10) || 0), base)
+  return prefijo + (n + 1)
+}
 
 /** Siguiente número de la serie de la colección: el mayor usado + 1. */
 export function siguienteNo(col: ColEntidad, existentes: RegistroBase[]): string | undefined {

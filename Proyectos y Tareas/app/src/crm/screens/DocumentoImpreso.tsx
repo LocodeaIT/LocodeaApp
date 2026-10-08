@@ -4,9 +4,13 @@
  * pantalla no se ve; al imprimir la ficha (crm.css, @media print) sustituye
  * al resto de la página.
  */
+import { useEffect, useState } from 'react'
 import { Logo } from '../../ui/Logo'
 import { useCrm } from '../contexto'
-import type { ColEntidad, Documento } from '../types'
+import type { ColEntidad, Documento, FacturaCompra, FacturaVenta } from '../types'
+import { MENCION_SIN_IVA, TIPO_FACTURA } from '../fiscal'
+import { useGestoria } from '../../gestoria/store'
+import { LEYENDA_VERIFACTU, qrDataUrl, urlCotejo } from '../../gestoria/verifactu'
 import { CONDICIONES_PAGO, METODO_PAGO, NOMBRE_REGISTRO, UNIDAD } from '../catalogos'
 import { estadoVisible, etiquetaEstado, nombreCompleto } from '../consultas'
 import { importeLinea, totales } from '../documentos'
@@ -30,14 +34,30 @@ export function DocumentoImpreso({ col, doc, compra }: { col: ColEntidad; doc: D
   const otra = OTRA_FECHA[col]
   const refExterna = x.refCliente || x.refProveedor || x.noProveedor
   const esFactura = col === 'facturasVenta' || col === 'facturasCompra'
+  const gestoria = useGestoria()
+  const venta = col === 'facturasVenta' ? doc as FacturaVenta : null
+  const retencion = col === 'facturasCompra' ? Math.round(t.base * (Number((doc as FacturaCompra).irpf) || 0)) / 100 : 0
+  const rectificada = venta?.rectificadaId ? datos.facturasVenta.find(f => f.id === venta.rectificadaId) : null
+  // QR de Verifactu: solo si su registro ya va a la AEAT (en preparación no sería verificable)
+  const registro = venta ? gestoria.datos.registros.filter(r => r.facturaId === venta.id && r.tipo === 'alta').sort((a, b) => b.orden - a.orden)[0] : undefined
+  const conQr = !!registro && registro.entorno !== 'preparacion'
+  const [qr, setQr] = useState('')
+  useEffect(() => {
+    if (!conQr || !registro) return
+    let vivo = true
+    void qrDataUrl(urlCotejo({ nif: registro.nifEmisor, serieNumero: registro.serieNumero, fechaExpedicion: registro.fechaExpedicion, importeTotal: registro.importeTotal, entorno: registro.entorno })).then(d => { if (vivo) setQr(d) })
+    return () => { vivo = false }
+  }, [conQr, registro])
+  const emisor = gestoria.perfil
 
   return (
     <article className="crm-impreso" aria-hidden>
       <header className="crm-impreso-cabecera">
-        <div className="crm-impreso-marca"><Logo tamano={38} /><span><b>Locodea</b><small>Power Platform · IA · Business Central</small></span></div>
+        <div className="crm-impreso-marca"><Logo tamano={38} /><span><b>{venta ? emisor.razonSocial || 'Locodea' : 'Locodea'}</b><small>{venta && emisor.nif ? `NIF ${emisor.nif}${emisor.domicilio ? ' · ' + emisor.domicilio : ''}` : 'Power Platform · IA · Business Central'}</small></span></div>
         <div className="crm-impreso-titulo">
           <h1>{NOMBRE_REGISTRO[col]}</h1>
-          <p>{doc.no}</p>
+          <p>{doc.no || 'Borrador'}</p>
+          {venta && venta.tipoFactura !== 'F1' && <small>{TIPO_FACTURA[venta.tipoFactura]}</small>}
           <small>{etiquetaEstado(col, estadoVisible(col, doc))}</small>
         </div>
       </header>
@@ -60,6 +80,7 @@ export function DocumentoImpreso({ col, doc, compra }: { col: ColEntidad; doc: D
           <dt>Forma de pago</dt><dd>{METODO_PAGO[doc.metodoPago] ?? '—'}</dd>
           {refExterna && <><dt>{compra ? 'Referencia del proveedor' : 'Su referencia'}</dt><dd>{refExterna}</dd></>}
           {doc.referencia && <><dt>Referencia</dt><dd>{doc.referencia}</dd></>}
+          {rectificada && <><dt>Rectifica la factura</dt><dd>{rectificada.no} de {fecha(rectificada.fecha)}{venta?.motivoRectificacion ? ` · ${venta.motivoRectificacion}` : ''}</dd></>}
         </dl>
       </section>
 
@@ -84,12 +105,21 @@ export function DocumentoImpreso({ col, doc, compra }: { col: ColEntidad; doc: D
         {t.descuento > 0 && <><dt>Descuento</dt><dd>−{eur(t.descuento)}</dd></>}
         <dt>Base imponible</dt><dd>{eur(t.base)}</dd>
         <dt>IVA</dt><dd>{eur(t.iva)}</dd>
-        <dt className="total">Total</dt><dd className="total">{eur(t.total)}</dd>
+        {retencion > 0 && <><dt>Retención IRPF</dt><dd>−{eur(retencion)}</dd></>}
+        <dt className="total">Total</dt><dd className="total">{eur(t.total - retencion)}</dd>
       </dl>
+
+      {venta && MENCION_SIN_IVA[venta.tipoOperacion] && <section className="crm-impreso-notas"><p>{MENCION_SIN_IVA[venta.tipoOperacion]}</p></section>}
+      {conQr && qr && (
+        <section className="crm-impreso-notas" style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+          <img src={qr} alt="QR tributario" style={{ width: '35mm', height: '35mm' }} />
+          <p><b>QR tributario</b><br />{LEYENDA_VERIFACTU}</p>
+        </section>
+      )}
 
       {doc.notas && <section className="crm-impreso-notas"><h2>Observaciones</h2><p>{doc.notas}</p></section>}
       <footer className="crm-impreso-pie">
-        {esFactura && !compra ? 'Documento comercial generado desde el CRM de Locodea. La factura oficial (Verifactu/SII) se emite desde el ERP.' : 'Documento generado desde el CRM de Locodea.'}
+        {esFactura && !compra ? `Factura emitida con ${gestoria.config.sistemaNombre || 'Locodea App'}${conQr ? ', sistema de facturación con Verifactu.' : '.'}` : 'Documento generado desde el CRM de Locodea.'}
       </footer>
     </article>
   )

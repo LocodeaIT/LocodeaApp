@@ -8,6 +8,7 @@ import { useApp } from '../store'
 import { Avatar, Campo, COLORES, Modal } from '../ui/basicos'
 import { Select } from '../ui/Select'
 import type { Miembro, Rol } from '../domain/types'
+import { NOMBRE_ROL } from '../domain/types'
 
 export default function Equipo(_: { abrirTarea: (id: string) => void }) {
   const { datos, guardarMiembro } = useApp()
@@ -26,7 +27,7 @@ export default function Equipo(_: { abrirTarea: (id: string) => void }) {
               <tr key={m.id} className="clicable" onClick={() => setEditar(m)}>
                 <td><span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><Avatar miembro={m} /><b>{m.nombre}</b></span></td>
                 <td style={{ color: 'var(--texto-2)' }}>{m.email}</td>
-                <td>{m.rol === 'socio' ? 'Socio' : 'Colaborador'}</td>
+                <td>{NOMBRE_ROL[m.rol]}</td>
                 <td><span className={`chip pequeno ${m.activo ? 'ok' : ''}`}>{m.activo ? 'Activo' : 'Inactivo'}</span></td>
                 <td className="num">{datos.tareas.filter(t => t.asignadoId === m.id && t.estado !== 'hecha' && !t.personal).length}</td>
                 <td><UserCog size={15} style={{ color: 'var(--texto-3)' }} /></td>
@@ -62,7 +63,7 @@ function ModalMiembro({ inicial, onCerrar, onGuardar }: { inicial: Miembro | nul
         </div>
         <div className="fila-campos">
           <Campo label="Iniciales"><input value={iniciales} maxLength={3} onChange={e => setIniciales(e.target.value.toUpperCase())} placeholder={ini} /></Campo>
-          <Campo label="Rol"><Select valor={rol} onCambio={setRol} opciones={[{ valor: 'socio', etiqueta: 'Socio' }, { valor: 'colaborador', etiqueta: 'Colaborador' }]} /></Campo>
+          <Campo label="Rol"><Select valor={rol} onCambio={setRol} opciones={(Object.keys(NOMBRE_ROL) as Rol[]).map(r => ({ valor: r, etiqueta: NOMBRE_ROL[r] }))} /></Campo>
           <Campo label="Estado"><Select valor={activo ? '1' : '0'} onCambio={v => setActivo(v === '1')} opciones={[{ valor: '1', etiqueta: 'Activo' }, { valor: '0', etiqueta: 'Inactivo' }]} /></Campo>
         </div>
         <Campo label="Color">

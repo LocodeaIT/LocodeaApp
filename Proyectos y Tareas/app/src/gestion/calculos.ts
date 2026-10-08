@@ -127,7 +127,7 @@ export function resumenTrimestre(crm: CrmInstantanea, gestion: GestionInstantane
     retenciones111: irpf,
     cobrado: r2(crm.facturasVenta.filter(f => f.estado === 'pagada' && enRango(f.pagadaEl?.slice(0, 10), desde, hasta)).reduce((s, f) => s + totales(f).total, 0)),
     pagado: r2(crm.facturasCompra.filter(f => f.estado === 'pagada' && enRango(f.pagadaEl?.slice(0, 10), desde, hasta)).reduce((s, f) => s + totales(f).total, 0)
-      + gestion.gastos.filter(g => (g.estado === 'pagado' || g.estado === 'reembolsado') && enRango(g.fecha, desde, hasta)).reduce((s, g) => s + g.total, 0)),
+      + gestion.gastos.filter(g => !g.facturaCompraId && (g.estado === 'pagado' || g.estado === 'reembolsado') && enRango(g.fecha, desde, hasta)).reduce((s, g) => s + g.total, 0)),
   }
 }
 
@@ -254,14 +254,14 @@ export function proximosPlazos(n = 6): (PlazoFiscal & { abierto: boolean; dias: 
 
 export interface Movimiento {
   fecha: string
-  tipo: 'cobro' | 'pago' | 'gasto' | 'fijo'
+  tipo: 'cobro' | 'pago' | 'gasto' | 'fijo' | 'impuesto'
   concepto: string
   tercero: string
   importe: number
   /** Ya debería haber ocurrido. */
   vencido: boolean
-  /** Enlace al registro de origen. */
-  ref: { col: 'facturasVenta' | 'facturasCompra' | 'gastos'; id: string }
+  /** Enlace al registro de origen (los impuestos previstos vienen de Gestoría). */
+  ref: { col: 'facturasVenta' | 'facturasCompra' | 'gastos' | 'gestoria'; id: string }
 }
 
 export interface PrevisionCaja {
@@ -278,9 +278,16 @@ export interface PrevisionCaja {
 }
 
 export const pendienteCobro = (f: FacturaVenta) => r2(Math.max(0, totales(f).total - (Number(f.importeCobrado) || 0)))
-export const pendientePago = (f: FacturaCompra) => r2(Math.max(0, totales(f).total - (Number(f.importePagado) || 0)))
+/** Lo que queda por pagar: total menos la retención de IRPF (la ingresa Locodea en el 111/115) y menos lo ya pagado. */
+export const pendientePago = (f: FacturaCompra) => {
+  const t = totales(f)
+  return r2(Math.max(0, t.total - t.base * (Number(f.irpf) || 0) / 100 - (Number(f.importePagado) || 0)))
+}
 
-export function previsionCaja(crm: CrmInstantanea, gestion: GestionInstantanea, saldoInicial: number, dias = 90): PrevisionCaja {
+/** Clave de un gasto fijo: el mismo cargo apuntado cada mes comparte concepto y proveedor. */
+const claveFijo = (g: Gasto) => `${String(g.concepto).trim().toLowerCase()}|${g.proveedorId ?? ''}`
+
+export function previsionCaja(crm: CrmInstantanea, gestion: GestionInstantanea, saldoInicial: number, dias = 90, impuestos: Movimiento[] = []): PrevisionCaja {
   const h = hoy(), limite = sumarDias(h, dias)
   const nombre = (id: string | null) => crm.cuentas.find(a => a.id === id)?.nombre ?? ''
   const mov: Movimiento[] = []
@@ -302,17 +309,29 @@ export function previsionCaja(crm: CrmInstantanea, gestion: GestionInstantanea, 
     if (g.estado === 'pendiente' || g.estado === 'reembolsar') {
       mov.push({ fecha: g.fecha < h ? h : g.fecha, tipo: 'gasto', concepto: g.concepto, tercero: nombre(g.proveedorId), importe: -g.total, vencido: g.fecha < h, ref: { col: 'gastos', id: g.id } })
     }
-    if (g.recurrente) {
-      // se proyecta cada mes del horizonte, a partir del mes siguiente al del gasto
-      const inicio = new Date(Number(g.fecha.slice(0, 4)), Number(g.fecha.slice(5, 7)), 1)
-      for (let i = 0; i < 4; i++) {
-        const d = new Date(inicio.getFullYear(), inicio.getMonth() + i, Math.min(Math.max(1, g.diaCargo || 1), 28))
-        const f = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-        if (f <= h || f > limite) continue
-        mov.push({ fecha: f, tipo: 'fijo', concepto: g.concepto + ' (fijo)', tercero: nombre(g.proveedorId), importe: -g.total, vencido: false, ref: { col: 'gastos', id: g.id } })
-      }
+  }
+
+  // Gastos fijos: cada cargo (concepto + proveedor) se proyecta una vez, con su apunte más reciente,
+  // en cada mes desde hoy hasta el final del horizonte. Si ese mes ya tiene el cargo apuntado, no se repite.
+  const ultimoFijo = new Map<string, Gasto>()
+  for (const g of gestion.gastos) {
+    if (!g.recurrente || g.facturaCompraId) continue
+    const k = claveFijo(g), previo = ultimoFijo.get(k)
+    if (!previo || g.fecha > previo.fecha) ultimoFijo.set(k, g)
+  }
+  const apuntadoEnMes = (k: string, mes: string) => gestion.gastos.some(x => claveFijo(x) === k && x.fecha.startsWith(mes))
+  const hoyFecha = new Date(Number(h.slice(0, 4)), Number(h.slice(5, 7)) - 1, 1)
+  for (const [k, g] of ultimoFijo) {
+    for (let i = 0; i <= Math.ceil(dias / 28); i++) {
+      const d = new Date(hoyFecha.getFullYear(), hoyFecha.getMonth() + i, Math.min(Math.max(1, g.diaCargo || 1), 28))
+      const f = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+      if (f <= h || f > limite || apuntadoEnMes(k, f.slice(0, 7))) continue
+      mov.push({ fecha: f, tipo: 'fijo', concepto: g.concepto + ' (fijo)', tercero: nombre(g.proveedorId), importe: -g.total, vencido: false, ref: { col: 'gastos', id: g.id } })
     }
   }
+
+  // Impuestos previstos que calcula Gestoría (303, 111, 202… a pagar en su plazo)
+  for (const m of impuestos) mov.push(m)
 
   mov.sort((a, b) => a.fecha.localeCompare(b.fecha) || b.importe - a.importe)
   const dentro = mov.filter(m => m.fecha <= limite)
