@@ -114,7 +114,8 @@ export function generarSemillaCrm(): CrmInstantanea {
     telefono: '+34 6' + String(10000000 + i * 1234567).slice(0, 8), ciudad, sector, origen, puntuacion, estado, fase: 'calificar' as const,
     importeEst, propietarioId, descripcion: '', creadoEl: dia(alta),
     calificadoEl: estado === 'calificado' ? dia(-8) : null, descalificadoEl: estado === 'descalificado' ? dia(-22) : null,
-    motivo: estado === 'descalificado' ? 'Sin presupuesto este año' : '', cuentaId: null, contactoId: null, oportunidadId: null,
+    motivo: estado === 'descalificado' ? 'Sin presupuesto este año' : '', direccion: '', cp: '', pais: 'España', web: '', empleados: '',
+    area: '', herramientas: '', loQueImporta: '', recomendacion: '', cuentaId: null, contactoId: null, oportunidadId: null,
   }))
   potenciales[0].descripcion = 'Cada alta de empleado son 6 correos y 3 formularios. Quieren un flujo que lo haga todo desde Teams.'
   Object.assign(potenciales[5], { cuentaId: 'a6', contactoId: 'c8', oportunidadId: 'o4' })

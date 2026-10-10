@@ -147,6 +147,19 @@ export interface Potencial extends RegistroBase {
   calificadoEl: string | null
   descalificadoEl: string | null
   motivo: string
+  direccion: string
+  cp: string
+  pais: string
+  web: string
+  /** Personas en la empresa, como las dice el cliente («11 a 50»). */
+  empleados: string
+  /** Área o departamento de quien escribe. */
+  area: string
+  /** Con qué lo hacen hoy (papel, Excel, WhatsApp…). */
+  herramientas: string
+  loQueImporta: string
+  /** Lo que le recomendó el formulario de la web. */
+  recomendacion: string
   /** Lo que se creó al calificarlo. */
   cuentaId: string | null
   contactoId: string | null

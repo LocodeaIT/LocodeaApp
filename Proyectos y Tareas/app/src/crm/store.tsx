@@ -197,8 +197,8 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
     let cuentaId = l.cuentaId || (l.empresa ? d.cuentas.find(a => normalizar(a.nombre) === normalizar(l.empresa))?.id : null) || null
     if (!cuentaId && l.empresa) {
       const c: Cuenta = {
-        id: '', no: '', nombre: l.empresa, tipo: 'cliente', estado: 'activo', cif: '', sector: l.sector, direccion: '', cp: '', ciudad: l.ciudad,
-        provincia: '', pais: 'España', web: '', telefono: l.telefono, email: l.email, empleados: '', propietarioId: l.propietarioId,
+        id: '', no: '', nombre: l.empresa, tipo: 'cliente', estado: 'activo', cif: '', sector: l.sector, direccion: l.direccion, cp: l.cp, ciudad: l.ciudad,
+        provincia: '', pais: l.pais || 'España', web: l.web, telefono: l.telefono, email: l.email, empleados: l.empleados, propietarioId: l.propietarioId,
         condicionesPago: '30', metodoPago: 'transferencia', iva: 21, iban: '', regimenIva: 'general', notas: '', creadoEl: '', ...FISCAL_CUENTA,
       }
       cuentaId = (await guardar('cuentas', c)).id

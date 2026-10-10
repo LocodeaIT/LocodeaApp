@@ -97,6 +97,14 @@
           "x-ms-schema-name": "loc_Apellidos",
           "maxLength": 150
         },
+        "loc_area": {
+          "type": "string",
+          "title": "Área o departamento",
+          "x-ms-dataverse-attribute": "loc_area",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Area",
+          "maxLength": 100
+        },
         "loc_calificadoel": {
           "type": "string",
           "title": "Calificado el",
@@ -140,6 +148,14 @@
           "x-ms-read-only": true,
           "maxLength": 100
         },
+        "loc_cp": {
+          "type": "string",
+          "title": "Código postal",
+          "x-ms-dataverse-attribute": "loc_cp",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Cp",
+          "maxLength": 20
+        },
         "loc_cuenta": {
           "type": "string",
           "title": "Cuenta creada",
@@ -175,6 +191,14 @@
           "x-ms-schema-name": "loc_Descripcion",
           "maxLength": 8000
         },
+        "loc_direccion": {
+          "type": "string",
+          "title": "Dirección",
+          "x-ms-dataverse-attribute": "loc_direccion",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Direccion",
+          "maxLength": 300
+        },
         "loc_email": {
           "type": "string",
           "title": "Correo electrónico",
@@ -182,6 +206,14 @@
           "x-ms-dataverse-type": "StringType",
           "x-ms-schema-name": "loc_Email",
           "maxLength": 200
+        },
+        "loc_empleados": {
+          "type": "string",
+          "title": "Personas en la empresa",
+          "x-ms-dataverse-attribute": "loc_empleados",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Empleados",
+          "maxLength": 50
         },
         "loc_empresa": {
           "type": "string",
@@ -264,12 +296,28 @@
           "x-ms-dataverse-attribute-of": "loc_fase",
           "x-ms-read-only": true
         },
+        "loc_herramientas": {
+          "type": "string",
+          "title": "Herramientas actuales",
+          "x-ms-dataverse-attribute": "loc_herramientas",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Herramientas",
+          "maxLength": 300
+        },
         "loc_importeest": {
           "type": "string",
           "title": "Ingresos estimados",
           "x-ms-dataverse-attribute": "loc_importeest",
           "x-ms-dataverse-type": "DecimalType",
           "x-ms-schema-name": "loc_ImporteEst"
+        },
+        "loc_loqueimporta": {
+          "type": "string",
+          "title": "Lo que más importa",
+          "x-ms-dataverse-attribute": "loc_loqueimporta",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_LoQueImporta",
+          "maxLength": 300
         },
         "loc_motivo": {
           "type": "string",
@@ -359,6 +407,14 @@
           "x-ms-dataverse-attribute-of": "loc_origen",
           "x-ms-read-only": true
         },
+        "loc_pais": {
+          "type": "string",
+          "title": "País",
+          "x-ms-dataverse-attribute": "loc_pais",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Pais",
+          "maxLength": 100
+        },
         "loc_potencialid": {
           "type": "string",
           "title": "Cliente potencial",
@@ -424,6 +480,14 @@
           "x-ms-dataverse-attribute-of": "loc_puntuacion",
           "x-ms-read-only": true
         },
+        "loc_recomendacion": {
+          "type": "string",
+          "title": "Recomendación de la web",
+          "x-ms-dataverse-attribute": "loc_recomendacion",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Recomendacion",
+          "maxLength": 200
+        },
         "loc_sector": {
           "type": "string",
           "title": "Sector",
@@ -448,6 +512,14 @@
           "x-ms-schema-name": "loc_Tema",
           "x-ms-dataverse-primary-name": true,
           "required": true,
+          "maxLength": 300
+        },
+        "loc_web": {
+          "type": "string",
+          "title": "Sitio web",
+          "x-ms-dataverse-attribute": "loc_web",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_Web",
           "maxLength": 300
         },
         "modifiedby": {

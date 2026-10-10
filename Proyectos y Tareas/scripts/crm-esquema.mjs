@@ -194,6 +194,10 @@ const TABLAS = [
       opciones('loc_Estado', 'Estado', O.estadoPotencial), opciones('loc_Fase', 'Fase', O.fase), decimal('loc_ImporteEst', 'Ingresos estimados'),
       memo('loc_Descripcion', 'Descripción'), instante('loc_CalificadoEl', 'Calificado el'), instante('loc_DescalificadoEl', 'Descalificado el'),
       texto('loc_Motivo', 'Motivo de descalificación', 500),
+      texto('loc_Direccion', 'Dirección', 300), texto('loc_Cp', 'Código postal', 20), texto('loc_Pais', 'País', 100),
+      texto('loc_Web', 'Sitio web', 300), texto('loc_Empleados', 'Personas en la empresa', 50), texto('loc_Area', 'Área o departamento', 100),
+      texto('loc_Herramientas', 'Herramientas actuales', 300), texto('loc_LoQueImporta', 'Lo que más importa', 300),
+      texto('loc_Recomendacion', 'Recomendación de la web', 200),
     ],
   },
   {

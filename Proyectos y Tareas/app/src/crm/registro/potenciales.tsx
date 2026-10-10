@@ -31,7 +31,7 @@ export const potenciales: Entidad<Potencial> = {
     { clave: 'descalificados', titulo: 'Descalificados', filtro: l => l.estado === 'descalificado' },
     { clave: 'todos', titulo: 'Todos los clientes potenciales', filtro: () => true },
   ],
-  buscar: l => [l.no, l.tema, nombreCompleto(l), l.empresa, l.email, l.ciudad, l.sector],
+  buscar: l => [l.no, l.tema, nombreCompleto(l), l.empresa, l.email, l.ciudad, l.pais, l.sector, l.area],
   filtros: [
     { clave: 'origen', titulo: 'Origen', opciones: () => opcionesDe(ORIGEN) },
     { clave: 'puntuacion', titulo: 'Puntuación', opciones: () => opcionesDe(PUNTUACION) },
@@ -58,7 +58,8 @@ export const potenciales: Entidad<Potencial> = {
   nuevo: c => ({
     id: '', no: '', tema: '', nombre: '', apellidos: '', empresa: '', cargo: '', email: '', telefono: '', ciudad: '', sector: '',
     origen: 'web', puntuacion: 'templado', estado: 'abierto', fase: 'calificar', importeEst: 0, propietarioId: c.yoId, descripcion: '',
-    calificadoEl: null, descalificadoEl: null, motivo: '', cuentaId: null, contactoId: null, oportunidadId: null, creadoEl: '',
+    calificadoEl: null, descalificadoEl: null, motivo: '', direccion: '', cp: '', pais: 'España', web: '', empleados: '', area: '',
+    herramientas: '', loQueImporta: '', recomendacion: '', cuentaId: null, contactoId: null, oportunidadId: null, creadoEl: '',
   }),
   titulo: l => l.tema,
   validar: d => (!d.tema.trim() ? 'Escribe el tema del cliente potencial.' : null),
@@ -87,8 +88,25 @@ export const potenciales: Entidad<Potencial> = {
         { clave: 'cargo', titulo: 'Cargo' },
         { clave: 'email', titulo: 'Correo electrónico', tipo: 'email' },
         { clave: 'telefono', titulo: 'Teléfono' },
-        { clave: 'ciudad', titulo: 'Ciudad' },
+        { clave: 'area', titulo: 'Área o departamento' },
+      ],
+    },
+    {
+      clave: 'empresa', titulo: 'Empresa', campos: [
         { clave: 'sector', titulo: 'Sector' },
+        { clave: 'empleados', titulo: 'Personas en la empresa' },
+        { clave: 'web', titulo: 'Sitio web' },
+        { clave: 'direccion', titulo: 'Dirección' },
+        { clave: 'cp', titulo: 'Código postal' },
+        { clave: 'ciudad', titulo: 'Ciudad' },
+        { clave: 'pais', titulo: 'País' },
+      ],
+    },
+    {
+      clave: 'necesidad', titulo: 'Necesidad', campos: [
+        { clave: 'herramientas', titulo: 'Herramientas actuales' },
+        { clave: 'loQueImporta', titulo: 'Lo que más importa' },
+        { clave: 'recomendacion', titulo: 'Recomendación de la web' },
       ],
     },
     {
