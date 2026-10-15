@@ -72,6 +72,19 @@ pushear a continuación, antes de dar la tarea por terminada.
   localStorage ni en la consola. Esquema con `node scripts/boveda-esquema.mjs`.
   Si se cambia el formato, se sube la versión (`ALGORITMO` / `v1.` en
   `boveda/cripto.ts`) y se sigue sabiendo leer la anterior.
+- Propuestas (`app/src/propuestas`, menú «Propuestas de clientes»): apuntes y
+  posibles proyectos de clientes en un tablero por estados (Apunte → En
+  conversación → Planificación → Propuesta enviada → Aceptado, y Descartado),
+  con importe, probabilidad, fecha de decisión, tecnologías y un hilo de apuntes
+  (JSON en `loc_apuntes`; los cambios de estado se apuntan solos) y adjuntos
+  (`loc_adjuntopropuesta`, un archivo por fila como data URL en `loc_datos`,
+  máx. 1 MB: las imágenes se comprimen en el navegador; la lista se carga sin
+  los datos). Al aceptar una se ofrece pasarla a proyecto: se crea en la cartera
+  con sus tecnologías como apartados y sus adjuntos enlazados (`loc_proyecto`),
+  y la ficha del proyecto enseña de qué propuesta viene, sus apuntes y adjuntos.
+  Tablas con `node scripts/propuestas-esquema.mjs` (token de Azure CLI, como
+  `contenido-esquema.mjs`), ya creadas en PROD y añadidas como fuentes de datos.
+  Si falta la tabla, la pantalla lo dice en vez de romperse. Opciones: 4120006xx.
 - Los scripts de Dataverse llaman al CLI con `npx -y @microsoft/dataverse`; en
   Windows conviene `$env:DATAVERSE_CLI=<ruta a bin/dataverse.js>` para que
   los `&` de las consultas OData no pasen por cmd.

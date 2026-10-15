@@ -1,6 +1,6 @@
 import { useMemo, useState, lazy, Suspense } from 'react'
 import {
-  BarChart3, Bot, CalendarDays, Check, ChevronRight, ChevronsUpDown, FileText, FolderKanban, Home, KanbanSquare, LogOut, Megaphone,
+  BarChart3, Bot, CalendarDays, Check, ChevronRight, ChevronsUpDown, FileText, FolderKanban, Handshake, Home, KanbanSquare, LogOut, Megaphone,
   PanelLeftClose, PanelLeftOpen, RefreshCw, Search, Target, Users,
 } from 'lucide-react'
 import { useApp, type Pantalla } from './store'
@@ -32,6 +32,7 @@ const PantallaCrm = lazy(() => import('./crm/screens/PantallaCrm'))
 const PantallaGestion = lazy(() => import('./gestion/screens/PantallaGestion'))
 const PantallaGestoria = lazy(() => import('./gestoria/screens/PantallaGestoria'))
 const PantallaBoveda = lazy(() => import('./boveda/screens/PantallaBoveda'))
+const PantallaPropuestas = lazy(() => import('./propuestas/screens/PantallaPropuestas'))
 const Contenido = lazy(() => import('./screens/Contenido'))
 const SkillsIA = lazy(() => import('./screens/SkillsIA'))
 import Login from './screens/Login'
@@ -43,6 +44,7 @@ const NAV: { id: Pantalla; nombre: string; icono: typeof Home; seccion?: string 
   { id: 'objetivos', nombre: 'Objetivos semanales', icono: Target, seccion: 'Equipo' },
   { id: 'tareas', nombre: 'Tareas', icono: KanbanSquare },
   { id: 'proyectos', nombre: 'Proyectos', icono: FolderKanban },
+  { id: 'propuestas', nombre: 'Propuestas de clientes', icono: Handshake },
   { id: 'skills', nombre: 'Skills y agentes de IA', icono: Bot },
   { id: 'reuniones', nombre: 'Reuniones', icono: CalendarDays, seccion: 'Seguimiento' },
   { id: 'contenido', nombre: 'Contenido', icono: Megaphone },
@@ -75,7 +77,7 @@ export default function App() {
   if (!yo) return <Login />
 
   const pantallaActiva: Pantalla = pantalla === 'midia' ? 'inicio' : pantalla
-  const Pantalla = esPantallaCrm(pantallaActiva) || esPantallaGestion(pantallaActiva) || esPantallaGestoria(pantallaActiva) || esPantallaBoveda(pantallaActiva) ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, contenido: Contenido, skills: SkillsIA, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
+  const Pantalla = esPantallaCrm(pantallaActiva) || esPantallaGestion(pantallaActiva) || esPantallaGestoria(pantallaActiva) || esPantallaBoveda(pantallaActiva) || pantallaActiva === 'propuestas' ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, contenido: Contenido, skills: SkillsIA, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
   const migas = migasDe(pantallaActiva)
 
   return (
@@ -144,7 +146,7 @@ export default function App() {
 
         <main className="contenido" key={pantallaActiva}>
           <Suspense fallback={<div className="carga"><div className="spinner" /></div>}>
-            {Pantalla ? <Pantalla abrirTarea={setTareaAbierta} /> : esPantallaGestion(pantallaActiva) ? <PantallaGestion /> : esPantallaGestoria(pantallaActiva) ? <PantallaGestoria /> : esPantallaBoveda(pantallaActiva) ? <PantallaBoveda /> : <PantallaCrm />}
+            {Pantalla ? <Pantalla abrirTarea={setTareaAbierta} /> : esPantallaGestion(pantallaActiva) ? <PantallaGestion /> : esPantallaGestoria(pantallaActiva) ? <PantallaGestoria /> : esPantallaBoveda(pantallaActiva) ? <PantallaBoveda /> : pantallaActiva === 'propuestas' ? <PantallaPropuestas /> : <PantallaCrm />}
           </Suspense>
         </main>
       </div>

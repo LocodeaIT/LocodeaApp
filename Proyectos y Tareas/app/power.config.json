@@ -187,6 +187,16 @@
           "entitySetName": "loc_registrofacturacions",
           "logicalName": "loc_registrofacturacion",
           "isHidden": false
+        },
+        "propuestas": {
+          "entitySetName": "loc_propuestas",
+          "logicalName": "loc_propuesta",
+          "isHidden": false
+        },
+        "adjuntosdepropuesta": {
+          "entitySetName": "loc_adjuntopropuestas",
+          "logicalName": "loc_adjuntopropuesta",
+          "isHidden": false
         }
       },
       "environmentVariableName": ""

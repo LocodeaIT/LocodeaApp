@@ -19,6 +19,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "loc_adjuntopropuestas": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_adjuntopropuestaid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "loc_asientos": {
     "tableId": "",
     "version": "",
@@ -170,6 +177,13 @@ export const dataSourcesInfo = {
     "tableId": "",
     "version": "",
     "primaryKey": "loc_productoid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "loc_propuestas": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_propuestaid",
     "dataSourceType": "Dataverse",
     "apis": {}
   },

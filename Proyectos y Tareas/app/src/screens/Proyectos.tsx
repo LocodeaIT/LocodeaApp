@@ -26,6 +26,7 @@ import {
 } from '../domain/types'
 import { esVencida, etiquetaSemanaCorta, fechaCorta } from '../domain/fechas'
 import { nuevoId } from '../data/repo'
+import { OrigenPropuesta } from '../propuestas/screens/OrigenPropuesta'
 
 /**
  * Avance de un proyecto contando solo tareas principales (sin subtareas), igual
@@ -206,6 +207,8 @@ function FichaProyecto({ proyecto: p, onVolver, abrirTarea }: { proyecto: Proyec
       </div>
 
       {p.descripcion && <p className="ficha-desc">{p.descripcion}</p>}
+
+      {!p.interno && <OrigenPropuesta proyectoId={p.id} />}
 
       <div className="tarjeta ficha-resumen">
         <div className="fr-avance">

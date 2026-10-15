@@ -21,6 +21,8 @@ import { GestoriaProveedor } from './gestoria/store'
 import { gestoriaRepoDataverse } from './gestoria/dataverse'
 import { BovedaProveedor } from './boveda/store'
 import { bovedaRepoDataverse } from './boveda/dataverse'
+import { PropuestasProveedor } from './propuestas/store'
+import { propuestasRepoDataverse } from './propuestas/dataverse'
 
 /**
  * La app corre como Code App sobre Dataverse. Para trabajar el diseño en local
@@ -34,12 +36,13 @@ const crmRepo = demo ? (await import('./crm/demo')).crmRepoDemo : crmRepoDataver
 const gestionRepo = demo ? (await import('./gestion/demo')).gestionRepoDemo : gestionRepoDataverse
 const gestoriaRepo = demo ? (await import('./gestoria/demo')).gestoriaRepoDemo : gestoriaRepoDataverse
 const bovedaRepo = demo ? (await import('./boveda/demo')).bovedaRepoDemo : bovedaRepoDataverse
+const propuestasRepo = demo ? (await import('./propuestas/demo')).propuestasRepoDemo : propuestasRepoDataverse
 
 if (demo) {
   avisarModoDemostracion()
 } else {
   // Restos de la etapa en la que los datos vivían en el navegador.
-  for (const clave of ['locodea.objetivos.v1', 'locodea.objetivos.v2', 'locodea.objetivos.v3', 'locodea.demo.v1', 'locodea.crm.demo.v1', 'locodea.gestion.demo.v1', 'locodea.gestoria.demo.v1', 'locodea.boveda.demo.v1', 'locodea.gestion.saldo']) {
+  for (const clave of ['locodea.objetivos.v1', 'locodea.objetivos.v2', 'locodea.objetivos.v3', 'locodea.demo.v1', 'locodea.crm.demo.v1', 'locodea.gestion.demo.v1', 'locodea.gestoria.demo.v1', 'locodea.boveda.demo.v1', 'locodea.propuestas.demo.v1', 'locodea.propuestas.adjuntos.demo.v1', 'locodea.gestion.saldo']) {
     try { localStorage.removeItem(clave) } catch { /* modo privado o sin permisos */ }
   }
 }
@@ -65,7 +68,9 @@ createRoot(document.getElementById('root')!).render(
         <GestionProveedor repo={gestionRepo}>
           <GestoriaProveedor repo={gestoriaRepo}>
             <BovedaProveedor repo={bovedaRepo}>
-              <App />
+              <PropuestasProveedor repo={propuestasRepo}>
+                <App />
+              </PropuestasProveedor>
             </BovedaProveedor>
           </GestoriaProveedor>
         </GestionProveedor>
