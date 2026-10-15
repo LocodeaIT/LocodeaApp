@@ -132,13 +132,9 @@
 .prop-tenue { color: var(--faint); }
 
 /* ─────────────────────────────── ficha lateral */
-.prop-panel-cabecera { display: flex; align-items: center; gap: 14px; }
-.prop-panel-cliente { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.prop-panel-cliente span { color: var(--faint); }
-.prop-panel-titulo { font-size: 20px; font-weight: 500; letter-spacing: -.025em; line-height: 1.2; margin-top: 2px; }
 
 .prop-recorrido { background: var(--sand-2); border-radius: var(--r-20); padding: 16px 14px 12px; }
-.prop-recorrido ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); position: relative; }
+.prop-recorrido ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: relative; }
 .prop-recorrido li { position: relative; display: flex; justify-content: center; }
 .prop-recorrido li:not(:first-child)::before {
   content: ''; position: absolute; top: 13px; right: 50%; width: 100%; height: 2px; background: var(--ink-10); z-index: 0;
@@ -173,17 +169,7 @@
 .prop-proyecto.enlazado { cursor: pointer; }
 .prop-proyecto.enlazado:hover { box-shadow: 0 0 0 1px #3f7a4f, var(--shadow-2); }
 
-.prop-datos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.prop-datos > div { background: var(--paper); border-radius: var(--r-14); box-shadow: var(--shadow-card); padding: 11px 13px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.prop-datos > div > span { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--faint); font-weight: 500; }
-.prop-datos b { font-size: 15px; font-weight: 600; letter-spacing: -.015em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.prop-datos .prop-prob-barra { width: 80px; }
-.prop-datos .prop-prob b { font-size: 13px; }
-.prop-resp { display: flex; align-items: center; gap: 7px; font-size: 13.5px !important; font-weight: 500 !important; }
-.prop-atrasada { color: var(--danger); }
 
-.prop-etiquetas { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.prop-descripcion { font-size: 14px; line-height: 1.6; color: var(--ink-80); white-space: pre-wrap; }
 
 .prop-apuntes h3 { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; margin-bottom: 12px; }
 .prop-apuntes h3 small { font-size: 12px; color: var(--faint); font-weight: 500; }
@@ -233,8 +219,9 @@
 
 @media (max-width: 720px) {
   .prop-tablero { grid-template-columns: repeat(var(--columnas), minmax(250px, 82vw)); }
-  .prop-datos { grid-template-columns: 1fr; }
-  .prop-recorrido .prop-paso-nombre { font-size: 10px; }
+  .prop-recorrido .prop-paso-nombre { font-size: 9.5px; overflow-wrap: anywhere; }
+  .prop-recorrido li:not(.actual) .prop-paso-nombre { display: none; }
+  .prop-recorrido li.actual .prop-paso-nombre { white-space: nowrap; }
   .prop-kpi-valor { font-size: 24px; }
 }
 
@@ -312,3 +299,75 @@
 .prop-origen-apuntes li { font-size: 13.5px; line-height: 1.5; color: var(--ink-80); background: var(--sand-2); border-radius: var(--r-12); padding: 8px 12px; display: flex; flex-direction: column; gap: 2px; white-space: pre-wrap; }
 .prop-origen-apuntes li span { font-size: 11.5px; color: var(--faint); }
 .prop-origen .prop-adjuntos h3 { font-size: 13px; margin-bottom: 8px; }
+
+/* ─────────────────────────────── ficha a página completa */
+.prop-ficha { max-width: 1320px; }
+.prop-ficha-cabecera {
+  padding: 26px 28px 20px; display: flex; flex-direction: column; gap: 20px; margin-bottom: 16px; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--e) 9%, var(--paper)) 0%, var(--paper) 55%);
+}
+.prop-ficha-cabecera::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--e); }
+.prop-ficha-titulo { display: flex; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+.prop-ficha-titulo .grow { flex: 1; min-width: min(320px, 100%); }
+.prop-ficha-titulo .antetitulo { margin-bottom: 6px; }
+.prop-ficha-contacto { color: var(--faint); text-transform: none; letter-spacing: 0; font-weight: 500; }
+.prop-ficha-titulo h1 { font-size: 30px; font-weight: 500; letter-spacing: -.035em; line-height: 1.15; }
+.prop-ficha-titulo .acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+.prop-ficha-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.prop-ficha-resp { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; color: var(--ink-80); font-weight: 500; }
+.prop-ficha-cabecera .prop-recorrido { background: color-mix(in srgb, var(--paper) 70%, transparent); box-shadow: 0 0 0 1px var(--line); }
+.prop-ficha-cabecera .prop-recorrido ol { max-width: 760px; margin: 0 auto; }
+.prop-ficha-cabecera .prop-recorrido-pie { justify-content: center; }
+
+.prop-ficha-cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 14px; margin-bottom: 16px; }
+.prop-cifra { padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.prop-cifra-etiqueta { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 500; color: var(--muted); }
+.prop-cifra-etiqueta i { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: color-mix(in srgb, var(--e) 13%, transparent); color: color-mix(in srgb, var(--e) 80%, var(--ink)); }
+.prop-cifra-valor { font-size: 24px; font-weight: 500; letter-spacing: -.03em; line-height: 1.15; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prop-cifra-valor.mal { color: var(--danger); }
+.prop-cifra-pie { font-size: 12px; color: var(--faint); }
+.prop-cifra.apagado .prop-cifra-valor { color: var(--faint); font-size: 18px; }
+.prop-cifra-anillo { flex-direction: row; align-items: center; gap: 14px; }
+.prop-cifra-anillo > div:last-child { display: flex; flex-direction: column; gap: 4px; }
+
+.prop-ficha-rejilla { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+.prop-ficha-principal { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.prop-ficha-lateral { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; }
+.prop-bloque { padding: 20px 22px; }
+.prop-bloque > h2 { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+.prop-bloque .prop-adjuntos-rejilla { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); }
+.prop-vacio-bloque { width: 100%; padding: 18px; border-radius: var(--r-14); border: 1.5px dashed var(--ink-10); background: none; font: inherit; font-size: 13px; color: var(--faint); cursor: pointer; }
+.prop-vacio-bloque:hover { border-color: var(--bronze); color: var(--accent-text); }
+
+.prop-desc { display: flex; flex-direction: column; gap: 12px; font-size: 14.5px; line-height: 1.65; color: var(--ink-80); }
+.prop-desc p { margin: 0; }
+.prop-desc ul { margin: 6px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.prop-desc li::marker { color: var(--bronze); }
+.prop-desc-etiqueta { font-weight: 600; color: var(--ink); }
+.prop-desc-aviso {
+  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 1px 8px; margin-right: 2px;
+  border-radius: var(--pill); background: var(--aviso-suave); color: var(--warn); vertical-align: 1px;
+}
+
+.prop-dl { margin: 0; display: flex; flex-direction: column; }
+.prop-dl-fila { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.prop-dl-fila:first-child { border-top: 0; padding-top: 0; }
+.prop-dl dt { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--faint); font-weight: 500; align-self: start; padding-top: 2px; }
+.prop-dl dd { margin: 0; font-size: 13.5px; font-weight: 500; color: var(--ink); display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.prop-dl dd small { font-size: 11.5px; color: var(--faint); font-weight: 400; }
+.prop-dl-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.prop-resumen-actividad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 16px; }
+.prop-resumen-actividad div { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; border-radius: var(--r-12); background: var(--sand-2); color: var(--muted); }
+.prop-resumen-actividad b { font-size: 20px; font-weight: 600; color: var(--ink); line-height: 1.1; }
+.prop-resumen-actividad span { font-size: 11.5px; }
+.prop-borrar { align-self: center; }
+
+@media (max-width: 1080px) {
+  .prop-ficha-rejilla { grid-template-columns: 1fr; }
+  .prop-ficha-lateral { position: static; }
+}
+@media (max-width: 720px) {
+  .prop-ficha-cabecera { padding: 20px 18px 16px; }
+  .prop-ficha-titulo h1 { font-size: 23px; }
+  .prop-bloque { padding: 16px; }
+}

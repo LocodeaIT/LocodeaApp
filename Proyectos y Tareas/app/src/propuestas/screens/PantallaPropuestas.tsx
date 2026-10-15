@@ -25,7 +25,7 @@ import { AYUDA_ESTADO_PROPUESTA, ESTADOS_ABIERTOS, ESTADOS_PROPUESTA, ETIQUETA_E
 import { columna, estaAbierta, formatoEuros, probabilidadDe, resumirEmbudo } from '../calculos'
 import { BarraProbabilidad, ChipEstado, InsigniaCliente } from './comunes'
 import { ModalPropuesta } from './ModalPropuesta'
-import { PanelPropuesta } from './PanelPropuesta'
+import { FichaPropuesta } from './FichaPropuesta'
 
 type Vista = 'tablero' | 'lista'
 const PREF_VISTA = 'locodea.propuestas.vista'
@@ -74,6 +74,7 @@ export default function PantallaPropuestas() {
   }
 
   if (!cargado) return <div className="carga"><div className="spinner" /></div>
+  if (propuestaAbierta) return <FichaPropuesta propuesta={propuestaAbierta} onVolver={() => setAbierta(null)} />
 
   return (
     <div className="pagina prop-pagina">
@@ -113,7 +114,6 @@ export default function PantallaPropuestas() {
       )}
 
       {creando && <ModalPropuesta inicial={null} estadoInicial={creando} onCerrar={() => setCreando(null)} onCreada={p => setAbierta(p.id)} />}
-      {propuestaAbierta && <PanelPropuesta propuesta={propuestaAbierta} onCerrar={() => setAbierta(null)} />}
     </div>
   )
 }
