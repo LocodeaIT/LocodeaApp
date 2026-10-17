@@ -6,13 +6,13 @@
  * la ficha, un registro existente se guarda solo (si es válido) y uno nuevo se
  * descarta avisando, como en Business Central.
  */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { ChevronRight, Plus, Printer, Save, Check, Trash2, X } from 'lucide-react'
 import { useApp } from '../../store'
 import { useCrm, type CrmCtx } from '../contexto'
 import type { ColEntidad, Documento, Fase, LineaDocumento, RegistroBase } from '../types'
 import { entidadDe } from '../registro'
-import type { Campo, Comando, Entidad, Pestana } from '../registro/tipos'
+import type { Campo, Comando, Entidad, Pestana, UiFicha } from '../registro/tipos'
 import { totalDoc } from '../documentos'
 import { eur, fecha } from '../formato'
 import { guardarPestanas, pestanasGuardadas } from '../preferencias'
@@ -60,7 +60,12 @@ export function FichaCrm({ col, id, prefill }: { col: ColEntidad; id: string; pr
   })
   const alternarPestana = (clave: string) => setAbiertas(a => { const n = { ...a, [clave]: !a[clave] }; guardarPestanas(col, n); return n })
   const [pedir, setPedir] = useState<PeticionTexto | null>(null)
+  const [dialogo, setDialogo] = useState<((cerrar: () => void) => ReactNode) | null>(null)
   const [borrar, setBorrar] = useState(false)
+  const ui: UiFicha = {
+    pedirTexto: (titulo, subtitulo, etiqueta, ok, fn) => setPedir({ titulo, subtitulo, etiqueta, ok, fn }),
+    mostrar: f => setDialogo(() => f),
+  }
 
   const d = b.d
   const bloqueado = !!registro && !!e.bloqueado?.(registro)
@@ -126,7 +131,7 @@ export function FichaCrm({ col, id, prefill }: { col: ColEntidad; id: string; pr
   /** Los comandos trabajan con el borrador: sus cambios se guardan junto con la acción. */
   const ejecutar = (cmd: Comando) => { limpiar(); void cmd.accion() }
   const comandos = !esNuevo && registro
-    ? (e.comandos?.(d, c, { pedirTexto: (titulo, subtitulo, etiqueta, ok, fn) => setPedir({ titulo, subtitulo, etiqueta, ok, fn }) }) ?? []).filter((x): x is Comando => !!x)
+    ? (e.comandos?.(d, c, ui) ?? []).filter((x): x is Comando => !!x)
     : []
   const titulo = esNuevo ? `${e.fem ? 'Nueva' : 'Nuevo'} ${e.uno.toLowerCase()}` : e.titulo(d, c)
   const proceso = e.proceso
@@ -166,14 +171,17 @@ export function FichaCrm({ col, id, prefill }: { col: ColEntidad; id: string; pr
 
       {proceso && (
         <div className="no-imprimir">
-          <BarraProceso fase={fase} fin={proceso.fin(d)} editable={proceso.editable && !!registro && (d as unknown as { estado: string }).estado === 'abierta'}
-            onFase={f => { limpiar(); void c.cambiarFase(d as never, f) }} />
+          {proceso.propio
+            ? <BarraProceso pasos={proceso.propio.pasos} actual={proceso.propio.actual(d)} fin={proceso.fin(d)} editable={!!registro && proceso.propio.editable(d)}
+                onPaso={clave => { limpiar(); proceso.propio!.alPulsar(d, clave, c, ui) }} />
+            : <BarraProceso actual={fase} fin={proceso.fin(d)} editable={proceso.editable && !!registro && (d as unknown as { estado: string }).estado === 'abierta'}
+                onPaso={f => { limpiar(); void c.cambiarFase(d as never, f as Fase) }} />}
         </div>
       )}
 
       <div className={`crm-ficha ${e.hechos && registro ? '' : 'sola'}`}>
         <div className="crm-pestanas">
-          {e.pestanas.map(p => (
+          {e.pestanas.filter(p => !p.contenido || !!registro).map(p => (
             <PestanaFicha key={p.clave} p={p} e={e} d={d} c={c} abierta={abiertas[p.clave]} bloqueado={bloqueado}
               onAlternar={() => alternarPestana(p.clave)} onCambiar={cambiar} />
           ))}
@@ -181,6 +189,7 @@ export function FichaCrm({ col, id, prefill }: { col: ColEntidad; id: string; pr
         {e.hechos && registro && <aside className="crm-hechos no-imprimir">{e.hechos(registro, c)}</aside>}
       </div>
 
+      {dialogo?.(() => setDialogo(null))}
       {pedir && <ModalTexto titulo={pedir.titulo} subtitulo={pedir.subtitulo} etiqueta={pedir.etiqueta} ok={pedir.ok} onOk={t => { limpiar(); pedir.fn(t) }} onCerrar={() => setPedir(null)} />}
       {borrar && registro && (
         <ModalConfirmar titulo={`Eliminar ${e.uno.toLowerCase()}`} texto={`Se eliminará «${e.titulo(registro, c)}». Esta acción no se puede deshacer.`} ok="Eliminar"
@@ -211,7 +220,9 @@ function PestanaFicha({ p, e, d, c, abierta, bloqueado, onAlternar, onCambiar }:
   const lineas = (d as unknown as { lineas?: LineaDocumento[] }).lineas ?? []
   const resumen = abierta ? '' : p.lineas
     ? `${lineas.length} ${lineas.length === 1 ? 'línea' : 'líneas'} · ${eur(totalDoc({ lineas }))}`
-    : (p.campos ?? []).slice(0, 3).map(x => textoCampo(x, d, c)).filter(Boolean).join(' · ')
+    : p.contenido
+      ? p.resumenContenido?.(d, c) ?? ''
+      : (p.campos ?? []).slice(0, 3).map(x => textoCampo(x, d, c)).filter(Boolean).join(' · ')
   return (
     <section className={`crm-pestana ${abierta ? 'abierta' : ''}`}>
       <button type="button" className="crm-pestana-cabecera" onClick={onAlternar} aria-expanded={abierta}>
@@ -223,7 +234,7 @@ function PestanaFicha({ p, e, d, c, abierta, bloqueado, onAlternar, onCambiar }:
       <div className="crm-pestana-cuerpo">
         {p.lineas
           ? <LineasDocumento lineas={lineas} compra={!!e.compra} bloqueado={bloqueado} onCambio={l => onCambiar(null, 'lineas', l)} />
-          : (
+          : p.contenido ? p.contenido(d, c) : (
             <div className="crm-campos">
               {(p.campos ?? []).map(x => <CampoFicha key={x.clave} campo={x} d={d} c={c} bloqueado={bloqueado} onCambio={v => onCambiar(x, x.clave, v)} />)}
             </div>

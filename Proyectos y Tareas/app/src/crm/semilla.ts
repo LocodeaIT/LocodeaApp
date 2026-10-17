@@ -8,6 +8,7 @@ import type {
   Nota, Oferta, Oportunidad, PedidoCompra, PedidoVenta, Potencial, Producto, RegimenIva,
 } from './types'
 import { PROBABILIDAD_FASE } from './catalogos'
+import { entradaDeOrigen, etapaPorDefecto } from './recorrido'
 import { FISCAL_COMPRA, FISCAL_CUENTA, FISCAL_VENTA } from './fiscal'
 import { hoy, sumarDias } from '../domain/fechas'
 
@@ -115,10 +116,27 @@ export function generarSemillaCrm(): CrmInstantanea {
     importeEst, propietarioId, descripcion: '', creadoEl: dia(alta),
     calificadoEl: estado === 'calificado' ? dia(-8) : null, descalificadoEl: estado === 'descalificado' ? dia(-22) : null,
     motivo: estado === 'descalificado' ? 'Sin presupuesto este año' : '', direccion: '', cp: '', pais: 'España', web: '', empleados: '',
-    area: '', herramientas: '', loQueImporta: '', recomendacion: '', cuentaId: null, contactoId: null, oportunidadId: null,
+    area: '', herramientas: '', loQueImporta: '', recomendacion: '', cuentaId: null, contactoId: null, oportunidadId: null, proyectoId: null,
+    etapa: etapaPorDefecto(estado), etapaDesde: soloDia(alta), entrada: entradaDeOrigen(origen), seguimiento: '' as const,
+    primerContacto: soloDia(alta), proximoRecordatorio: '', respondioEl: '', conversacionId: '', linkedin: '', procesosRevisar: '',
+    proximaAccion: '', proximaAccionFecha: '', motivoDescarte: '' as const, volverContactar: '',
   }))
   potenciales[0].descripcion = 'Cada alta de empleado son 6 correos y 3 formularios. Quieren un flujo que lo haga todo desde Teams.'
   Object.assign(potenciales[5], { cuentaId: 'a6', contactoId: 'c8', oportunidadId: 'o4' })
+  // cada uno en un punto del recorrido
+  Object.assign(potenciales[0], {
+    etapa: 'auditoria', etapaDesde: soloDia(-1), procesosRevisar: 'Altas y bajas de empleados\nReserva de gabinetes',
+    proximaAccion: 'Preparar la primera propuesta', proximaAccionFecha: soloDia(2),
+  })
+  Object.assign(potenciales[1], { etapa: 'propuesta', etapaDesde: soloDia(-3), proximaAccion: 'Seguimiento de la propuesta', proximaAccionFecha: soloDia(2) })
+  Object.assign(potenciales[2], {
+    origen: 'correo', entrada: 'outbound', seguimiento: 'recordatorio1', primerContacto: soloDia(-12), proximoRecordatorio: soloDia(2),
+    etapaDesde: soloDia(-12), conversacionId: 'AAQkAGI2demo',
+  })
+  Object.assign(potenciales[3], { proximaAccion: 'Llamar para proponer la auditoría', proximaAccionFecha: soloDia(-5) })
+  Object.assign(potenciales[4], { etapa: 'propuesta', etapaDesde: soloDia(0), proximaAccion: 'Enviar la propuesta', proximaAccionFecha: soloDia(1) })
+  Object.assign(potenciales[6], { motivoDescarte: 'sinpresupuesto', volverContactar: soloDia(60) })
+  Object.assign(potenciales[7], { etapa: 'auditoria', etapaDesde: soloDia(-2), proximaAccion: 'Auditoría con informática', proximaAccionFecha: soloDia(5) })
 
   // ─────────────────────────────────────────── oportunidades
   const oportunidades: Oportunidad[] = ([
@@ -158,7 +176,10 @@ export function generarSemillaCrm(): CrmInstantanea {
     { id: 'q6', no: 'OF-26006', cuentaId: 'a2', contactoId: 'c3', oportunidadId: 'o8', fecha: soloDia(-6), validaHasta: soloDia(24), estado: 'enviada', propietarioId: J, pedidoId: null, lineas: [L('p4', 70), L('p1', 15)], condicionesPago: '30' },
     { id: 'q7', no: 'OF-26007', cuentaId: 'a4', contactoId: 'c15', oportunidadId: 'o12', fecha: soloDia(-118), validaHasta: soloDia(-88), estado: 'rechazada', propietarioId: M, pedidoId: null, lineas: [L('p2', 250), L('p1', 40)], condicionesPago: '30' },
     { id: 'q8', no: 'OF-26008', cuentaId: 'a5', contactoId: 'c7', oportunidadId: 'o11', fecha: soloDia(-108), validaHasta: soloDia(-78), estado: 'convertida', propietarioId: J, pedidoId: 'so3', lineas: [L('p4', 180), L('p3', 40)], condicionesPago: '15' },
-  ].map(q => ({ ...doc, ...q } as Oferta))
+    // propuestas a clientes potenciales, antes de que exista la cuenta
+    { id: 'q9', no: 'OF-26009', cuentaId: null, contactoId: null, oportunidadId: null, potencialId: 'l2', version: 1, fecha: soloDia(-3), validaHasta: soloDia(27), estado: 'enviada', enviadaEl: soloDia(-3), propietarioId: M, pedidoId: null, lineas: [L('p2', 120)], condicionesPago: '30', alcance: 'Partes de trabajo en el móvil con firma del cliente y fotos', documento: 'https://locodea.sharepoint.com/propuestas/instalaciones-salcedo-v1.pdf' },
+    { id: 'q10', no: 'OF-26010', cuentaId: null, contactoId: null, oportunidadId: null, potencialId: 'l5', version: 1, fecha: soloDia(0), validaHasta: soloDia(30), estado: 'borrador', propietarioId: J, pedidoId: null, lineas: [L('p4', 60)], condicionesPago: '30', alcance: 'Agente que responde las consultas de pólizas desde la web' },
+  ].map(q => ({ ...doc, potencialId: null, version: 1, alcance: '', documento: '', enviadaEl: '', motivoRechazo: '', ...q } as Oferta))
   ofertas[2].notas = 'Pago en tres hitos: 40 % al inicio, 40 % en la entrega, 20 % tras un mes en producción.'
 
   const pedidosVenta: PedidoVenta[] = [

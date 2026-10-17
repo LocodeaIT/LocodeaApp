@@ -12,8 +12,10 @@ import type {
   ActividadCrm, ColEntidad, ColReferente, Contacto, Cuenta, Documento, Oportunidad, Potencial, Producto,
 } from '../types'
 import {
-  CONDICIONES_PAGO, ESTADO_ACTIVIDAD, FASE, NOMBRE_REGISTRO, ORIGEN, PUNTUACION, TIPO_ACTIVIDAD, UNIDAD,
+  CONDICIONES_PAGO, ESTADO_ACTIVIDAD, ESTADO_OFERTA, ETAPA, FASE, NOMBRE_REGISTRO, ORIGEN, PUNTUACION, TIPO_ACTIVIDAD, UNIDAD,
 } from '../catalogos'
+import { ETIQUETA_TIPO_REUNION } from '../../domain/types'
+import { accionVencida, diasEnEtapa, propuestasDe, reunionesDe } from '../recorrido'
 import {
   actividadVencida, cadenaDocumento, comprado, escalaTiempo, estadoVisible, etiquetaEstado, facturado, nombreCompleto, nombreCuenta,
   nombreRegistro, pendienteCobro, registroDe,
@@ -199,15 +201,34 @@ export function OportunidadesDe({ filtro, prefill }: { filtro: (o: Oportunidad) 
 // ─────────────────────────────────────────────── ventas
 
 export function ResumenPotencial({ p }: { p: Potencial }) {
+  const { datos } = useCrm()
+  const { datos: app } = useApp()
+  const ultimaReunion = reunionesDe(app.reuniones, p.id)[0]
+  const ultimaPropuesta = propuestasDe(datos.ofertas, p.id)[0]
+  const proyecto = app.proyectos.find(x => x.id === p.proyectoId)
+  const enCurso = p.estado === 'abierto'
   return (
     <Hecho titulo="Resumen">
       <dl className="crm-kv">
         <dt>Ingresos estimados</dt><dd className="grande">{eur0(p.importeEst)}</dd>
-        <dt>Puntuación</dt><dd>{PUNTUACION[p.puntuacion] ?? '—'}</dd>
+        <dt>Etapa</dt><dd>{ETAPA[p.etapa]}</dd>
+        {enCurso && <><dt>Días en la etapa</dt><dd>{diasEnEtapa(p, hoy())}</dd></>}
+        <dt>Última reunión</dt><dd>{ultimaReunion ? fecha(ultimaReunion.fecha) : '—'}</dd>
+        <dt>Última propuesta</dt><dd>{ultimaPropuesta ? <Enlace col="ofertas" id={ultimaPropuesta.id} texto={`v${ultimaPropuesta.version} · ${ESTADO_OFERTA[ultimaPropuesta.estado]}`} /> : '—'}</dd>
+        <dt>Entrada</dt><dd>{p.entrada === 'outbound' ? 'Outbound' : 'Inbound'}</dd>
         <dt>Origen</dt><dd>{ORIGEN[p.origen] ?? '—'}</dd>
-        <dt>Días abierto</dt><dd>{Math.max(0, -diasDesdeHoy(p.creadoEl))}</dd>
-        {p.cuentaId && <><dt>Cuenta creada</dt><dd><Enlace col="cuentas" id={p.cuentaId} /></dd></>}
+        <dt>Puntuación</dt><dd>{PUNTUACION[p.puntuacion] ?? '—'}</dd>
+        <dt>Días desde el alta</dt><dd>{Math.max(0, -diasDesdeHoy(p.creadoEl))}</dd>
+        {p.cuentaId && <><dt>Cuenta</dt><dd><Enlace col="cuentas" id={p.cuentaId} /></dd></>}
+        {proyecto && <><dt>Proyecto</dt><dd>{proyecto.nombre}</dd></>}
       </dl>
+      {enCurso && (
+        <p className={`crm-proxima ${accionVencida(p, hoy()) ? 'crm-tarde' : ''}`}>
+          <small>Próxima acción</small>
+          {p.proximaAccion || 'Sin próxima acción'}{p.proximaAccionFecha && ` · ${fecha(p.proximaAccionFecha)}`}
+        </p>
+      )}
+      {ultimaReunion && <p className="crm-proxima"><small>Última reunión</small>{ultimaReunion.titulo}{ultimaReunion.tipo ? ` (${ETIQUETA_TIPO_REUNION[ultimaReunion.tipo]})` : ''}</p>}
     </Hecho>
   )
 }

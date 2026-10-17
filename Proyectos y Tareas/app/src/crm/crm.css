@@ -272,3 +272,30 @@
   .crm-impreso-notas { margin-top: 18px; break-inside: avoid; }
   .crm-impreso-pie { margin-top: 28px; padding-top: 10px; border-top: 1px solid var(--ink-10); color: var(--ink-65); font-size: 10.5px; }
 }
+
+/* ─────────────────────────────────────────────── tablero (vista de la lista por columnas) */
+.crm-modo { display: inline-flex; gap: 2px; }
+.crm-modo .btn.activo { background: var(--sand); color: var(--ink); }
+.crm-tablero { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; align-items: start; }
+.crm-tablero-columna { background: var(--sand); border-radius: var(--r-12); padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 120px; transition: box-shadow var(--rapido); }
+.crm-tablero-columna.encima { box-shadow: 0 0 0 2px var(--bronze); }
+.crm-tablero-columna h2 { font-size: 13px; font-weight: 500; display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 4px; color: var(--ink); }
+.crm-tablero-columna h2 span { font-size: 12px; color: var(--texto-3); }
+.crm-tablero-tarjeta { border: 0; text-align: left; background: var(--paper); border-radius: var(--r-12); box-shadow: 0 0 0 1px var(--ring), var(--shadow-1); padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; cursor: grab; color: var(--ink); font: inherit; }
+.crm-tablero-tarjeta:hover { box-shadow: 0 0 0 1px var(--bronze), var(--shadow-1); }
+.crm-tablero-tarjeta b { font-weight: 500; font-size: 13.5px; }
+.crm-tablero-tarjeta small { font-size: 12px; color: var(--texto-2); }
+.crm-tablero-tarjeta .crm-tarjeta-pie { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: space-between; font-size: 12px; color: var(--texto-3); }
+
+/* ─────────────────────────────────────────────── reuniones y propuestas del cliente potencial */
+.crm-sublista { display: flex; flex-direction: column; gap: 8px; }
+.crm-sublista-fila { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; padding: 10px 12px; border-radius: var(--r-12); box-shadow: 0 0 0 1px var(--ring); }
+.crm-sublista-fila > div { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.crm-sublista-fila b { font-weight: 500; }
+.crm-sublista-fila small { font-size: 12px; color: var(--texto-2); }
+.crm-sublista-fila p { margin: 0; font-size: 13px; color: var(--texto-2); white-space: pre-line; }
+.crm-sublista-acciones { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; flex: none; }
+.crm-sublista-pie { display: flex; gap: 8px; flex-wrap: wrap; }
+.crm-proxima { margin: 0; font-size: 13px; color: var(--ink); }
+.crm-proxima small { display: block; font-size: 12px; color: var(--texto-2); }
+.crm-proxima.crm-tarde small { color: var(--error); }

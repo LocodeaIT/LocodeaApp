@@ -5,8 +5,10 @@
  *
  * Es idempotente: comprueba cada tabla, columna y relación antes de crearla,
  * así que se puede volver a lanzar sin miedo (por ejemplo, contra el entorno
- * de producción futuro). NO crea filas y NO toca las tablas existentes: solo
- * añade relaciones desde las tablas nuevas hacia loc_miembro.
+ * de producción futuro). NO crea filas. De las tablas que no son del CRM solo
+ * añade columnas y búsquedas (AMPLIACIONES: el tipo, los externos y el resumen
+ * de loc_reunion) y relaciones hacia loc_miembro y loc_proyecto; nunca borra ni
+ * renombra nada.
  *
  * Uso (desde esta carpeta o cualquier otra):
  *   node crm-esquema.mjs                      # entorno del perfil activo del CLI
@@ -155,7 +157,16 @@ const O = {
   activo: [[412000105, 'Activo'], [412000106, 'Inactivo']],
   condiciones: [[412000110, 'Al contado'], [412000111, '15 días'], [412000112, '30 días'], [412000113, '60 días']],
   metodo: [[412000115, 'Transferencia'], [412000116, 'Domiciliación'], [412000117, 'Tarjeta']],
-  origen: [[412000120, 'Sitio web'], [412000121, 'Referido'], [412000122, 'LinkedIn'], [412000123, 'Evento'], [412000124, 'Llamada en frío'], [412000125, 'Partner']],
+  origen: [[412000120, 'Sitio web'], [412000121, 'Referido'], [412000122, 'LinkedIn'], [412000123, 'Evento'], [412000124, 'Llamada en frío'], [412000125, 'Partner'], [412000126, 'Correo (Outlook)']],
+  // recorrido del cliente potencial (Entrada → Auditoría → Propuesta → Proyecto en marcha)
+  etapa: [[412000230, 'Entrada'], [412000231, 'Auditoría'], [412000232, 'Propuesta'], [412000233, 'Proyecto en marcha']],
+  entrada: [[412000235, 'Inbound'], [412000236, 'Outbound']],
+  seguimiento: [
+    [412000240, 'Contactado'], [412000241, 'Recordatorio 1 enviado'], [412000242, 'Recordatorio 2 enviado'], [412000243, 'Respondió'],
+    [412000244, 'Sin respuesta'], [412000245, 'Correo erróneo'], [412000246, 'Pausado'],
+  ],
+  motivoDescarte: [[412000250, 'Sin respuesta'], [412000251, 'No encaja'], [412000252, 'Sin presupuesto'], [412000253, 'Ahora no'], [412000254, 'Eligió a otro'], [412000255, 'Otro']],
+  tipoReunion: [[412000260, 'Auditoría'], [412000261, 'Presentación de propuesta'], [412000262, 'Seguimiento'], [412000263, 'Arranque de proyecto'], [412000264, 'Interna']],
   puntuacion: [[412000130, 'Caliente'], [412000131, 'Templado'], [412000132, 'Frío']],
   estadoPotencial: [[412000135, 'Abierto'], [412000136, 'Calificado'], [412000137, 'Descalificado']],
   fase: [[412000140, 'Calificar'], [412000141, 'Desarrollar'], [412000142, 'Proponer'], [412000143, 'Cerrar']],
@@ -220,6 +231,13 @@ const TABLAS = [
       texto('loc_Web', 'Sitio web', 300), texto('loc_Empleados', 'Personas en la empresa', 50), texto('loc_Area', 'Área o departamento', 100),
       texto('loc_Herramientas', 'Herramientas actuales', 300), texto('loc_LoQueImporta', 'Lo que más importa', 300),
       texto('loc_Recomendacion', 'Recomendación de la web', 200),
+      opciones('loc_Etapa', 'Etapa', O.etapa), dia('loc_EtapaDesde', 'En la etapa desde'), opciones('loc_Entrada', 'Entrada', O.entrada),
+      opciones('loc_Seguimiento', 'Seguimiento', O.seguimiento), dia('loc_PrimerContacto', 'Primer contacto'),
+      dia('loc_ProximoRecordatorio', 'Próximo recordatorio'), dia('loc_RespondioEl', 'Respondió el'),
+      texto('loc_ConversacionId', 'Id. de conversación de Outlook', 500), texto('loc_Linkedin', 'LinkedIn', 300),
+      memo('loc_ProcesosRevisar', 'Procesos a revisar'), texto('loc_ProximaAccion', 'Próxima acción', 300),
+      dia('loc_ProximaAccionFecha', 'Fecha de la próxima acción'), opciones('loc_MotivoDescarte', 'Motivo de descarte', O.motivoDescarte),
+      dia('loc_VolverContactar', 'Volver a contactar el'),
     ],
   },
   {
@@ -243,7 +261,12 @@ const TABLAS = [
   {
     esquema: 'loc_Oferta', nombre: 'Oferta', plural: 'Ofertas', descripcion: 'CRM: ofertas de venta',
     primaria: texto('loc_Numero', 'Número', 20, true),
-    columnas: [...columnasDocumento(O.estadoOferta), dia('loc_ValidaHasta', 'Válida hasta')],
+    columnas: [
+      ...columnasDocumento(O.estadoOferta), dia('loc_ValidaHasta', 'Válida hasta'),
+      // propuesta a un cliente potencial
+      entero('loc_Version', 'Versión'), memo('loc_Alcance', 'Alcance'), texto('loc_Documento', 'Documento', 500),
+      dia('loc_EnviadaEl', 'Enviada el'), texto('loc_MotivoRechazo', 'Motivo de rechazo', 500),
+    ],
   },
   {
     esquema: 'loc_PedidoVenta', nombre: 'Pedido de venta', plural: 'Pedidos de venta', descripcion: 'CRM: pedidos de venta',
@@ -330,6 +353,30 @@ const BUSQUEDAS = [
   ['loc_lineadocumento', 'loc_Producto', 'loc_producto', 'Producto'],
   ['loc_actividadcrm', 'loc_Cuenta', 'loc_cuenta', 'Cuenta'],
   ['loc_notacrm', 'loc_Cuenta', 'loc_cuenta', 'Cuenta'],
+  // recorrido del cliente potencial: proyecto creado al arrancar, propuestas y reuniones
+  ['loc_potencial', 'loc_Proyecto', 'loc_proyecto', 'Proyecto creado'],
+  ['loc_oferta', 'loc_Potencial', 'loc_potencial', 'Cliente potencial'],
+  ['loc_reunion', 'loc_Potencial', 'loc_potencial', 'Cliente potencial'],
+  ['loc_reunion', 'loc_Cuenta', 'loc_cuenta', 'Cuenta'],
+]
+
+/**
+ * Columnas del CRM en tablas que no son suyas (ya existen en el entorno): solo
+ * se añaden, nunca se crea la tabla ni se toca lo que ya tiene.
+ */
+const AMPLIACIONES = [
+  {
+    esquema: 'loc_Reunion',
+    columnas: [
+      opciones('loc_Tipo', 'Tipo de reunión', O.tipoReunion), texto('loc_AsistentesExternos', 'Asistentes externos', 1000),
+      texto('loc_EnlaceTeams', 'Enlace de Teams', 1000), texto('loc_Grabacion', 'Grabación o transcripción', 1000), memo('loc_Resumen', 'Resumen y acuerdos'),
+    ],
+  },
+]
+
+/** Opciones añadidas después a columnas que ya existían: [tabla, columna, valor, etiqueta]. */
+const OPCIONES_NUEVAS = [
+  ['loc_potencial', 'loc_origen', 412000126, 'Correo (Outlook)'],
 ]
 
 // ─────────────────────────────────────────────── ejecución
@@ -395,6 +442,19 @@ function asegurarBusqueda([origen, esquema, destino, nombre]) {
   log(`+ relación ${relacion}`)
 }
 
+/** Añade una opción a una columna de opciones que ya existía (InsertOptionValue), si le falta. */
+function asegurarOpcion([tabla, columna, valor, texto]) {
+  const meta = existe(`EntityDefinitions(LogicalName='${tabla}')/Attributes(LogicalName='${columna}')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)`)
+  if (!meta || meta.OptionSet?.Options?.some(o => o.Value === valor)) return
+  faltan.push(`opción ${tabla}.${columna} = ${valor}`)
+  if (SIMULAR) return
+  peticion('InsertOptionValue', {
+    metodo: 'POST',
+    cuerpo: { EntityLogicalName: tabla, AttributeLogicalName: columna, Value: valor, Label: etiqueta(texto), SolutionUniqueName: SOLUCION },
+  })
+  log(`+ opción ${tabla}.${columna} = ${valor} (${texto})`)
+}
+
 try {
   log(`Solución: ${SOLUCION}${ENTORNO ? ` · entorno ${ENTORNO}` : ''}${SIMULAR ? ' · SIMULACIÓN' : ''}`)
   const sol = peticion(`solutions?$select=solutionid&$filter=uniquename eq '${SOLUCION}'`)
@@ -405,6 +465,11 @@ try {
   const tablasFaltan = faltan.length > 0
   // en simulación, si faltan tablas no se pueden consultar sus columnas
   if (!SIMULAR || !tablasFaltan) for (const t of TABLAS) for (const c of t.columnas) asegurarColumna(t, c)
+  for (const t of AMPLIACIONES) {
+    if (!existe(`EntityDefinitions(LogicalName='${t.esquema.toLowerCase()}')?$select=LogicalName`)) throw new Error(`Falta la tabla ${t.esquema.toLowerCase()}, que no crea este script`)
+    for (const c of t.columnas) asegurarColumna(t, c)
+  }
+  if (!SIMULAR || !tablasFaltan) for (const o of OPCIONES_NUEVAS) asegurarOpcion(o)
   if (!SIMULAR || !tablasFaltan) for (const b of BUSQUEDAS) asegurarBusqueda(b)
 
   if (!SIMULAR) {
@@ -416,7 +481,7 @@ try {
         cuerpo: { ComponentId: meta.MetadataId, ComponentType: 1, SolutionUniqueName: SOLUCION, AddRequiredComponents: false, DoNotIncludeSubcomponents: false },
       })
     }
-    const entidades = TABLAS.map(t => `<entity>${t.esquema.toLowerCase()}</entity>`).join('')
+    const entidades = [...TABLAS, ...AMPLIACIONES].map(t => `<entity>${t.esquema.toLowerCase()}</entity>`).join('')
     peticion('PublishXml', { metodo: 'POST', cuerpo: { ParameterXml: `<importexportxml><entities>${entidades}</entities></importexportxml>` } })
     log('Personalizaciones publicadas.')
   }

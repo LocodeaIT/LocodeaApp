@@ -4,7 +4,7 @@
  * pago, historial del documento y escala de tiempo.
  */
 import {
-  Ban, Check, Euro, FilePen, Lock, LockOpen, PackageCheck, Phone, Receipt, ReceiptText, RotateCcw, Send, ShoppingCart, Truck,
+  Ban, Check, Euro, FilePen, Lock, LockOpen, PackageCheck, Phone, Receipt, ReceiptText, RotateCcw, Send, ShoppingCart, Target, Truck,
 } from 'lucide-react'
 import type { Opcion } from '../../ui/Select'
 import type { CrmCtx } from '../contexto'
@@ -29,7 +29,7 @@ import { EscalaTiempo, HistorialDoc, Parte, TotalesDoc } from '../screens/Hechos
 import {
   colPropietario, cuentasFiltro, filtroPropietario, opcionesContactos, opcionesCuentas, opcionesOportunidades, opcionesPropietario, ordenTexto,
 } from './comunes'
-import type { Campo, Columna, Comando, Entidad, Vista } from './tipos'
+import type { Campo, Columna, Comando, Entidad, UiFicha, Vista } from './tipos'
 
 type Base = Omit<DocumentoBase, 'id'> & { id: string }
 
@@ -48,10 +48,23 @@ interface Config<T extends Documento> {
   campos: Campo<T>[]
   /** Pestaña «Fiscal» (facturas): lo que la Gestoría necesita para declarar. */
   fiscal?: Campo<T>[]
+  /** Pestaña «Propuesta» (ofertas a clientes potenciales). */
+  propuesta?: Campo<T>[]
   tituloDetalles?: string
   nuevo: (base: Base, c: CrmCtx) => T
   antesDeGuardar?: (o: T) => T
-  comandos: (d: T, c: CrmCtx) => (Comando | null | false)[]
+  /** Validación propia antes de la común de líneas; por defecto se exige la cuenta. */
+  validarParte?: (d: T) => string | null
+  comandos: (d: T, c: CrmCtx, ui: UiFicha) => (Comando | null | false)[]
+}
+
+/** Cliente del documento: la cuenta o, en una propuesta, la empresa del cliente potencial. */
+function nombreParte(c: CrmCtx, o: Documento): string {
+  const cuenta = nombreCuenta(c.datos, o.cuentaId)
+  if (cuenta) return cuenta
+  const potencialId = (o as { potencialId?: string | null }).potencialId
+  const p = potencialId ? c.datos.potenciales.find(x => x.id === potencialId) : undefined
+  return p ? p.empresa || p.tema : ''
 }
 
 /** Campo de cliente o proveedor: al cambiarlo se ajustan contacto y condiciones de pago de la cuenta. */
@@ -108,7 +121,7 @@ function entidadDocumento<T extends Documento>(cfg: Config<T>): Entidad<T> {
     vistas: cfg.vistas,
     buscar: (o, c) => {
       const x = o as { noProveedor?: string; refCliente?: string }
-      return [o.no, nombreCuenta(c.datos, o.cuentaId), o.referencia, x.noProveedor, x.refCliente]
+      return [o.no, nombreParte(c, o), o.referencia, x.noProveedor, x.refCliente]
     },
     filtros: [
       { clave: 'estado', titulo: 'Estado', opciones: () => opcionesEstado, valor: estadoDe },
@@ -117,7 +130,13 @@ function entidadDocumento<T extends Documento>(cfg: Config<T>): Entidad<T> {
     ],
     columnas: [
       { clave: 'no', titulo: 'Nº', enlace: true, ancho: 110, texto: o => o.no },
-      { clave: 'cuentaId', titulo: parte, orden: (o, c) => ordenTexto(nombreCuenta(c.datos, o.cuentaId)), texto: (o, c) => nombreCuenta(c.datos, o.cuentaId), celda: o => <Enlace col="cuentas" id={o.cuentaId} /> },
+      {
+        clave: 'cuentaId', titulo: parte, orden: (o, c) => ordenTexto(nombreParte(c, o)), texto: (o, c) => nombreParte(c, o),
+        celda: (o, c) => {
+          const potencialId = (o as { potencialId?: string | null }).potencialId
+          return !o.cuentaId && potencialId ? <Enlace col="potenciales" id={potencialId} texto={nombreParte(c, o)} /> : <Enlace col="cuentas" id={o.cuentaId} />
+        },
+      },
       { clave: 'fecha', titulo: 'Fecha', orden: o => o.fecha, texto: o => fecha(o.fecha) },
       cfg.colFecha,
       { clave: 'estado', titulo: 'Estado', orden: estadoDe, texto: o => cfg.etiquetas[estadoDe(o)] ?? estadoDe(o), celda: o => <ChipEstado estado={estadoDe(o)} etiqueta={cfg.etiquetas[estadoDe(o)]} /> },
@@ -130,13 +149,15 @@ function entidadDocumento<T extends Documento>(cfg: Config<T>): Entidad<T> {
       id: '', no: '', cuentaId: null, contactoId: null, fecha: hoy(), propietarioId: c.yoId, lineas: [], condicionesPago: '30',
       metodoPago: 'transferencia', referencia: '', notas: '', creadoEl: '',
     }, c),
-    titulo: (o, c) => `${o.no || 'Borrador'} · ${nombreCuenta(c.datos, o.cuentaId) || `sin ${parte.toLowerCase()}`}`,
-    validar: d => !d.cuentaId ? `Elige ${compra ? 'el proveedor' : 'el cliente'}.` : d.lineas.some(l => !String(l.descripcion || '').trim()) ? 'Hay líneas sin descripción.' : null,
+    titulo: (o, c) => `${o.no || 'Borrador'} · ${nombreParte(c, o) || `sin ${parte.toLowerCase()}`}`,
+    validar: d => (cfg.validarParte ? cfg.validarParte(d) : !d.cuentaId ? `Elige ${compra ? 'el proveedor' : 'el cliente'}.` : null)
+      ?? (d.lineas.some(l => !String(l.descripcion || '').trim()) ? 'Hay líneas sin descripción.' : null),
     antesDeGuardar: cfg.antesDeGuardar,
     bloqueado: o => cfg.bloqueados.includes(o.estado),
     etiquetas: o => <ChipEstado estado={estadoDe(o)} etiqueta={cfg.etiquetas[estadoDe(o)]} solido />,
     pestanas: [
       { clave: 'general', titulo: 'General', campos: cfg.campos },
+      ...(cfg.propuesta ? [{ clave: 'propuesta', titulo: 'Propuesta', campos: cfg.propuesta }] : []),
       { clave: 'lineas', titulo: 'Líneas', lineas: true },
       ...(cfg.fiscal ? [{ clave: 'fiscal', titulo: 'Fiscal', abierta: false, campos: cfg.fiscal }] : []),
       {
@@ -148,7 +169,7 @@ function entidadDocumento<T extends Documento>(cfg: Config<T>): Entidad<T> {
         ],
       },
     ],
-    comandos: (d, c) => cfg.comandos(d, c),
+    comandos: (d, c, ui) => cfg.comandos(d, c, ui),
     hechos: o => <>
       <Parte doc={o} compra={compra} />
       <TotalesDoc doc={o} />
@@ -175,19 +196,38 @@ export const ofertas = entidadDocumento<Oferta>({
   ],
   colFecha: { clave: 'validaHasta', titulo: 'Válida hasta', orden: q => q.validaHasta, texto: q => fecha(q.validaHasta), celda: q => <Fecha dia={q.validaHasta} avisar={q.estado === 'borrador' || q.estado === 'enviada'} /> },
   campos: [
-    campoNo(), campoCuenta(false), campoContacto(),
+    // una propuesta a un cliente potencial no tiene cuenta hasta que arranca el proyecto
+    campoNo(), { ...campoCuenta<Oferta>(false), req: false }, campoContacto(),
     { clave: 'oportunidadId', titulo: 'Oportunidad', tipo: 'opciones', opciones: (d, c) => opcionesOportunidades(c, d.cuentaId) },
     { clave: 'fecha', titulo: 'Fecha de documento', tipo: 'fecha' },
     { clave: 'validaHasta', titulo: 'Válida hasta', tipo: 'fecha' },
     { clave: 'estado', titulo: 'Estado', mostrar: d => <ChipEstado estado={d.estado} etiqueta={ESTADO_OFERTA[d.estado]} />, resumen: d => ESTADO_OFERTA[d.estado] },
     campoPropietario(),
   ],
-  nuevo: b => ({ ...b, estado: 'borrador', oportunidadId: null, validaHasta: sumarDias(hoy(), 30), pedidoId: null }),
-  comandos: (q, c) => [
+  propuesta: [
+    {
+      clave: 'potencialId', titulo: 'Cliente potencial', tipo: 'opciones',
+      opciones: (d, c) => [{ valor: '', etiqueta: '—' }, ...c.datos.potenciales.filter(p => p.estado === 'abierto' || p.id === d.potencialId).map(p => ({ valor: p.id, etiqueta: `${p.no} · ${p.empresa || p.tema}` }))],
+    },
+    { clave: 'version', titulo: 'Versión', tipo: 'numero', min: 1, paso: 1 },
+    { clave: 'enviadaEl', titulo: 'Enviada el', tipo: 'fecha' },
+    { clave: 'documento', titulo: 'Documento (enlace de SharePoint)' },
+    { clave: 'alcance', titulo: 'Alcance: procesos que cubre', tipo: 'area', completo: true },
+    { clave: 'motivoRechazo', titulo: 'Motivo de rechazo', completo: true },
+  ],
+  validarParte: q => (!q.cuentaId && !q.potencialId ? 'Elige el cliente o el cliente potencial de la propuesta.' : null),
+  nuevo: b => ({
+    ...b, estado: 'borrador', oportunidadId: null, validaHasta: sumarDias(hoy(), 30), pedidoId: null,
+    potencialId: null, version: 1, alcance: '', documento: '', enviadaEl: '', motivoRechazo: '',
+  }),
+  comandos: (q, c, ui) => [
     q.estado === 'borrador' && estadoCmd(c, 'ofertas', q, 'enviada', 'Enviar', Send),
     (q.estado === 'borrador' || q.estado === 'enviada') && estadoCmd(c, 'ofertas', q, 'aceptada', 'Aceptar', Check),
-    (q.estado === 'borrador' || q.estado === 'enviada') && estadoCmd(c, 'ofertas', q, 'rechazada', 'Rechazar', Ban),
-    q.estado === 'aceptada' && { texto: 'Convertir en pedido', icono: ShoppingCart, tono: 'acento', accion: () => c.ofertaAPedido(q) },
+    (q.estado === 'borrador' || q.estado === 'enviada') && (q.potencialId
+      ? { texto: 'Rechazar', icono: Ban, accion: () => ui.pedirTexto('Propuesta rechazada', q.no, 'Motivo de rechazo', 'Rechazar', m => { void c.cambiarEstadoDocumento('ofertas', { ...q, motivoRechazo: m }, 'rechazada') }) }
+      : estadoCmd(c, 'ofertas', q, 'rechazada', 'Rechazar', Ban)),
+    !!q.potencialId && { texto: 'Ver cliente potencial', icono: Target, accion: () => c.abrir('potenciales', q.potencialId!) },
+    q.estado === 'aceptada' && !!q.cuentaId && { texto: 'Convertir en pedido', icono: ShoppingCart, tono: 'acento', accion: () => c.ofertaAPedido(q) },
     ['rechazada', 'expirada', 'aceptada'].includes(q.estado) && estadoCmd(c, 'ofertas', q, 'borrador', 'Reabrir', RotateCcw),
     q.estado === 'convertida' && !!q.pedidoId && { texto: 'Ver pedido', icono: ShoppingCart, accion: () => c.abrir('pedidosVenta', q.pedidoId!) },
   ],

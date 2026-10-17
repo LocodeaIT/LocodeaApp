@@ -6,7 +6,8 @@
 import { ArrowRight, Check, Clock, StickyNote, type LucideIcon } from 'lucide-react'
 import { useApp } from '../../store'
 import { useCrm } from '../contexto'
-import { FASE, FASES, TIPO_ACTIVIDAD } from '../catalogos'
+import { ETAPA, FASE, FASES, TIPO_ACTIVIDAD } from '../catalogos'
+import { estaParado } from '../recorrido'
 import { actividadVencida, nombreRegistro, registroDe } from '../consultas'
 import { estadoFactura, totalDoc } from '../documentos'
 import { eur0, eurK, mesCorto, relativo } from '../formato'
@@ -36,6 +37,12 @@ export function InicioCrm() {
   const saludo = hora < 14 ? 'Buenos días' : hora < 21 ? 'Buenas tardes' : 'Buenas noches'
 
   const potencialesAbiertos = d.potenciales.filter(l => l.estado === 'abierto')
+  // los que piden algo hoy: acción para hoy o vencida, o que acaban de responder al correo
+  const paraHoy = potencialesAbiertos
+    .filter(l => (l.proximaAccionFecha && l.proximaAccionFecha <= H) || (l.etapa === 'entrada' && l.seguimiento === 'respondio'))
+    .sort((a, b) => (a.proximaAccionFecha || H).localeCompare(b.proximaAccionFecha || H))
+    .slice(0, 7)
+  const parados = potencialesAbiertos.filter(l => estaParado(l, H))
   const oppsAbiertas = d.oportunidades.filter(o => o.estado === 'abierta')
   const ofertasActivas = d.ofertas.filter(q => q.estado === 'borrador' || q.estado === 'enviada')
   const pedidosAbiertos = d.pedidosVenta.filter(o => ['abierto', 'liberado', 'enviado'].includes(o.estado))
@@ -91,7 +98,7 @@ export function InicioCrm() {
 
       <div className="seccion-titulo">Ventas</div>
       <div className="crm-indicadores">
-        <Indicador titulo="Clientes potenciales abiertos" valor={potencialesAbiertos.length} sub={`${eur0(suma(potencialesAbiertos.map(l => l.importeEst)))} estimados`} icono={ICONO_COL.potenciales} onClick={() => irLista('potenciales', 'abiertos')} />
+        <Indicador titulo="Clientes potenciales en curso" valor={potencialesAbiertos.length} sub={`${eur0(suma(potencialesAbiertos.map(l => l.importeEst)))} estimados`} icono={ICONO_COL.potenciales} onClick={() => irLista('potenciales', 'abiertos')} />
         <Indicador titulo="Oportunidades abiertas" valor={oppsAbiertas.length} sub={`${eur0(suma(oppsAbiertas.map(o => o.importe)))} en pipeline`} icono={ICONO_COL.oportunidades} onClick={() => irLista('oportunidades', 'abiertas')} />
         <Indicador titulo="Ofertas activas" valor={ofertasActivas.length} sub={eur0(suma(ofertasActivas.map(totalDoc)))} icono={ICONO_COL.ofertas} onClick={() => irLista('ofertas', 'activas')} />
         <Indicador titulo="Pedidos de venta abiertos" valor={pedidosAbiertos.length} sub={`${pedidosAbiertos.filter(o => o.estado === 'enviado').length} por facturar`} icono={ICONO_COL.pedidosVenta} onClick={() => irLista('pedidosVenta', 'abiertos')} />
@@ -110,6 +117,22 @@ export function InicioCrm() {
       </div>
 
       <div className="crm-paneles">
+        <section className="tarjeta padded">
+          <div className="tarjeta-cabecera"><h3>Clientes potenciales para hoy</h3><button className="btn sutil pequeno" onClick={() => irLista('potenciales', 'parados')}>Parados ({parados.length}) <ArrowRight size={13} /></button></div>
+          {!paraHoy.length && <p className="crm-vacio">Ninguna acción pendiente para hoy.</p>}
+          <div className="lista-simple">
+            {paraHoy.map(l => (
+              <div key={l.id} className="crm-clicable" onClick={() => abrir('potenciales', l.id)}>
+                <span className="crm-crece">
+                  <span className="crm-t">{l.empresa || l.tema}</span>
+                  <span className="crm-s">{l.seguimiento === 'respondio' && l.etapa === 'entrada' ? 'Ha respondido: programa la auditoría' : l.proximaAccion || 'Sin próxima acción'} · {ETAPA[l.etapa]}</span>
+                </span>
+                <span className={`crm-cuando ${l.proximaAccionFecha && l.proximaAccionFecha < H ? 'crm-tarde' : ''}`}>{l.proximaAccionFecha ? relativo(l.proximaAccionFecha) : 'hoy'}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <section className="tarjeta padded">
           <div className="tarjeta-cabecera"><h3>Mis actividades</h3><button className="btn sutil pequeno" onClick={() => irLista('actividades', 'mias')}>Ver todas <ArrowRight size={13} /></button></div>
           {!proximas.length && <p className="crm-vacio">Sin actividades pendientes.</p>}

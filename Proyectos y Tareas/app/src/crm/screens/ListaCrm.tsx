@@ -4,14 +4,14 @@
  * 25 y exportación a Excel. Todo lo describe la entidad del registro.
  */
 import { useState } from 'react'
-import { ArrowDown, ArrowUp, Check, ChevronDown, ChevronLeft, ChevronRight, Download, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, Check, ChevronDown, ChevronLeft, ChevronRight, Columns3, Download, List, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react'
 import { useApp } from '../../store'
 import { Desplegable, Vacio } from '../../ui/basicos'
 import { Select } from '../../ui/Select'
 import { LISTA_INICIAL, useCrm, type CrmCtx, type EstadoLista } from '../contexto'
 import type { ColEntidad, RegistroBase } from '../types'
 import { entidadDe } from '../registro'
-import type { Columna, Entidad } from '../registro/tipos'
+import type { Columna, Entidad, Tablero } from '../registro/tipos'
 import { normalizar } from '../formato'
 import { aCsv } from '../csv'
 import { hoy } from '../../domain/fechas'
@@ -55,6 +55,7 @@ export function ListaCrm({ col }: { col: ColEntidad }) {
   const [exportar, setExportar] = useState<{ csv: string; n: number } | null>(null)
 
   const { vista, lista, orden } = filasDe(e, est, c)
+  const modo = e.tablero ? est.modo ?? (e.tablero.porDefecto ? 'tablero' : 'tabla') : 'tabla'
   const paginas = Math.max(1, Math.ceil(lista.length / POR_PAGINA))
   const pagina = Math.min(est.pagina, paginas - 1)
   const filas = lista.slice(pagina * POR_PAGINA, pagina * POR_PAGINA + POR_PAGINA)
@@ -114,9 +115,22 @@ export function ListaCrm({ col }: { col: ColEntidad }) {
             onCambio={v => cambiar({ filtros: { ...est.filtros, [f.clave]: v }, pagina: 0 })} />
         ))}
         {hayFiltros && <button className="btn sutil pequeno" onClick={() => cambiar({ texto: '', filtros: {}, pagina: 0 })}><X size={14} /> Quitar filtros</button>}
-        <span className="crm-cuenta">{lista.length ? `${pagina * POR_PAGINA + 1}–${Math.min(lista.length, pagina * POR_PAGINA + POR_PAGINA)} de ${lista.length}` : 'Sin registros'}</span>
+        <span className="crm-cuenta">
+          {modo === 'tablero'
+            ? (lista.length ? `${lista.length} ${lista.length === 1 ? 'registro' : 'registros'}` : 'Sin registros')
+            : (lista.length ? `${pagina * POR_PAGINA + 1}–${Math.min(lista.length, pagina * POR_PAGINA + POR_PAGINA)} de ${lista.length}` : 'Sin registros')}
+        </span>
+        {e.tablero && (
+          <span className="crm-modo" role="group" aria-label="Forma de ver la lista">
+            <button type="button" className={`btn sutil pequeno ${modo === 'tablero' ? 'activo' : ''}`} aria-pressed={modo === 'tablero'} onClick={() => cambiar({ modo: 'tablero' })}><Columns3 size={14} /> Tablero</button>
+            <button type="button" className={`btn sutil pequeno ${modo === 'tabla' ? 'activo' : ''}`} aria-pressed={modo === 'tabla'} onClick={() => cambiar({ modo: 'tabla' })}><List size={14} /> Lista</button>
+          </span>
+        )}
       </div>
 
+      {modo === 'tablero' && e.tablero
+        ? <TableroCrm tablero={e.tablero} lista={lista} c={c} onAbrir={o => c.abrir(col, o.id)} />
+        : <>
       <div className="tarjeta crm-rejilla">
         <table className="tabla">
           <thead>
@@ -165,12 +179,49 @@ export function ListaCrm({ col }: { col: ColEntidad }) {
           </span>
         </div>
       )}
+      </>}
 
       {confirmar && (
         <ModalConfirmar titulo={`Eliminar ${seleccion.length} ${seleccion.length === 1 ? e.uno.toLowerCase() : e.muchos.toLowerCase()}`}
           texto="Esta acción no se puede deshacer." ok="Eliminar" onOk={() => void borrarSeleccion()} onCerrar={() => setConfirmar(false)} />
       )}
       {exportar && <ModalExportar nombre={`${e.muchos.toLowerCase().replace(/\s+/g, '-')}-${hoy()}.csv`} csv={exportar.csv} registros={exportar.n} onCerrar={() => setExportar(null)} />}
+    </div>
+  )
+}
+
+/** Tablero: una columna por valor (p. ej. por etapa); las tarjetas se arrastran de una columna a otra. */
+function TableroCrm({ tablero, lista, c, onAbrir }: { tablero: Tablero<RegistroBase>; lista: RegistroBase[]; c: CrmCtx; onAbrir: (o: RegistroBase) => void }) {
+  const [arrastrando, setArrastrando] = useState<string | null>(null)
+  const [encima, setEncima] = useState<string | null>(null)
+  const soltar = (columna: string) => {
+    const o = lista.find(x => x.id === arrastrando)
+    setArrastrando(null)
+    setEncima(null)
+    if (o && tablero.columna(o) !== columna) tablero.mover(o, columna, c)
+  }
+  return (
+    <div className="crm-tablero">
+      {tablero.columnas.map(col => {
+        const tarjetas = lista.filter(o => tablero.columna(o) === col.clave)
+        return (
+          <section key={col.clave} className={`crm-tablero-columna ${encima === col.clave ? 'encima' : ''}`}
+            onDragOver={ev => { if (arrastrando) { ev.preventDefault(); setEncima(col.clave) } }}
+            onDragLeave={() => setEncima(x => (x === col.clave ? null : x))}
+            onDrop={ev => { ev.preventDefault(); soltar(col.clave) }}>
+            <h2>{col.titulo}<span>{tarjetas.length}</span></h2>
+            {tarjetas.map(o => (
+              <button key={o.id} type="button" className="crm-tablero-tarjeta" draggable
+                onDragStart={ev => { setArrastrando(o.id); ev.dataTransfer.effectAllowed = 'move' }}
+                onDragEnd={() => { setArrastrando(null); setEncima(null) }}
+                onClick={() => onAbrir(o)}>
+                {tablero.tarjeta(o, c)}
+              </button>
+            ))}
+            {!tarjetas.length && <div className="crm-vacio">Nada en esta columna</div>}
+          </section>
+        )
+      })}
     </div>
   )
 }

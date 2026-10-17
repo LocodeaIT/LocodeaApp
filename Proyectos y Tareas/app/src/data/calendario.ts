@@ -43,12 +43,11 @@ function fin(iso: string, minutos: number): string {
   return horaLocal(new Date(new Date(iso).getTime() + minutos * 60000).toISOString())
 }
 
-/** Los asistentes viajan como correos separados por punto y coma. */
-function correos(ids: string[], miembros: Miembro[]): string {
-  return ids
-    .map(id => miembros.find(m => m.id === id)?.email)
-    .filter((e): e is string => !!e && e.includes('@'))
-    .join(';')
+/** Los asistentes viajan como correos separados por punto y coma; los externos (clientes) van detrás. */
+function correos(ids: string[], miembros: Miembro[], externos = ''): string {
+  const delEquipo = ids.map(id => miembros.find(m => m.id === id)?.email)
+  const deFuera = externos.split(/[;,\s]+/)
+  return [...new Set([...delEquipo, ...deFuera].filter((e): e is string => !!e && e.includes('@')))].join(';')
 }
 
 /** El orden del día se manda en el cuerpo del evento: es lo que la gente lee. */
@@ -64,9 +63,9 @@ function evento(r: Reunion, miembros: Miembro[]) {
     start: horaLocal(r.fecha),
     end: fin(r.fecha, r.duracionMin || 60),
     timeZone: 'Romance Standard Time' as Cualquiera,
-    requiredAttendees: correos(r.asistentesIds, miembros),
+    requiredAttendees: correos(r.asistentesIds, miembros, r.asistentesExternos),
     body: cuerpo(r),
-    location: r.lugar,
+    location: r.enlaceTeams || r.lugar,
     responseRequested: true,
   }
 }

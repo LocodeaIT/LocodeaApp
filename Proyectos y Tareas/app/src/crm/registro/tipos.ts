@@ -72,6 +72,10 @@ export interface Pestana<T> {
   campos?: Campo<T>[]
   /** Pestaña de líneas del documento. */
   lineas?: boolean
+  /** Contenido propio en lugar de campos (listas de reuniones, propuestas…). Solo en registros guardados. */
+  contenido?: (d: T, c: CrmCtx) => ReactNode
+  /** Resumen de la pestaña plegada cuando tiene contenido propio. */
+  resumenContenido?: (d: T, c: CrmCtx) => string
 }
 
 export interface Comando {
@@ -84,11 +88,33 @@ export interface Comando {
 /** Diálogos que la ficha pone a disposición de los comandos. */
 export interface UiFicha {
   pedirTexto: (titulo: string, subtitulo: string, etiqueta: string, ok: string, fn: (texto: string) => void) => void
+  /** Abre un diálogo propio; `cerrar` lo quita. */
+  mostrar: (dialogo: (cerrar: () => void) => ReactNode) => void
 }
 
 export interface FinProceso {
   texto: string
   tono: 'ok' | 'error' | 'apagado'
+}
+
+/** Pasos propios de la barra de proceso (por defecto, las fases de la oportunidad). */
+export interface PasosProceso<T> {
+  pasos: { clave: string; etiqueta: string }[]
+  actual: (o: T) => string
+  /** Se puede pulsar un paso. */
+  editable: (o: T) => boolean
+  alPulsar: (o: T, clave: string, c: CrmCtx, ui: UiFicha) => void
+}
+
+/** Vista de tablero de la lista: una columna por valor y tarjetas que se arrastran entre columnas. */
+export interface Tablero<T> {
+  columnas: { clave: string; titulo: string }[]
+  columna: (o: T) => string
+  tarjeta: (o: T, c: CrmCtx) => ReactNode
+  /** Arrastrar una tarjeta a otra columna. */
+  mover: (o: T, columna: string, c: CrmCtx) => void
+  /** Vista por defecto de la lista en lugar de la tabla. */
+  porDefecto?: boolean
 }
 
 export interface Entidad<T extends RegistroBase> {
@@ -116,7 +142,8 @@ export interface Entidad<T extends RegistroBase> {
   /** Paneles laterales (FactBoxes) de un registro guardado. */
   hechos?: (o: T, c: CrmCtx) => ReactNode
   /** Barra del flujo de proceso de negocio. */
-  proceso?: { fin: (o: T) => FinProceso | null; editable: boolean }
+  proceso?: { fin: (o: T) => FinProceso | null; editable: boolean; propio?: PasosProceso<T> }
+  tablero?: Tablero<T>
   /** Documento de compra: las líneas toman el coste del producto. */
   compra?: boolean
   imprimir?: boolean

@@ -39,6 +39,16 @@ pushear a continuación, antes de dar la tarea por terminada.
   se crea o completa con `node scripts/crm-esquema.mjs` (idempotente). Los datos
   de prueba del CRM se insertan con `node scripts/crm-ejemplos.mjs` y se quitan
   con `--borrar`.
+- Clientes potenciales: siguen el recorrido Entrada → Auditoría → Propuesta →
+  Proyecto en marcha (`crm/recorrido.ts`, con pruebas). El seguimiento de la
+  entrada outbound (`loc_seguimiento`, `loc_proximorecordatorio`…) lo escribe la
+  automatización de Power Automate de Outlook. Las propuestas son ofertas con
+  `loc_potencial`; las reuniones con el cliente son las de `loc_reunion` con
+  `loc_potencial` / `loc_cuenta` y su tipo. «Arrancar proyecto» crea cuenta,
+  contacto y proyecto y enlaza la historia a la cuenta; ya no crea oportunidad.
+  **Antes de publicar estos cambios hay que pasar `node scripts/crm-esquema.mjs`**
+  en el entorno: sin esas columnas fallan los guardados de clientes potenciales
+  y ofertas (las reuniones internas sí se siguen guardando).
 - Finanzas del CRM (`app/src/gestion`, sección «Finanzas» del menú): gastos con
   foto (`loc_gasto`; la lista no descarga las fotos), caja a 90 días y documentos
   de clientes y proveedores (`loc_documento` con cuenta). Esquema con

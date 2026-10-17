@@ -161,7 +161,30 @@ export interface Reunion {
   organizaId: string | null
   /** Id del evento en el calendario de Outlook, si está sincronizada. */
   eventoId: string | null
+  /** Reunión con un cliente potencial o una cuenta del CRM. */
+  potencialId?: string | null
+  cuentaId?: string | null
+  tipo?: TipoReunion
+  /** Correos de los asistentes de fuera del equipo, separados por punto y coma. */
+  asistentesExternos?: string
+  enlaceTeams?: string
+  /** Grabación o transcripción que deja Teams. */
+  grabacion?: string
+  /** Resumen y acuerdos: lo que queda de la reunión. */
+  resumen?: string
   creadoEl: string
+}
+
+/** Para qué es la reunión con el cliente. Vacío = sin tipo. */
+export type TipoReunion = '' | 'auditoria' | 'propuesta' | 'seguimiento' | 'arranque' | 'interna'
+
+export const ETIQUETA_TIPO_REUNION: Record<TipoReunion, string> = {
+  '': 'Sin tipo',
+  auditoria: 'Auditoría',
+  propuesta: 'Presentación de propuesta',
+  seguimiento: 'Seguimiento',
+  arranque: 'Arranque de proyecto',
+  interna: 'Interna',
 }
 
 export const ETIQUETA_ESTADO_REUNION: Record<EstadoReunion, string> = {
