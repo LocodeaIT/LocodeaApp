@@ -34,6 +34,7 @@ const PantallaGestion = lazy(() => import('./gestion/screens/PantallaGestion'))
 const PantallaGestoria = lazy(() => import('./gestoria/screens/PantallaGestoria'))
 const PantallaBoveda = lazy(() => import('./boveda/screens/PantallaBoveda'))
 const PantallaPropuestas = lazy(() => import('./propuestas/screens/PantallaPropuestas'))
+const PantallaTarifas = lazy(() => import('./tarifas/screens/PantallaTarifas'))
 const Contenido = lazy(() => import('./screens/Contenido'))
 const SkillsIA = lazy(() => import('./screens/SkillsIA'))
 import Login from './screens/Login'
@@ -79,7 +80,7 @@ export default function App() {
   if (!yo) return <Login />
 
   const pantallaActiva: Pantalla = pantalla === 'midia' ? 'inicio' : pantalla
-  const Pantalla = esPantallaCrm(pantallaActiva) || esPantallaGestion(pantallaActiva) || esPantallaGestoria(pantallaActiva) || esPantallaBoveda(pantallaActiva) || pantallaActiva === 'propuestas' ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, agenda: CalendarioReuniones, contenido: Contenido, skills: SkillsIA, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
+  const Pantalla = esPantallaCrm(pantallaActiva) || esPantallaGestion(pantallaActiva) || esPantallaGestoria(pantallaActiva) || esPantallaBoveda(pantallaActiva) || pantallaActiva === 'propuestas' || pantallaActiva === 'tarifas' ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, agenda: CalendarioReuniones, contenido: Contenido, skills: SkillsIA, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
   const migas = migasDe(pantallaActiva)
 
   return (
@@ -148,7 +149,7 @@ export default function App() {
 
         <main className="contenido" key={pantallaActiva}>
           <Suspense fallback={<div className="carga"><div className="spinner" /></div>}>
-            {Pantalla ? <Pantalla abrirTarea={setTareaAbierta} /> : esPantallaGestion(pantallaActiva) ? <PantallaGestion /> : esPantallaGestoria(pantallaActiva) ? <PantallaGestoria /> : esPantallaBoveda(pantallaActiva) ? <PantallaBoveda /> : pantallaActiva === 'propuestas' ? <PantallaPropuestas /> : <PantallaCrm />}
+            {Pantalla ? <Pantalla abrirTarea={setTareaAbierta} /> : esPantallaGestion(pantallaActiva) ? <PantallaGestion /> : esPantallaGestoria(pantallaActiva) ? <PantallaGestoria /> : esPantallaBoveda(pantallaActiva) ? <PantallaBoveda /> : pantallaActiva === 'propuestas' ? <PantallaPropuestas /> : pantallaActiva === 'tarifas' ? <PantallaTarifas /> : <PantallaCrm />}
           </Suspense>
         </main>
       </div>

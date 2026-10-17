@@ -100,6 +100,20 @@ pushear a continuación, antes de dar la tarea por terminada.
   Tablas con `node scripts/propuestas-esquema.mjs` (token de Azure CLI, como
   `contenido-esquema.mjs`), ya creadas en PROD y añadidas como fuentes de datos.
   Si falta la tabla, la pantalla lo dice en vez de romperse. Opciones: 4120006xx.
+- Calculadora de precios (`app/src/tarifas`, menú Catálogo → «Tarifas», que
+  sustituye a Productos en el menú; la tabla de productos sigue y las líneas la
+  usan). Motor puro con pruebas en `tarifas/motor.ts`: alcance por apartados
+  (desarrollo Power Platform con integración, migración y formación por horas,
+  con complejidad baja/media/alta), tamaño (trabajadores y facturación), país,
+  plazo, relación (Grupo 1 / Grupo 2 / Externo), mínimo, redondeo y
+  mantenimiento aparte. Tarifas en `loc_tarifaprecio` (JSON; una fila por
+  guardado, se usa la última; solo los socios guardan). En ofertas y pedidos de
+  venta, «Calcular precio» sustituye las líneas y guarda el cálculo en
+  `loc_calculoprecio`. Esquema con `node scripts/tarifas-esquema.mjs` y después
+  `npx pa app add data-source --connector dataverse --table loc_tarifaprecio`.
+  **Pasar el esquema antes de publicar**: sin la columna falla el guardado de
+  los documentos con cálculo. Las tarifas de la calculadora web se importan
+  desde la pantalla Tarifas («Importar de la calculadora web»).
 - Los scripts de Dataverse llaman al CLI con `npx -y @microsoft/dataverse`; en
   Windows conviene `$env:DATAVERSE_CLI=<ruta a bin/dataverse.js>` para que
   los `&` de las consultas OData no pasen por cmd.

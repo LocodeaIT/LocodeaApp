@@ -23,6 +23,8 @@ import { BovedaProveedor } from './boveda/store'
 import { bovedaRepoDataverse } from './boveda/dataverse'
 import { PropuestasProveedor } from './propuestas/store'
 import { propuestasRepoDataverse } from './propuestas/dataverse'
+import { TarifasProveedor } from './tarifas/store'
+import { tarifasRepoDataverse } from './tarifas/dataverse'
 import { AgendaProveedor } from './agenda/contexto'
 import { fuenteOutlook } from './agenda/outlook'
 
@@ -41,12 +43,13 @@ const bovedaRepo = demo ? (await import('./boveda/demo')).bovedaRepoDemo : boved
 // los calendarios de Outlook del equipo; en la demo, unos de ejemplo
 const fuenteAgenda = demo ? (await import('./agenda/demo')).fuenteDemo : fuenteOutlook
 const propuestasRepo = demo ? (await import('./propuestas/demo')).propuestasRepoDemo : propuestasRepoDataverse
+const tarifasRepo = demo ? (await import('./tarifas/demo')).tarifasRepoDemo : tarifasRepoDataverse
 
 if (demo) {
   avisarModoDemostracion()
 } else {
   // Restos de la etapa en la que los datos vivían en el navegador.
-  for (const clave of ['locodea.objetivos.v1', 'locodea.objetivos.v2', 'locodea.objetivos.v3', 'locodea.demo.v1', 'locodea.crm.demo.v1', 'locodea.gestion.demo.v1', 'locodea.gestoria.demo.v1', 'locodea.boveda.demo.v1', 'locodea.propuestas.demo.v1', 'locodea.propuestas.adjuntos.demo.v1', 'locodea.gestion.saldo']) {
+  for (const clave of ['locodea.objetivos.v1', 'locodea.objetivos.v2', 'locodea.objetivos.v3', 'locodea.demo.v1', 'locodea.crm.demo.v1', 'locodea.gestion.demo.v1', 'locodea.gestoria.demo.v1', 'locodea.boveda.demo.v1', 'locodea.propuestas.demo.v1', 'locodea.propuestas.adjuntos.demo.v1', 'locodea.tarifas.demo.v1', 'locodea.gestion.saldo']) {
     try { localStorage.removeItem(clave) } catch { /* modo privado o sin permisos */ }
   }
 }
@@ -73,9 +76,11 @@ createRoot(document.getElementById('root')!).render(
           <GestoriaProveedor repo={gestoriaRepo}>
             <BovedaProveedor repo={bovedaRepo}>
               <PropuestasProveedor repo={propuestasRepo}>
-                <AgendaProveedor fuente={fuenteAgenda}>
-                  <App />
-                </AgendaProveedor>
+                <TarifasProveedor repo={tarifasRepo}>
+                  <AgendaProveedor fuente={fuenteAgenda}>
+                    <App />
+                  </AgendaProveedor>
+                </TarifasProveedor>
               </PropuestasProveedor>
             </BovedaProveedor>
           </GestoriaProveedor>

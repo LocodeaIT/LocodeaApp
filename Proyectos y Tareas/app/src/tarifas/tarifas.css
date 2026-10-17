@@ -1,0 +1,124 @@
+/* Calculadora de precios y pantalla Tarifas. Mismos tokens que el resto de la app. */
+
+.tar-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tar-ayuda { font-size: 13px; color: var(--texto-2); margin: 0 0 12px; line-height: 1.5; }
+.tar-nota { display: block; font-size: 13px; padding: 10px 14px; border-radius: var(--radio-s); background: var(--superficie-2); color: var(--texto-2); margin-bottom: 14px; }
+.tar-nota.aviso { background: var(--aviso-suave); color: var(--aviso); }
+
+/* ── contador − n + */
+.tar-contador { display: inline-flex; align-items: center; border: 1px solid var(--borde); border-radius: var(--radio-s); background: var(--superficie); overflow: hidden; flex: none; }
+.tar-contador button { border: 0; background: transparent; color: var(--texto); width: 30px; height: 32px; display: grid; place-items: center; cursor: pointer; }
+.tar-contador button:hover:not(:disabled) { background: var(--acento-suave); }
+.tar-contador button:disabled { opacity: .35; cursor: default; }
+.tar-contador input { width: 44px; height: 32px; border: 0; text-align: center; background: transparent; color: var(--texto); font: inherit; font-variant-numeric: tabular-nums; -moz-appearance: textfield; }
+.tar-contador input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* ── calculadora */
+.tar-calculadora { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.tar-bloque h3 { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+.tar-campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.tar-campos .completo { grid-column: 1 / -1; }
+.tar-campos.apagado { opacity: .5; }
+.tar-campos select, .tar-campos input[type=number] { height: 38px; border: 1px solid var(--borde); border-radius: var(--radio-s); padding: 0 10px; background: var(--superficie); color: var(--texto); font: inherit; }
+@media (max-width: 640px) { .tar-campos { grid-template-columns: minmax(0, 1fr); } }
+
+.tar-seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.tar-seg button { border: 1px solid var(--borde); background: var(--superficie); color: var(--texto); border-radius: var(--pill); padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.tar-seg button small { margin-left: 5px; color: var(--texto-3); font-size: 11px; font-variant-numeric: tabular-nums; }
+.tar-seg button.activo { border-color: var(--acento); background: var(--acento-suave); color: var(--accent-text); font-weight: 600; }
+
+.tar-tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.tar-tarjetas button { display: grid; gap: 2px; text-align: left; border: 1px solid var(--borde); border-radius: var(--radio-s); background: var(--superficie); color: var(--texto); padding: 10px 12px; font: inherit; cursor: pointer; }
+.tar-tarjetas button span { font-size: 12px; color: var(--texto-2); }
+.tar-tarjetas button em { font-style: normal; font-size: 12px; color: var(--accent-text); }
+.tar-tarjetas button.activo { border-color: var(--acento); background: var(--acento-suave); box-shadow: inset 0 0 0 1px var(--acento); }
+
+.tar-herramientas { display: flex; flex-direction: column; }
+.tar-herramienta { display: flex; flex-direction: column; gap: 8px; padding-block: 12px; border-top: 1px solid var(--borde-suave); }
+.tar-herramienta:first-child { border-top: 0; padding-top: 4px; }
+.tar-herramienta-cab { display: flex; align-items: center; gap: 12px; }
+.tar-punto { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.tar-herramienta-nombre { flex: 1; min-width: 0; }
+.tar-herramienta-nombre b { display: block; font-weight: 600; }
+.tar-herramienta-nombre span { display: block; font-size: 12px; color: var(--texto-3); }
+.tar-herramienta.vacia .tar-herramienta-nombre b { color: var(--texto-2); }
+
+.tar-linea { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1.3fr) 104px auto; gap: 8px; align-items: center; background: var(--superficie-2); border-radius: var(--radio-s); padding: 8px; }
+.tar-linea.sin-integracion { grid-template-columns: auto minmax(0, 1fr) 104px auto; }
+.tar-linea select { height: 34px; border: 1px solid var(--borde); border-radius: var(--radio-s); padding: 0 8px; background: var(--superficie); color: var(--texto); font: inherit; font-size: 13px; min-width: 0; }
+.tar-linea select.con-integracion { border-color: var(--aviso); color: var(--aviso); }
+.tar-linea-importe { text-align: right; font-size: 13px; }
+.tar-linea-importe small { display: block; font-size: 11px; color: var(--aviso); }
+@media (max-width: 640px) {
+  .tar-linea, .tar-linea.sin-integracion { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .tar-linea select:nth-of-type(2) { grid-column: 1 / 3; }
+}
+
+.tar-programas { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--borde-suave); }
+.tar-programas b { display: block; font-size: 13px; }
+.tar-programas span { font-size: 12px; color: var(--texto-2); }
+.tar-check { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; cursor: pointer; margin-bottom: 12px; }
+.tar-check input { width: 17px; height: 17px; accent-color: var(--acento); }
+
+/* ── resumen del precio */
+.tar-resumen { border: 1px solid var(--borde); border-radius: var(--radio); overflow: hidden; background: var(--superficie); }
+.tar-resumen-cab { background: var(--acento); color: #fff; padding: 16px 18px; display: grid; gap: 2px; }
+.tar-resumen-cab > span { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; opacity: .8; font-weight: 600; }
+.tar-precio { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tar-resumen-cab small { font-size: 12px; opacity: .85; }
+.tar-resumen-cuerpo { padding: 14px 18px 18px; display: grid; gap: 14px; }
+.tar-mezcla { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--superficie-3); }
+.tar-mezcla i { display: block; height: 100%; }
+.tar-leyenda { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--texto-2); margin-top: 8px; }
+.tar-leyenda span { display: inline-flex; align-items: center; gap: 5px; }
+.tar-leyenda i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.tar-filas { display: grid; gap: 6px; font-size: 13px; }
+.tar-fila { display: flex; justify-content: space-between; gap: 12px; }
+.tar-fila > span:first-child { color: var(--texto-2); min-width: 0; }
+.tar-fila.total { border-top: 1px solid var(--borde); padding-top: 8px; font-weight: 600; }
+.tar-fila.total > span:first-child { color: var(--texto); }
+.tar-tag { font-style: normal; font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--superficie-2); color: var(--texto-2); font-variant-numeric: tabular-nums; }
+.tar-tag.baja { color: var(--ok); }
+.tar-tag.sube { color: var(--aviso); }
+.tar-rango { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; text-align: center; }
+.tar-rango div { border: 1px solid var(--borde); border-radius: var(--radio-s); padding: 8px 4px; }
+.tar-rango .medio { border-color: var(--acento); }
+.tar-rango b { display: block; font-size: 14px; font-variant-numeric: tabular-nums; }
+.tar-rango span { font-size: 11px; color: var(--texto-3); }
+
+/* ── ventana de ofertas y pedidos */
+.modal.ancho:has(.tar-modal) { width: min(1120px, 96vw); max-width: none; }
+.tar-modal-columnas { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
+.tar-modal-columnas > .tar-resumen { position: sticky; top: 0; }
+@media (max-width: 900px) { .tar-modal-columnas { grid-template-columns: minmax(0, 1fr); } }
+.tar-aviso-pie { margin-right: auto; font-size: 12px; color: var(--aviso); }
+
+/* ── pantalla Tarifas */
+.tar-pagina-columnas { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+@media (max-width: 1100px) { .tar-pagina-columnas { grid-template-columns: minmax(0, 1fr); } }
+.tar-editor { border: 0; margin: 0; padding: 0; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.tar-seccion h2 { font-size: 17px; margin: 0 0 6px; }
+.tar-seccion h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--texto-3); margin: 16px 0 8px; font-weight: 600; }
+.tar-seccion input, .tar-seccion select { height: 34px; border: 1px solid var(--borde); border-radius: var(--radio-s); padding: 0 10px; background: var(--superficie); color: var(--texto); font: inherit; font-size: 13px; width: 100%; min-width: 0; }
+.tar-seccion input[type=color] { width: 44px; padding: 2px; }
+.tar-seccion input.num, .tar-seccion td.num input { text-align: right; font-variant-numeric: tabular-nums; }
+.tar-editor:disabled input, .tar-editor:disabled select { background: var(--superficie-2); color: var(--texto-2); }
+.tar-tabla-marco { overflow-x: auto; margin-bottom: 10px; }
+.tar-tabla { width: 100%; border-collapse: collapse; min-width: 620px; }
+.tar-tabla th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--texto-3); font-weight: 600; padding: 6px 4px; border-bottom: 1px solid var(--borde); }
+.tar-tabla th.num { text-align: right; }
+.tar-tabla td { padding: 6px 4px; border-bottom: 1px solid var(--borde-suave); }
+.tar-tabla td.num { width: 110px; }
+.tar-factores { display: grid; gap: 6px; }
+.tar-factor { display: grid; grid-template-columns: minmax(0, 1fr) 110px 34px; gap: 8px; align-items: center; }
+.tar-factor.con-codigo { grid-template-columns: 70px minmax(0, 1fr) 110px 34px; }
+.tar-factor.con-detalle { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) 110px 34px; }
+.tar-factor.cab { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--texto-3); font-weight: 600; }
+.tar-factor.cab .num { text-align: right; }
+.tar-factores > .btn { justify-self: start; }
+.tar-reglas { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px 20px; margin-top: 12px; }
+.tar-regla { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; }
+.tar-regla input { width: 110px !important; flex: none; text-align: right; font-variant-numeric: tabular-nums; }
+.tar-prueba { position: sticky; top: 16px; display: grid; gap: 10px; }
+.tar-prueba-titulo { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; }
+.tar-importar { width: 100%; min-height: 180px; border: 1px solid var(--borde); border-radius: var(--radio-s); padding: 10px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--superficie); color: var(--texto); }

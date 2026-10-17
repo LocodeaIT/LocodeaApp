@@ -3,14 +3,17 @@
  * detrás de las de la app) y resultados en el buscador global. Usan las
  * mismas clases que la app para que se vean iguales.
  */
-import { LayoutDashboard, type LucideIcon } from 'lucide-react'
+import { Calculator, LayoutDashboard, type LucideIcon } from 'lucide-react'
+import { useApp } from '../store'
 import { useCrm } from './contexto'
 import { COL_DE_PANTALLA, PANTALLA_DE, type PantallaCrm } from './navegacion'
 import { ICONO_COL } from './iconos'
 import { actividadVencida } from './consultas'
 import type { ResultadoCrm } from './busqueda'
 
-const NAV_CRM: { id: PantallaCrm; nombre: string; icono: LucideIcon; seccion?: string }[] = [
+// «Tarifas» (calculadora de precios) es una pantalla propia de la app, no una colección del CRM.
+// Productos sigue existiendo (las líneas de los documentos lo usan), pero ya no sale en el menú.
+const NAV_CRM: { id: PantallaCrm | 'tarifas'; nombre: string; icono: LucideIcon; seccion?: string }[] = [
   { id: 'crm-inicio', nombre: 'Inicio CRM', icono: LayoutDashboard, seccion: 'CRM' },
   { id: 'crm-cuentas', nombre: 'Cuentas', icono: ICONO_COL.cuentas },
   { id: 'crm-contactos', nombre: 'Contactos', icono: ICONO_COL.contactos },
@@ -22,7 +25,7 @@ const NAV_CRM: { id: PantallaCrm; nombre: string; icono: LucideIcon; seccion?: s
   { id: 'crm-facturas-venta', nombre: 'Facturas de venta', icono: ICONO_COL.facturasVenta },
   { id: 'crm-pedidos-compra', nombre: 'Pedidos de compra', icono: ICONO_COL.pedidosCompra, seccion: 'Compras' },
   { id: 'crm-facturas-compra', nombre: 'Facturas de compra', icono: ICONO_COL.facturasCompra },
-  { id: 'crm-productos', nombre: 'Productos', icono: ICONO_COL.productos, seccion: 'Catálogo' },
+  { id: 'tarifas', nombre: 'Tarifas', icono: Calculator, seccion: 'Catálogo' },
 ]
 
 /** Secciones del CRM en el menú lateral. Al pulsar se va a la lista (o al inicio) aunque hubiera una ficha abierta. */
@@ -36,15 +39,17 @@ export function migasCrm(id: string): { seccion: string; nombre: string } | null
 
 export function NavCrm({ pantallaActiva }: { pantallaActiva: string }) {
   const { datos, irLista, irInicio } = useCrm()
+  const { setPantalla } = useApp()
   const vencidas = datos.actividades.filter(actividadVencida).length
   return (
     <div className="crm-nav">
       {NAV_CRM.map(n => {
-        const col = COL_DE_PANTALLA[n.id]
+        const col = n.id === 'tarifas' ? undefined : COL_DE_PANTALLA[n.id]
+        const ir = () => (n.id === 'tarifas' ? setPantalla('tarifas') : col ? irLista(col) : irInicio())
         return (
           <div key={n.id}>
             {n.seccion && <div className="nav-seccion">{n.seccion}</div>}
-            <button className={`nav-item ${pantallaActiva === n.id ? 'activo' : ''}`} onClick={() => (col ? irLista(col) : irInicio())} title={n.nombre}>
+            <button className={`nav-item ${pantallaActiva === n.id ? 'activo' : ''}`} onClick={ir} title={n.nombre}>
               <n.icono size={18} /><span>{n.nombre}</span>
               {n.id === 'crm-actividades' && vencidas > 0 && <span className="contador gris">{vencidas}</span>}
             </button>

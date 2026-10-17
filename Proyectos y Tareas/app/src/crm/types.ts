@@ -5,6 +5,7 @@
  * Las fechas «de día» viajan como YYYY-MM-DD y los instantes como ISO, igual
  * que en el resto de la app. Los propietarios son ids de `Miembro`.
  */
+import type { CalculoGuardado } from '../tarifas/motor'
 
 export type TipoCuenta = 'cliente' | 'proveedor' | 'ambos'
 export type EstadoActivo = 'activo' | 'inactivo'
@@ -255,6 +256,8 @@ export interface Oferta extends DocumentoBase {
   motivoRechazo: string
   validaHasta: string
   pedidoId: string | null
+  /** Lo que se eligió en la calculadora de precios y el precio aplicado (loc_calculoprecio). */
+  calculo?: CalculoGuardado | null
 }
 
 export interface PedidoVenta extends DocumentoBase {
@@ -265,6 +268,8 @@ export interface PedidoVenta extends DocumentoBase {
   /** Nº de pedido del cliente. */
   refCliente: string
   facturaId: string | null
+  /** Cálculo de precio: viene de la oferta o se hace en el pedido (loc_calculoprecio). */
+  calculo?: CalculoGuardado | null
 }
 
 export interface FacturaVenta extends DocumentoBase {

@@ -236,6 +236,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "loc_tarifaprecios": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "loc_tarifaprecioid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "loc_verifactuconfigs": {
     "tableId": "",
     "version": "",

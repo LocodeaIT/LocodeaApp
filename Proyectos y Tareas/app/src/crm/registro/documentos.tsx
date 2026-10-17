@@ -4,8 +4,9 @@
  * pago, historial del documento y escala de tiempo.
  */
 import {
-  Ban, Check, Euro, FilePen, Lock, LockOpen, PackageCheck, Phone, Receipt, ReceiptText, RotateCcw, Send, ShoppingCart, Target, Truck,
+  Ban, Calculator, Check, Euro, FilePen, Lock, LockOpen, PackageCheck, Phone, Receipt, ReceiptText, RotateCcw, Send, ShoppingCart, Target, Truck,
 } from 'lucide-react'
+import { ModalCalculadora } from '../../tarifas/screens/ModalCalculadora'
 import type { Opcion } from '../../ui/Select'
 import type { CrmCtx } from '../contexto'
 import type {
@@ -221,6 +222,9 @@ export const ofertas = entidadDocumento<Oferta>({
     potencialId: null, version: 1, alcance: '', documento: '', enviadaEl: '', motivoRechazo: '',
   }),
   comandos: (q, c, ui) => [
+    (q.estado === 'borrador' || q.estado === 'enviada') && {
+      texto: 'Calcular precio', icono: Calculator, accion: () => ui.mostrar(cerrar => <ModalCalculadora destino={{ col: 'ofertas', doc: q }} c={c} cerrar={cerrar} />),
+    },
     q.estado === 'borrador' && estadoCmd(c, 'ofertas', q, 'enviada', 'Enviar', Send),
     (q.estado === 'borrador' || q.estado === 'enviada') && estadoCmd(c, 'ofertas', q, 'aceptada', 'Aceptar', Check),
     (q.estado === 'borrador' || q.estado === 'enviada') && (q.potencialId
@@ -252,7 +256,10 @@ export const pedidosVenta = entidadDocumento<PedidoVenta>({
     { clave: 'ofertaId', titulo: 'Oferta de origen', mostrar: (d, c) => <Enlace col="ofertas" id={d.ofertaId} texto={c.datos.ofertas.find(q => q.id === d.ofertaId)?.no} /> },
   ],
   nuevo: b => ({ ...b, estado: 'abierto', ofertaId: null, oportunidadId: null, fechaEntrega: sumarDias(hoy(), 14), refCliente: '', facturaId: null }),
-  comandos: (o, c) => [
+  comandos: (o, c, ui) => [
+    (o.estado === 'abierto' || o.estado === 'liberado') && {
+      texto: 'Calcular precio', icono: Calculator, accion: () => ui.mostrar(cerrar => <ModalCalculadora destino={{ col: 'pedidosVenta', doc: o }} c={c} cerrar={cerrar} />),
+    },
     o.estado === 'abierto' && estadoCmd(c, 'pedidosVenta', o, 'liberado', 'Liberar', LockOpen),
     o.estado === 'liberado' && estadoCmd(c, 'pedidosVenta', o, 'enviado', 'Enviar', Truck),
     o.estado === 'enviado' && { texto: 'Crear factura', icono: Receipt, tono: 'acento', accion: () => c.pedidoAFactura(o) },

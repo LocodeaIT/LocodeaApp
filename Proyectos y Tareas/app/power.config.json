@@ -197,6 +197,11 @@
           "entitySetName": "loc_adjuntopropuestas",
           "logicalName": "loc_adjuntopropuesta",
           "isHidden": false
+        },
+        "tarifasdeprecios": {
+          "entitySetName": "loc_tarifaprecios",
+          "logicalName": "loc_tarifaprecio",
+          "isHidden": false
         }
       },
       "environmentVariableName": ""

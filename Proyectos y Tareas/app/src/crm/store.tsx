@@ -381,6 +381,7 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
       id: '', no: '', cuentaId: q.cuentaId, contactoId: q.contactoId, ofertaId: q.id, oportunidadId: q.oportunidadId, fecha: hoy(),
       fechaEntrega: sumarDias(hoy(), 14), estado: 'abierto', propietarioId: q.propietarioId, lineas: copiarLineas(q.lineas),
       condicionesPago: q.condicionesPago, metodoPago: q.metodoPago, referencia: q.referencia, refCliente: '', notas: q.notas, facturaId: null, creadoEl: '',
+      calculo: q.calculo ?? null,
     })
     await guardar('ofertas', { ...aceptada, estado: 'convertida', pedidoId: p.id })
     const opp = actual.current.oportunidades.find(o => o.id === q.oportunidadId)

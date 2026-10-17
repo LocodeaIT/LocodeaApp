@@ -28,6 +28,7 @@ import type {
   EntradaPotencial, EtapaPotencial, MotivoDescarte, SeguimientoPotencial,
 } from './types'
 import { COLECCIONES } from './types'
+import type { CalculoGuardado } from '../tarifas/motor'
 import { entradaDeOrigen, etapaPorDefecto } from './recorrido'
 
 import { Loc_cuentasService } from '../generated/services/Loc_cuentasService'
@@ -281,15 +282,24 @@ const escribirDocumento = (d: DocumentoBase): Payload => ({
   'loc_Propietario@odata.bind': ref('loc_miembros', d.propietarioId),
 })
 
+// Cálculo de precio de ofertas y pedidos (JSON en loc_calculoprecio, scripts/tarifas-esquema.mjs).
+// Solo se manda si hay cálculo: así los documentos sin él se siguen guardando aunque falte la columna.
+function leerCalculo(v: unknown): CalculoGuardado | null {
+  if (!v) return null
+  try { return JSON.parse(String(v)) as CalculoGuardado } catch { return null }
+}
+const escribirCalculo = (c: CalculoGuardado | null | undefined): Payload => (c ? { loc_calculoprecio: JSON.stringify(c) } : {})
+
 const ofertas: Tabla<'ofertas'> = {
   conjunto: 'loc_ofertas', clave: 'loc_ofertaid', servicio: Loc_ofertasService,
   leer: (f): Oferta => ({
     ...leerDocumento(f, 'loc_ofertaid'), lineas: [], estado: DE.estOferta[f.loc_estado] ?? 'borrador', oportunidadId: f._loc_oportunidad_value ?? null,
     validaHasta: dia(f.loc_validahasta), pedidoId: f._loc_pedido_value ?? null, potencialId: f._loc_potencial_value ?? null,
     version: num(f.loc_version) || 1, alcance: txt(f.loc_alcance), documento: txt(f.loc_documento), enviadaEl: dia(f.loc_enviadael),
-    motivoRechazo: txt(f.loc_motivorechazo),
+    motivoRechazo: txt(f.loc_motivorechazo), calculo: leerCalculo(f.loc_calculoprecio),
   }),
   escribir: q => ({
+    ...escribirCalculo(q.calculo),
     ...escribirDocumento(q), loc_estado: EST_OFERTA[q.estado], loc_validahasta: fechaONulo(q.validaHasta),
     loc_version: Math.round(num(q.version)) || 1, loc_alcance: q.alcance, loc_documento: q.documento.slice(0, 500),
     loc_enviadael: fechaONulo(q.enviadaEl), loc_motivorechazo: q.motivoRechazo.slice(0, 500),
@@ -303,9 +313,10 @@ const pedidosVenta: Tabla<'pedidosVenta'> = {
   leer: (f): PedidoVenta => ({
     ...leerDocumento(f, 'loc_pedidoventaid'), lineas: [], estado: DE.estPedidoVenta[f.loc_estado] ?? 'abierto', ofertaId: f._loc_oferta_value ?? null,
     oportunidadId: f._loc_oportunidad_value ?? null, fechaEntrega: dia(f.loc_fechaentrega), refCliente: txt(f.loc_refcliente),
-    facturaId: f._loc_factura_value ?? null,
+    facturaId: f._loc_factura_value ?? null, calculo: leerCalculo(f.loc_calculoprecio),
   }),
   escribir: p => ({
+    ...escribirCalculo(p.calculo),
     ...escribirDocumento(p), loc_estado: EST_PEDIDO_VENTA[p.estado], loc_fechaentrega: fechaONulo(p.fechaEntrega), loc_refcliente: p.refCliente,
     'loc_Oferta@odata.bind': ref('loc_ofertas', p.ofertaId), 'loc_Oportunidad@odata.bind': ref('loc_oportunidads', p.oportunidadId),
     'loc_Factura@odata.bind': ref('loc_facturaventas', p.facturaId),
