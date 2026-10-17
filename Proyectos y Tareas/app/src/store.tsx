@@ -17,7 +17,7 @@ import { PANTALLAS_GESTION, type PantallaGestion } from './gestion/navegacion'
 import { PANTALLAS_BOVEDA, type PantallaBoveda } from './boveda/navegacion'
 import { PANTALLAS_GESTORIA, type PantallaGestoria } from './gestoria/navegacion'
 
-export type Pantalla = 'inicio' | 'objetivos' | 'tareas' | 'midia' | 'reuniones' | 'contenido' | 'skills' | 'proyectos' | 'propuestas' | 'analisis' | 'informes' | 'equipo' | PantallaCrm | PantallaGestion | PantallaGestoria | PantallaBoveda
+export type Pantalla = 'inicio' | 'objetivos' | 'tareas' | 'midia' | 'reuniones' | 'agenda' | 'contenido' | 'skills' | 'proyectos' | 'propuestas' | 'analisis' | 'informes' | 'equipo' | PantallaCrm | PantallaGestion | PantallaGestoria | PantallaBoveda
 
 export interface Aviso {
   id: number

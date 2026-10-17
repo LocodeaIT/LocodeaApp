@@ -1,6 +1,6 @@
 import { useMemo, useState, lazy, Suspense } from 'react'
 import {
-  BarChart3, Bot, CalendarDays, Check, ChevronRight, ChevronsUpDown, FileText, FolderKanban, Handshake, Home, KanbanSquare, LogOut, Megaphone,
+  BarChart3, Bot, CalendarDays, CalendarRange, Check, ChevronRight, ChevronsUpDown, FileText, FolderKanban, Handshake, Home, KanbanSquare, LogOut, Megaphone,
   PanelLeftClose, PanelLeftOpen, RefreshCw, Search, Target, Users,
 } from 'lucide-react'
 import { useApp, type Pantalla } from './store'
@@ -28,6 +28,7 @@ const Analisis = lazy(() => import('./screens/Analisis'))
 const Informes = lazy(() => import('./screens/Informes'))
 const Equipo = lazy(() => import('./screens/Equipo'))
 const Reuniones = lazy(() => import('./screens/Reuniones'))
+const CalendarioReuniones = lazy(() => import('./agenda/CalendarioReuniones'))
 const PantallaCrm = lazy(() => import('./crm/screens/PantallaCrm'))
 const PantallaGestion = lazy(() => import('./gestion/screens/PantallaGestion'))
 const PantallaGestoria = lazy(() => import('./gestoria/screens/PantallaGestoria'))
@@ -47,6 +48,7 @@ const NAV: { id: Pantalla; nombre: string; icono: typeof Home; seccion?: string 
   { id: 'propuestas', nombre: 'Propuestas de clientes', icono: Handshake },
   { id: 'skills', nombre: 'Skills y agentes de IA', icono: Bot },
   { id: 'reuniones', nombre: 'Reuniones', icono: CalendarDays, seccion: 'Seguimiento' },
+  { id: 'agenda', nombre: 'Calendario de reuniones', icono: CalendarRange },
   { id: 'contenido', nombre: 'Contenido', icono: Megaphone },
   { id: 'analisis', nombre: 'Análisis', icono: BarChart3 },
   { id: 'informes', nombre: 'Informes', icono: FileText },
@@ -77,7 +79,7 @@ export default function App() {
   if (!yo) return <Login />
 
   const pantallaActiva: Pantalla = pantalla === 'midia' ? 'inicio' : pantalla
-  const Pantalla = esPantallaCrm(pantallaActiva) || esPantallaGestion(pantallaActiva) || esPantallaGestoria(pantallaActiva) || esPantallaBoveda(pantallaActiva) || pantallaActiva === 'propuestas' ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, contenido: Contenido, skills: SkillsIA, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
+  const Pantalla = esPantallaCrm(pantallaActiva) || esPantallaGestion(pantallaActiva) || esPantallaGestoria(pantallaActiva) || esPantallaBoveda(pantallaActiva) || pantallaActiva === 'propuestas' ? null : { inicio: Inicio, objetivos: Objetivos, tareas: Tareas, reuniones: Reuniones, agenda: CalendarioReuniones, contenido: Contenido, skills: SkillsIA, proyectos: Proyectos, analisis: Analisis, informes: Informes, equipo: Equipo }[pantallaActiva]
   const migas = migasDe(pantallaActiva)
 
   return (

@@ -10,7 +10,7 @@ import { facturado, pipelineAbierto } from '../consultas'
 import { eur0 } from '../formato'
 import { ICONO_COL } from '../iconos'
 import { ChipEstado, Quien } from '../ui'
-import { ContactosCuenta, DocumentosCuenta, EscalaTiempo, EstadisticasCuenta, OportunidadesDe } from '../screens/Hechos'
+import { ContactosCuenta, DocumentosCuenta, ReunionesDe, EscalaTiempo, EstadisticasCuenta, OportunidadesDe } from '../screens/Hechos'
 import { colNo, colPropietario, esMio, filtroPropietario, opcionesDistintas, opcionesPropietario, ordenTexto } from './comunes'
 import type { Entidad } from './tipos'
 
@@ -114,6 +114,7 @@ export const cuentas: Entidad<Cuenta> = {
     <ContactosCuenta cuenta={a} />
     <OportunidadesDe filtro={o => o.cuentaId === a.id} prefill={{ cuentaId: a.id }} />
     <DocumentosCuenta cuenta={a} />
+    <ReunionesDe col="cuentas" id={a.id} />
     <EscalaTiempo col="cuentas" id={a.id} />
   </>,
 }

@@ -313,6 +313,12 @@ export interface ActividadCrm extends RegistroBase {
   estado: EstadoActividad
   completadaEl: string | null
   descripcion: string
+  /**
+   * Cita que viene del calendario de Outlook de alguien del equipo: iCalUId del
+   * evento (agenda/sincronizar.ts). Con él la sincronización actualiza la misma
+   * actividad en vez de duplicarla.
+   */
+  eventoId?: string | null
 }
 
 export interface Nota extends RegistroBase {

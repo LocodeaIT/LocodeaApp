@@ -334,12 +334,15 @@ const actividades: Tabla<'actividades'> = {
     hora: txt(f.loc_hora), referenteTipo: (txt(f.loc_referentetipo) || null) as ColReferente | null, referenteId: nulo(f.loc_referenteid),
     cuentaId: f._loc_cuenta_value ?? null, propietarioId: f._loc_propietario_value ?? null, prioridad: DE.prioridad[f.loc_prioridad] ?? 'normal',
     estado: DE.estActividad[f.loc_estado] ?? 'abierta', completadaEl: nulo(f.loc_completadael), descripcion: txt(f.loc_descripcion),
+    eventoId: nulo(f.loc_eventoid),
   }),
   escribir: a => ({
     loc_asunto: a.asunto, loc_tipo: TIPO_ACTIVIDAD[a.tipo], loc_fecha: fechaONulo(a.fecha), loc_hora: a.hora.slice(0, 5),
     loc_referentetipo: a.referenteTipo ?? '', loc_referenteid: a.referenteId ?? '', loc_prioridad: PRIORIDAD[a.prioridad],
     loc_estado: EST_ACTIVIDAD[a.estado], loc_completadael: fechaONulo(a.completadaEl), loc_descripcion: a.descripcion,
     'loc_Cuenta@odata.bind': ref('loc_cuentas', a.cuentaId), 'loc_Propietario@odata.bind': ref('loc_miembros', a.propietarioId),
+    // solo las citas de Outlook la llevan: así el resto se sigue guardando aunque falte la columna
+    ...(a.eventoId ? { loc_eventoid: a.eventoId.slice(0, 400) } : {}),
   }),
 }
 
@@ -442,6 +445,13 @@ export const crmRepoDataverse: CrmRepositorio = {
       }
     }
     return d
+  },
+
+  async leer(col) {
+    const filas = lista(comprobar(await TABLAS[col].servicio.getAll({ top: TOPE }), `leer ${col}`))
+    const r = filas.map(f => TABLAS[col].leer(f)) as RegistroDe<typeof col>[]
+    conocidos.set(col, new Set((r as RegistroBase[]).map(o => o.id)))
+    return r
   },
 
   async guardar(col, obj) {

@@ -6,7 +6,7 @@ import { nombreCompleto } from '../consultas'
 import { eur0, fecha, fechaHora } from '../formato'
 import { ICONO_COL } from '../iconos'
 import { ChipEstado, Enlace } from '../ui'
-import { EscalaTiempo, ResumenPotencial } from '../screens/Hechos'
+import { ReunionesDe, EscalaTiempo, ResumenPotencial } from '../screens/Hechos'
 import { colNo, colPropietario, esMio, filtroPropietario, opcionesPropietario, ordenTexto } from './comunes'
 import type { Entidad } from './tipos'
 
@@ -127,6 +127,7 @@ export const potenciales: Entidad<Potencial> = {
       : [{ texto: 'Reactivar', icono: RotateCcw, accion: () => c.reactivarPotencial(l) }],
   hechos: l => <>
     <ResumenPotencial p={l} />
+    <ReunionesDe col="potenciales" id={l.id} />
     <EscalaTiempo col="potenciales" id={l.id} />
   </>,
 }

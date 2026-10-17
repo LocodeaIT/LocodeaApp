@@ -6,7 +6,7 @@
  * El contrato es genérico a propósito: todas las colecciones se guardan y se
  * borran igual, así que un método por entidad no aportaba nada.
  */
-import type { Coleccion, CrmInstantanea, RegistroDe } from './types'
+import type { ColDocumento, Coleccion, CrmInstantanea, RegistroDe } from './types'
 
 export type { CrmInstantanea } from './types'
 
@@ -18,6 +18,12 @@ export interface CrmRepositorio {
   /** Crea o actualiza (según exista el id) y devuelve lo guardado. */
   guardar<K extends Coleccion>(col: K, obj: RegistroDe<K>): Promise<RegistroDe<K>>
   borrar(col: Coleccion, id: string): Promise<void>
+  /**
+   * Vuelve a leer una colección sin recargar todo el CRM. Lo usa la
+   * sincronización del calendario para ver lo que otra pestaña ya creó.
+   * No vale para documentos (sus líneas van aparte).
+   */
+  leer?<K extends Exclude<Coleccion, ColDocumento>>(col: K): Promise<RegistroDe<K>[]>
   /** Solo demostración: vuelve a los datos de ejemplo. */
   restablecer?(): Promise<CrmInstantanea>
   /** Solo demostración: sustituye todo el CRM (importar copia de seguridad, borrar todo). */

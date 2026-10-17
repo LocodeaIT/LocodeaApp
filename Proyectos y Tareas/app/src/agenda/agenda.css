@@ -1,0 +1,61 @@
+/* Calendario de reuniones. Solo tokens: el color de cada persona viene de Dataverse (--col). */
+
+.agenda { display: flex; flex-direction: column; gap: 14px; }
+.agenda .calendario { min-height: 560px; }
+.agenda-ultima { font-size: 12px; color: var(--texto-3); }
+.girando { animation: agenda-girar 1s linear infinite; }
+@keyframes agenda-girar { to { transform: rotate(360deg); } }
+
+.agenda-estado { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 10px 14px; border-radius: var(--radio); background: var(--paper); box-shadow: 0 0 0 1px var(--ring); font-size: 13px; color: var(--texto-2); }
+.agenda-estado > span { display: inline-flex; align-items: center; gap: 6px; }
+.agenda-estado .ok { color: var(--ok); }
+.agenda-estado .mal { color: var(--aviso); }
+.agenda-estado.error { background: var(--error-suave); color: var(--error); box-shadow: none; }
+.agenda-estado .btn { margin-left: auto; }
+
+.agenda-cifras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.agenda-cifras > div { display: flex; flex-direction: column; gap: 2px; padding: 14px 18px; border-radius: var(--radio-l); background: var(--sand); }
+.agenda-cifras b { font-size: 26px; font-weight: 500; color: var(--texto); line-height: 1.1; }
+.agenda-cifras span { font-size: 12px; color: var(--texto-3); }
+
+.agenda-barra { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.agenda-personas { display: flex; flex-wrap: wrap; gap: 6px; margin-right: auto; }
+.agenda-personas .chip { cursor: pointer; border: 0; }
+.agenda-punto { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.chip.activo .agenda-punto { box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .8); }
+
+.agenda-evento { cursor: pointer; border: 0; width: 100%; text-align: left; font-family: inherit; color: var(--texto); touch-action: auto; }
+.agenda-evento .hora { font-size: 11px; color: var(--texto-3); flex: none; }
+.agenda-evento .texto { display: flex; flex-direction: column; }
+.agenda-evento .cliente { font-size: 11px; font-weight: 400; color: var(--texto-3); overflow: hidden; text-overflow: ellipsis; }
+.agenda-evento .sin-crm { flex: none; width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; font-size: 10px; background: var(--aviso-suave); color: var(--aviso); }
+.agenda-evento.cancelado { opacity: .5; text-decoration: line-through; }
+.calendario-rejilla.semana .agenda-evento { align-items: flex-start; }
+.calendario-rejilla.semana .agenda-evento .texto { white-space: normal; }
+
+.agenda-lista { display: flex; flex-direction: column; gap: 18px; }
+.agenda-lista h3 { font-size: 13px; font-weight: 500; color: var(--texto-3); text-transform: capitalize; margin: 0 0 8px; }
+.agenda-fila { --col: var(--acento); display: flex; align-items: center; gap: 16px; width: 100%; padding: 12px 16px; margin-bottom: 8px; border-left: 3px solid var(--col); border-radius: var(--radio); cursor: pointer; text-align: left; font-family: inherit; color: var(--texto); }
+.agenda-fila:hover { box-shadow: 0 0 0 1px var(--ring), var(--shadow-3); }
+.agenda-fila .cuando { width: 96px; flex: none; font-size: 13px; color: var(--texto-2); }
+.agenda-fila .que { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.agenda-fila .que .sub { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 12px; color: var(--texto-3); }
+.agenda-fila .quien { display: flex; gap: 4px; }
+
+.agenda-detalle { display: flex; flex-direction: column; gap: 8px; }
+.agenda-detalle > p { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--texto-2); }
+.agenda-detalle a { color: var(--accent-text); }
+.agenda-detalle h3 { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; color: var(--texto-3); margin: 12px 0 0; }
+.agenda-personas-detalle { display: flex; flex-direction: column; gap: 6px; }
+.agenda-personas-detalle > span { display: inline-flex; align-items: center; gap: 8px; }
+.agenda-externos { margin: 0; padding-left: 18px; color: var(--texto-2); }
+.agenda-crm { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.agenda-crm .crm-fila { width: 100%; }
+.agenda-crm .fila-botones { display: flex; gap: 8px; flex-wrap: wrap; }
+.agenda-ayuda ol { padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.agenda-ayuda .sub { font-size: 13px; color: var(--texto-3); }
+
+@media (max-width: 760px) {
+  .agenda-cifras { grid-template-columns: 1fr; }
+  .agenda-fila .cuando { width: 72px; }
+}

@@ -5,7 +5,7 @@ import { ESTADO_ACTIVO, opcionesDe } from '../catalogos'
 import { nombreCompleto, nombreCuenta } from '../consultas'
 import { ICONO_COL } from '../iconos'
 import { ChipEstado, Enlace, Quien } from '../ui'
-import { CuentaDelContacto, EscalaTiempo, OportunidadesDe } from '../screens/Hechos'
+import { CuentaDelContacto, ReunionesDe, EscalaTiempo, OportunidadesDe } from '../screens/Hechos'
 import { colNo, colPropietario, cuentasFiltro, esMio, filtroPropietario, opcionesCuentas, opcionesPropietario, ordenTexto } from './comunes'
 import type { Entidad } from './tipos'
 
@@ -68,6 +68,7 @@ export const contactos: Entidad<Contacto> = {
   hechos: x => <>
     <CuentaDelContacto contacto={x} />
     <OportunidadesDe filtro={o => o.contactoId === x.id} prefill={{ cuentaId: x.cuentaId, contactoId: x.id }} />
+    <ReunionesDe col="contactos" id={x.id} />
     <EscalaTiempo col="contactos" id={x.id} />
   </>,
 }

@@ -4,7 +4,9 @@
  * totales e historial del documento.
  */
 import { useState, type ReactNode } from 'react'
-import { Plus, StickyNote } from 'lucide-react'
+import { CalendarDays, Plus, StickyNote } from 'lucide-react'
+import { useApp } from '../../store'
+import { hoy } from '../../domain/fechas'
 import { useCrm } from '../contexto'
 import type {
   ActividadCrm, ColEntidad, ColReferente, Contacto, Cuenta, Documento, Oportunidad, Potencial, Producto,
@@ -74,6 +76,33 @@ export function EscalaTiempo({ col, id }: { col: ColReferente; id: string }) {
           <ItemActividad key={it.actividad.id} a={it.actividad} onAbrir={() => abrir('actividades', it.actividad.id)} />
         ))}
       </div>
+    </Hecho>
+  )
+}
+
+/**
+ * Reuniones del calendario de Outlook con este registro (las citas que deja la
+ * sincronización del calendario de reuniones): la próxima, arriba.
+ */
+export function ReunionesDe({ col, id }: { col: ColReferente; id: string }) {
+  const { datos, nombreMiembro } = useCrm()
+  const { setPantalla } = useApp()
+  const citas = escalaTiempo(datos, col, id)
+    .flatMap(it => it.tipo === 'actividad' && it.actividad.tipo === 'cita' && it.actividad.eventoId && it.actividad.estado !== 'cancelada' ? [it.actividad] : [])
+  if (!citas.length) return null
+  const ahora = hoy()
+  const proximas = citas.filter(a => (a.fecha ?? '') >= ahora).reverse()
+  const pasadas = citas.filter(a => (a.fecha ?? '') < ahora).slice(0, 4)
+  const fila = (a: ActividadCrm) => (
+    <Fila key={a.id} col="actividades" id={a.id} icono={<span className="crm-iniciales"><CalendarDays size={14} /></span>}
+      titulo={a.asunto} sub={`${relativo(a.fecha)}${a.hora ? `, ${a.hora}` : ''} · ${nombreMiembro(a.propietarioId) || '—'}`} />
+  )
+  return (
+    <Hecho titulo="Reuniones" accion={<button type="button" className="btn sutil icono pequeno" title="Calendario de reuniones" aria-label="Calendario de reuniones" onClick={() => setPantalla('agenda')}><CalendarDays size={15} /></button>}>
+      {proximas.length > 0 && <p className="crm-apagado">Próximas</p>}
+      {proximas.map(fila)}
+      {pasadas.length > 0 && <p className="crm-apagado">Celebradas</p>}
+      {pasadas.map(fila)}
     </Hecho>
   )
 }

@@ -12,6 +12,7 @@
  *   node crm-esquema.mjs                      # entorno del perfil activo del CLI
  *   node crm-esquema.mjs --entorno https://orgXXXX.crm17.dynamics.com
  *   node crm-esquema.mjs --simular            # solo lista lo que falta
+ *   node crm-esquema.mjs --az                 # con el token de Azure CLI, sin perfil del CLI de Dataverse
  *
  * Necesita el CLI de Dataverse (`npx -y @microsoft/dataverse`) con sesión
  * iniciada como administrador. Para ir más rápido se puede apuntar a su
@@ -32,6 +33,19 @@ const ENTORNO = opcion('--entorno')
 const SOLUCION = opcion('--solucion') ?? 'LocodeaObjetivos'
 const IDIOMA = 3082 // español; el entorno está en español
 const API = 'api/data/v9.2/'
+/**
+ * --az: en vez del CLI de Dataverse, curl con el token de Azure CLI (como
+ * contenido-esquema.mjs). Sirve cuando el CLI de Dataverse no tiene sesión y
+ * su inicio de sesión interactivo no aparece.
+ */
+const CON_AZ = args.includes('--az')
+const INQUILINO = '406c94c5-51ea-41d0-85db-630c9083922e'
+const URL_AZ = (ENTORNO ?? 'https://org1d0382e8.crm17.dynamics.com').replace(/\/$/, '')
+const TOKEN = CON_AZ
+  ? execFileSync(process.platform === 'win32' ? 'az.cmd' : 'az',
+    ['account', 'get-access-token', '--subscription', INQUILINO, '--resource', URL_AZ, '--query', 'accessToken', '-o', 'tsv'],
+    { encoding: 'utf8', shell: process.platform === 'win32' }).trim()
+  : null
 
 // ─────────────────────────────────────────────── acceso a la API
 
@@ -54,9 +68,17 @@ function peticion(ruta, { metodo = 'GET', cuerpo, cabeceras = [] } = {}) {
     writeFileSync(f, JSON.stringify(cuerpo))
     resto.push('--body-file', f)
   }
+  if (CON_AZ) {
+    base[0] = 'curl'
+    base[1] = ['-s', '-i', '-X', metodo, `${URL_AZ}/${API}${ruta}`.replace(/ /g, "%20").replace(/'/g, "%27"), '-H', `Authorization: Bearer ${TOKEN}`, '-H', 'Accept: application/json',
+      '-H', 'Content-Type: application/json; charset=utf-8', '-H', 'OData-MaxVersion: 4.0', '-H', 'OData-Version: 4.0', '-H', 'Expect:']
+    for (const c of cabeceras) base[1].push('-H', c.replace(':', ': '))
+    if (cuerpo !== undefined) base[1].push('--data-binary', '@' + join(temporal, `cuerpo-${n}.json`))
+    resto.length = 0
+  }
   let salida
   try {
-    salida = execFileSync(base[0], [...base[1], ...resto], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], shell: process.platform === 'win32' && !cli, maxBuffer: 64 * 1024 * 1024 })
+    salida = execFileSync(base[0], [...base[1], ...resto], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], shell: process.platform === 'win32' && !cli && !CON_AZ, maxBuffer: 64 * 1024 * 1024 })
   } catch (e) {
     salida = `${e.stdout ?? ''}${e.stderr ?? ''}`
   }
@@ -262,6 +284,8 @@ const TABLAS = [
       texto('loc_ReferenteTipo', 'Referente a (tipo)', 50), texto('loc_ReferenteId', 'Referente a (id)', 50),
       opciones('loc_Prioridad', 'Prioridad', O.prioridad), opciones('loc_Estado', 'Estado', O.estadoActividad),
       instante('loc_CompletadaEl', 'Completada el'), memo('loc_Descripcion', 'Descripción'),
+      // citas que vienen del calendario de Outlook: iCalUId del evento, el mismo en el calendario de cada asistente
+      texto('loc_EventoId', 'Evento de Outlook', 400),
     ],
   },
   {

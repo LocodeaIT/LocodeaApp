@@ -23,6 +23,8 @@ import { BovedaProveedor } from './boveda/store'
 import { bovedaRepoDataverse } from './boveda/dataverse'
 import { PropuestasProveedor } from './propuestas/store'
 import { propuestasRepoDataverse } from './propuestas/dataverse'
+import { AgendaProveedor } from './agenda/contexto'
+import { fuenteOutlook } from './agenda/outlook'
 
 /**
  * La app corre como Code App sobre Dataverse. Para trabajar el diseño en local
@@ -36,6 +38,8 @@ const crmRepo = demo ? (await import('./crm/demo')).crmRepoDemo : crmRepoDataver
 const gestionRepo = demo ? (await import('./gestion/demo')).gestionRepoDemo : gestionRepoDataverse
 const gestoriaRepo = demo ? (await import('./gestoria/demo')).gestoriaRepoDemo : gestoriaRepoDataverse
 const bovedaRepo = demo ? (await import('./boveda/demo')).bovedaRepoDemo : bovedaRepoDataverse
+// los calendarios de Outlook del equipo; en la demo, unos de ejemplo
+const fuenteAgenda = demo ? (await import('./agenda/demo')).fuenteDemo : fuenteOutlook
 const propuestasRepo = demo ? (await import('./propuestas/demo')).propuestasRepoDemo : propuestasRepoDataverse
 
 if (demo) {
@@ -69,7 +73,9 @@ createRoot(document.getElementById('root')!).render(
           <GestoriaProveedor repo={gestoriaRepo}>
             <BovedaProveedor repo={bovedaRepo}>
               <PropuestasProveedor repo={propuestasRepo}>
-                <App />
+                <AgendaProveedor fuente={fuenteAgenda}>
+                  <App />
+                </AgendaProveedor>
               </PropuestasProveedor>
             </BovedaProveedor>
           </GestoriaProveedor>

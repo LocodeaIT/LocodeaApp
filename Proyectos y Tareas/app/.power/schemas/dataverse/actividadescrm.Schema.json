@@ -179,6 +179,14 @@
           "x-ms-dataverse-attribute-of": "loc_estado",
           "x-ms-read-only": true
         },
+        "loc_eventoid": {
+          "type": "string",
+          "title": "Evento de Outlook",
+          "x-ms-dataverse-attribute": "loc_eventoid",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "loc_EventoId",
+          "maxLength": 400
+        },
         "loc_fecha": {
           "type": "string",
           "title": "Fecha de vencimiento",

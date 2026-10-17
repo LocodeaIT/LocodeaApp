@@ -64,6 +64,11 @@ export const crmRepoDemo: CrmRepositorio = {
     return copia
   },
 
+  async leer(col) {
+    await espera()
+    return structuredClone(estado()[col])
+  },
+
   async borrar(col: Coleccion, id: string) {
     await espera()
     const d = estado()

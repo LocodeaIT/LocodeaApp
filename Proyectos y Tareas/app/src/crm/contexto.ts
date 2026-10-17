@@ -5,7 +5,7 @@
 import { createContext, useContext } from 'react'
 import type { Miembro } from '../domain/types'
 import type {
-  ActividadCrm, ColDocumento, ColEntidad, ColReferente, CrmInstantanea, Documento, Fase, Oferta, Oportunidad, PedidoCompra,
+  ActividadCrm, ColDocumento, ColEntidad, ColReferente, Coleccion, CrmInstantanea, Documento, Fase, Oferta, Oportunidad, PedidoCompra,
   PedidoVenta, Potencial, RegistroDe,
 } from './types'
 
@@ -79,6 +79,8 @@ export interface CrmCtx {
   importarDatos: (d: CrmInstantanea) => Promise<void>
   borrarTodo: () => Promise<void>
   recargar: () => Promise<void>
+  /** Relee una colección (no documentos) y devuelve el CRM al día. */
+  refrescar: (col: Exclude<Coleccion, ColDocumento>) => Promise<CrmInstantanea>
 }
 
 export const ContextoCrm = createContext<CrmCtx | null>(null)

@@ -40,6 +40,7 @@ export interface Loc_actividadcrmsBase {
   "loc_Cuenta@odata.bind"?: string;
   loc_descripcion?: string;
   loc_estado?: Loc_actividadcrmsloc_estado;
+  loc_eventoid?: string;
   loc_fecha?: string;
   loc_hora?: string;
   loc_prioridad?: Loc_actividadcrmsloc_prioridad;

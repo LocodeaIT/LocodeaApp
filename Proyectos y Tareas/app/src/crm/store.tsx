@@ -12,7 +12,7 @@ import { nuevoId } from '../data/repo'
 import { ahoraIso, hoy, sumarDias } from '../domain/fechas'
 import type { CrmRepositorio } from './repo'
 import type {
-  ActividadCrm, ColDocumento, ColEntidad, ColReferente, Contacto, CrmInstantanea, Cuenta, Documento, FacturaCompra,
+  ActividadCrm, ColDocumento, ColEntidad, ColReferente, Coleccion, Contacto, CrmInstantanea, Cuenta, Documento, FacturaCompra,
   FacturaVenta, Fase, Oferta, Oportunidad, PedidoCompra, PedidoVenta, Potencial, RegistroBase, RegistroDe,
 } from './types'
 import { CRM_VACIO } from './types'
@@ -69,6 +69,14 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
       setCargando(false)
     }
   }, [repo])
+
+  const refrescar = useCallback(async (col: Exclude<Coleccion, ColDocumento>) => {
+    if (repo.leer) {
+      const lista = await repo.leer(col)
+      aplicar(d => ({ ...d, [col]: lista }))
+    }
+    return actual.current
+  }, [repo, aplicar])
 
   const nombreMiembro = useCallback((id: string | null | undefined) => app.miembros.find(m => m.id === id)?.nombre ?? '', [app.miembros])
 
@@ -361,14 +369,14 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
     guardar, borrar, anadirNota,
     calificarPotencial, descalificarPotencial, reactivarPotencial, cambiarFase, ganarOportunidad, perderOportunidad, reabrirOportunidad,
     cambiarEstadoDocumento, ofertaAPedido, pedidoAFactura, pedidoCompraAFactura,
-    alternarActividad, cancelarActividad, restablecerDemo, importarDatos, borrarTodo, recargar,
+    alternarActividad, cancelarActividad, restablecerDemo, importarDatos, borrarTodo, recargar, refrescar,
   }), [
     datos, cargando, error, repo, yoId, app.miembros, nombreMiembro,
     ficha, abrir, irLista, irInicio, listas, cambiarLista,
     guardar, borrar, anadirNota,
     calificarPotencial, descalificarPotencial, reactivarPotencial, cambiarFase, ganarOportunidad, perderOportunidad, reabrirOportunidad,
     cambiarEstadoDocumento, ofertaAPedido, pedidoAFactura, pedidoCompraAFactura,
-    alternarActividad, cancelarActividad, restablecerDemo, importarDatos, borrarTodo, recargar,
+    alternarActividad, cancelarActividad, restablecerDemo, importarDatos, borrarTodo, recargar, refrescar,
   ])
 
   return (
