@@ -46,6 +46,11 @@ pushear a continuación, antes de dar la tarea por terminada.
   `loc_potencial`; las reuniones con el cliente son las de `loc_reunion` con
   `loc_potencial` / `loc_cuenta` y su tipo. «Arrancar proyecto» crea cuenta,
   contacto y proyecto y enlaza la historia a la cuenta; ya no crea oportunidad.
+  Convive con Propuestas de clientes y el calendario de reuniones sin tocar sus
+  tablas: la ficha del cliente potencial enseña sus propuestas de `loc_propuesta`
+  (casadas por cuenta o por nombre de empresa) y las citas de Outlook que no son
+  ya una de sus reuniones (mismo día y hora). Al arrancar, si su propuesta ya
+  creó el proyecto se usa ese, y la propuesta abierta pasa a Aceptado con él.
   **Antes de publicar estos cambios hay que pasar `node scripts/crm-esquema.mjs`**
   en el entorno: sin esas columnas fallan los guardados de clientes potenciales
   y ofertas (las reuniones internas sí se siguen guardando).

@@ -252,8 +252,8 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
    * crean o se reutilizan), su historia (propuestas, actividades y notas) se
    * enlaza también a la cuenta y se crea el proyecto en Proyectos y Tareas.
    */
-  const arrancarProyecto = useCallback(async (l: Potencial) => {
-    if (l.estado !== 'abierto') return
+  const arrancarProyecto = useCallback(async (l: Potencial, proyectoExistente: string | null = null): Promise<string | null> => {
+    if (l.estado !== 'abierto') return null
     const d = actual.current
     let cuentaId = l.cuentaId || (l.empresa ? d.cuentas.find(a => normalizar(a.nombre) === normalizar(l.empresa))?.id : null) || null
     if (!cuentaId && l.empresa) {
@@ -284,7 +284,8 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
     }
 
     // el proyecto en Proyectos y Tareas, con la propuesta aceptada como referencia
-    let proyectoId = l.proyectoId
+    // (o el que ya nació de su propuesta en Propuestas de clientes)
+    let proyectoId = l.proyectoId ?? proyectoExistente
     if (!proyectoId) {
       const aceptada = propuestasDe(d.ofertas, l.id).find(q => q.estado === 'aceptada' || q.estado === 'convertida')
       try {
@@ -306,6 +307,7 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
     await anadirNota('Proyecto en marcha: pasa a cuenta y contacto.', 'potenciales', r.id)
     avisar(proyectoId ? 'Proyecto en marcha: cuenta, contacto y proyecto creados' : 'Proyecto en marcha: cuenta y contacto creados')
     if (cuentaId) abrir('cuentas', cuentaId)
+    return proyectoId
   }, [guardar, anadirNota, avisar, abrir, repo, aplicar, guardarProyecto])
 
   /** Descartar: con motivo y, si es un «ahora no», fecha para volver a contactar. La automatización deja de escribirle. */

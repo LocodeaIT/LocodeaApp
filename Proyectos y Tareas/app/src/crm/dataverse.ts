@@ -60,8 +60,9 @@ const ORIGEN: Record<OrigenPotencial, number> = { web: 412000120, referido: 4120
 // Recorrido del cliente potencial: los vacíos ('') se guardan como null
 const ETAPA: Record<EtapaPotencial, number> = { entrada: 412000230, auditoria: 412000231, propuesta: 412000232, proyecto: 412000233 }
 const ENTRADA: Record<EntradaPotencial, number> = { inbound: 412000235, outbound: 412000236 }
+// loc_seguimiento la creó la automatización de Power Automate de Outlook: estos son sus valores
 const SEGUIMIENTO: Record<Exclude<SeguimientoPotencial, ''>, number> = {
-  contactado: 412000240, recordatorio1: 412000241, recordatorio2: 412000242, respondio: 412000243, sinrespuesta: 412000244, emailerroneo: 412000245, pausado: 412000246,
+  contactado: 412000300, recordatorio1: 412000301, recordatorio2: 412000302, respondio: 412000303, sinrespuesta: 412000304, emailerroneo: 412000305, pausado: 412000306,
 }
 const MOTIVO_DESCARTE: Record<Exclude<MotivoDescarte, ''>, number> = {
   sinrespuesta: 412000250, noencaja: 412000251, sinpresupuesto: 412000252, ahorano: 412000253, otroproveedor: 412000254, otro: 412000255,
@@ -209,7 +210,8 @@ const potenciales: Tabla<'potenciales'> = {
     etapa: DE.etapa[f.loc_etapa] ?? etapaPorDefecto(DE.estPotencial[f.loc_estado] ?? 'abierto'),
     etapaDesde: dia(f.loc_etapadesde) || dia(f.createdon),
     entrada: DE.entrada[f.loc_entrada] ?? entradaDeOrigen(DE.origen[f.loc_origen] ?? 'web'),
-    seguimiento: DE.seguimiento[f.loc_seguimiento] ?? '', primerContacto: dia(f.loc_primercontacto),
+    // loc_fechaprimercontacto: la que creó la automatización de Outlook antes que esta
+    seguimiento: DE.seguimiento[f.loc_seguimiento] ?? '', primerContacto: dia(f.loc_primercontacto) || dia(f.loc_fechaprimercontacto),
     proximoRecordatorio: dia(f.loc_proximorecordatorio), respondioEl: dia(f.loc_respondioel), conversacionId: txt(f.loc_conversacionid),
     linkedin: txt(f.loc_linkedin), procesosRevisar: txt(f.loc_procesosrevisar), proximaAccion: txt(f.loc_proximaaccion),
     proximaAccionFecha: dia(f.loc_proximaaccionfecha), motivoDescarte: DE.motivoDescarte[f.loc_motivodescarte] ?? '',

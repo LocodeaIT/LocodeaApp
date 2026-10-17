@@ -5,7 +5,7 @@
  * reunión, registrar su resumen, descartar y arrancar el proyecto, y la
  * tarjeta del tablero.
  */
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CalendarPlus, ExternalLink, FilePlus2, NotebookPen, Rocket } from 'lucide-react'
 import { useApp } from '../../store'
 import { Campo, Modal } from '../../ui/basicos'
@@ -16,7 +16,11 @@ import { hoy, sumarDias } from '../../domain/fechas'
 import { useCrm } from '../contexto'
 import type { MotivoDescarte, Potencial } from '../types'
 import { ESTADO_OFERTA, ETAPA, MOTIVO_DESCARTE, SEGUIMIENTO, opcionesDe } from '../catalogos'
-import { accionVencida, diasEnEtapa, propuestasDe, reunionesDe } from '../recorrido'
+import {
+  ESTADO_PROPUESTA_DE_ETAPA, accionVencida, citasDe, citasSinReunion, diasEnEtapa, propuestasComercialesDe, propuestasDe, reunionesDe,
+} from '../recorrido'
+import { usePropuestas } from '../../propuestas/store'
+import { ESTADOS_ABIERTOS, ETIQUETA_ESTADO_PROPUESTA, propuestaVacia } from '../../propuestas/types'
 import { totalDoc } from '../documentos'
 import { eur, eur0, fecha } from '../formato'
 import { nombreCompleto } from '../consultas'
@@ -46,9 +50,12 @@ function mananaALasDiez(): string {
 
 export function ReunionesPotencial({ p }: { p: Potencial }) {
   const { datos } = useApp()
+  const c = useCrm()
   const [nueva, setNueva] = useState<TipoReunion | null>(null)
   const [resumen, setResumen] = useState<Reunion | null>(null)
   const lista = reunionesDe(datos.reuniones, p.id)
+  // las que trae el calendario de reuniones de Outlook y no son ya una de estas
+  const citas = citasSinReunion(citasDe(c.datos.actividades, p.id), lista).sort((a, b) => `${b.fecha}${b.hora}`.localeCompare(`${a.fecha}${a.hora}`))
   return (
     <div className="crm-sublista">
       {lista.map(r => (
@@ -68,7 +75,18 @@ export function ReunionesPotencial({ p }: { p: Potencial }) {
           </div>
         </div>
       ))}
-      {!lista.length && <div className="crm-vacio">Todavía no hay reuniones con este cliente potencial.</div>}
+      {citas.map(a => (
+        <div key={a.id} className="crm-sublista-fila">
+          <div>
+            <button type="button" className="crm-enlace" onClick={() => c.abrir('actividades', a.id)}>{a.asunto}</button>
+            <small>{fecha(a.fecha)}{a.hora && ` · ${a.hora}`} · del calendario de Outlook</small>
+          </div>
+          <div className="crm-sublista-acciones">
+            <ChipEstado estado={a.estado} etiqueta={a.fecha && a.fecha < hoy() ? 'Celebrada' : 'Pendiente'} />
+          </div>
+        </div>
+      ))}
+      {!lista.length && !citas.length && <div className="crm-vacio">Todavía no hay reuniones con este cliente potencial.</div>}
       {p.estado === 'abierto' && (
         <div className="crm-sublista-pie">
           <button type="button" className="btn pequeno" onClick={() => setNueva(p.etapa === 'entrada' ? 'auditoria' : p.etapa === 'propuesta' ? 'propuesta' : 'seguimiento')}>
@@ -163,11 +181,65 @@ function ModalResumenReunion({ r, p, onCerrar }: { r: Reunion; p: Potencial; onC
 
 // ─────────────────────────────────────────────── propuestas
 
+/**
+ * Las dos caras de la propuesta, cada una en su sitio: la ficha comercial de
+ * «Propuestas de clientes» (tablero, apuntes, adjuntos y paso a proyecto) y la
+ * oferta con importe y líneas del CRM, que es la que acaba en pedido y factura.
+ */
 export function PropuestasPotencial({ p }: { p: Potencial }) {
+  return (
+    <div className="crm-sublista">
+      <PropuestasComerciales p={p} />
+      <OfertasPotencial p={p} />
+    </div>
+  )
+}
+
+/** Propuestas del módulo Propuestas de clientes que son de este cliente potencial. */
+function PropuestasComerciales({ p }: { p: Potencial }) {
+  const { setPantalla, avisar } = useApp()
+  const pr = usePropuestas()
+  // se cargan al abrir su pantalla; desde aquí también, si aún no están
+  const { cargado, cargando, cargar } = pr
+  useEffect(() => { if (!cargado && !cargando) void cargar() }, [cargado, cargando, cargar])
+  const lista = propuestasComercialesDe(pr.propuestas, p)
+  const crear = async () => {
+    if (!p.empresa.trim()) { avisar('Pon el nombre de la empresa del cliente potencial para enlazar su propuesta.', 'error'); return }
+    await pr.crear(propuestaVacia({
+      titulo: p.tema, cliente: p.empresa.trim(), cuentaId: p.cuentaId, contacto: nombreCompleto(p), estado: ESTADO_PROPUESTA_DE_ETAPA[p.etapa],
+      descripcion: [p.procesosRevisar, p.descripcion].filter(Boolean).join('\n\n'), importe: p.importeEst || null, responsableId: p.propietarioId,
+    }))
+  }
+  return (
+    <>
+      <p className="crm-sublista-titulo">En Propuestas de clientes</p>
+      {lista.map(x => (
+        <div key={x.id} className="crm-sublista-fila">
+          <div>
+            <b>{x.titulo}</b>
+            <small>{x.importe ? eur0(x.importe) : 'Sin importe'}{x.probabilidad != null && ` · ${x.probabilidad} %`}{x.fechaPrevista && ` · decisión el ${fecha(x.fechaPrevista)}`}</small>
+          </div>
+          <div className="crm-sublista-acciones">
+            <ChipEstado estado={x.estado === 'aceptado' ? 'aceptada' : x.estado === 'descartado' ? 'rechazada' : 'enviada'} etiqueta={ETIQUETA_ESTADO_PROPUESTA[x.estado]} />
+          </div>
+        </div>
+      ))}
+      {!lista.length && <div className="crm-vacio">{pr.cargado ? 'No hay ninguna con el nombre de esta empresa.' : 'Cargando…'}</div>}
+      <div className="crm-sublista-pie">
+        {p.estado === 'abierto' && !lista.length && <button type="button" className="btn pequeno" onClick={() => void crear()}><FilePlus2 size={14} /> Crear en Propuestas de clientes</button>}
+        <button type="button" className="btn sutil pequeno" onClick={() => setPantalla('propuestas')}><ExternalLink size={14} /> Ir a Propuestas de clientes</button>
+      </div>
+    </>
+  )
+}
+
+/** Ofertas del CRM enlazadas al cliente potencial: importe, líneas, versión y documento. */
+function OfertasPotencial({ p }: { p: Potencial }) {
   const c = useCrm()
   const lista = propuestasDe(c.datos.ofertas, p.id)
   return (
-    <div className="crm-sublista">
+    <>
+      <p className="crm-sublista-titulo">Ofertas con importe</p>
       {lista.map(q => (
         <div key={q.id} className="crm-sublista-fila">
           <div>
@@ -184,15 +256,15 @@ export function PropuestasPotencial({ p }: { p: Potencial }) {
           </div>
         </div>
       ))}
-      {!lista.length && <div className="crm-vacio">Todavía no se le ha hecho ninguna propuesta.</div>}
+      {!lista.length && <div className="crm-vacio">Todavía no hay ninguna oferta.</div>}
       {p.estado === 'abierto' && (
         <div className="crm-sublista-pie">
           <button type="button" className="btn pequeno" onClick={() => void c.nuevaPropuesta(p)}>
-            <FilePlus2 size={14} /> {lista.length ? 'Nueva versión de la propuesta' : 'Nueva propuesta'}
+            <FilePlus2 size={14} /> {lista.length ? 'Nueva versión de la oferta' : 'Nueva oferta'}
           </button>
         </div>
       )}
-    </div>
+    </>
   )
 }
 
@@ -224,21 +296,39 @@ export function ModalDescartar({ p, onCerrar }: { p: Potencial; onCerrar: () => 
 /** Confirmación de arrancar el proyecto: dice qué se va a crear y avisa si no hay propuesta aceptada. */
 export function ModalArrancar({ p, onCerrar }: { p: Potencial; onCerrar: () => void }) {
   const c = useCrm()
+  const { datos } = useApp()
+  const pr = usePropuestas()
   const aceptada = propuestasDe(c.datos.ofertas, p.id).find(q => q.estado === 'aceptada' || q.estado === 'convertida')
   const cuentaExiste = !!p.cuentaId || c.datos.cuentas.some(a => a.nombre.trim().toLowerCase() === p.empresa.trim().toLowerCase())
+  const comerciales = propuestasComercialesDe(pr.propuestas, p)
+  // si su propuesta en Propuestas de clientes ya creó el proyecto, se usa ese
+  const yaConProyecto = comerciales.find(x => x.proyectoId && datos.proyectos.some(y => y.id === x.proyectoId))
+  const abierta = comerciales.find(x => ESTADOS_ABIERTOS.includes(x.estado) && !x.proyectoId)
+  const arrancar = async () => {
+    onCerrar()
+    const proyectoId = await c.arrancarProyecto(p, yaConProyecto?.proyectoId ?? null)
+    // la propuesta abierta del cliente queda aceptada y enlazada al mismo proyecto
+    if (abierta && proyectoId) {
+      await pr.guardar({ ...abierta, estado: 'aceptado', probabilidad: 100, proyectoId })
+      await pr.anadirApunte(abierta.id, `Proyecto arrancado desde el cliente potencial ${p.no}.`)
+    }
+  }
   return (
     <Modal titulo="Arrancar proyecto" onCerrar={onCerrar} pie={<>
       <button className="btn" onClick={onCerrar}>Cancelar</button>
-      <button className="btn primario" autoFocus onClick={() => { onCerrar(); void c.arrancarProyecto(p) }}><Rocket size={15} /> Arrancar proyecto</button>
+      <button className="btn primario" autoFocus onClick={() => void arrancar()}><Rocket size={15} /> Arrancar proyecto</button>
     </>}>
       <div className="formulario">
-        {!aceptada && <p className="crm-texto-modal crm-tarde">No hay ninguna propuesta aceptada. Puedes arrancar igualmente.</p>}
+        {!aceptada && <p className="crm-texto-modal crm-tarde">No hay ninguna oferta aceptada. Puedes arrancar igualmente.</p>}
         <p className="crm-texto-modal">Al arrancar el proyecto:</p>
         <ul className="crm-texto-modal">
           <li>{p.empresa ? (cuentaExiste ? `Se usa la cuenta «${p.empresa}», que ya existe.` : `Se crea la cuenta «${p.empresa}».`) : 'No se crea cuenta: falta el nombre de la empresa.'}</li>
           {(p.nombre || p.apellidos) && <li>Se crea el contacto {nombreCompleto(p)}.</li>}
           <li>Las propuestas, actividades y notas se enlazan también a la cuenta.</li>
-          <li>Se crea el proyecto «{p.tema}» en Proyectos y Tareas{aceptada ? `, con la propuesta ${aceptada.no} como referencia` : ''}.</li>
+          {yaConProyecto
+            ? <li>Se usa el proyecto que ya creó la propuesta «{yaConProyecto.titulo}» en Propuestas de clientes.</li>
+            : <li>Se crea el proyecto «{p.tema}» en Proyectos y Tareas{aceptada ? `, con la oferta ${aceptada.no} como referencia` : ''}.</li>}
+          {abierta && <li>La propuesta «{abierta.titulo}» de Propuestas de clientes pasa a Aceptado y se enlaza al proyecto.</li>}
         </ul>
       </div>
     </Modal>

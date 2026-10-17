@@ -161,9 +161,10 @@ const O = {
   // recorrido del cliente potencial (Entrada → Auditoría → Propuesta → Proyecto en marcha)
   etapa: [[412000230, 'Entrada'], [412000231, 'Auditoría'], [412000232, 'Propuesta'], [412000233, 'Proyecto en marcha']],
   entrada: [[412000235, 'Inbound'], [412000236, 'Outbound']],
+  // la columna ya la creó la automatización de Outlook con estos valores; aquí solo por si falta en otro entorno
   seguimiento: [
-    [412000240, 'Contactado'], [412000241, 'Recordatorio 1 enviado'], [412000242, 'Recordatorio 2 enviado'], [412000243, 'Respondió'],
-    [412000244, 'Sin respuesta'], [412000245, 'Correo erróneo'], [412000246, 'Pausado'],
+    [412000300, 'Contactado'], [412000301, 'Recordatorio 1 enviado'], [412000302, 'Recordatorio 2 enviado'], [412000303, 'Respondió'],
+    [412000304, 'Cerrado: sin interés'], [412000305, 'Email erróneo'], [412000306, 'Pausado'],
   ],
   motivoDescarte: [[412000250, 'Sin respuesta'], [412000251, 'No encaja'], [412000252, 'Sin presupuesto'], [412000253, 'Ahora no'], [412000254, 'Eligió a otro'], [412000255, 'Otro']],
   tipoReunion: [[412000260, 'Auditoría'], [412000261, 'Presentación de propuesta'], [412000262, 'Seguimiento'], [412000263, 'Arranque de proyecto'], [412000264, 'Interna']],

@@ -15,7 +15,7 @@ import {
   CONDICIONES_PAGO, ESTADO_ACTIVIDAD, ESTADO_OFERTA, ETAPA, FASE, NOMBRE_REGISTRO, ORIGEN, PUNTUACION, TIPO_ACTIVIDAD, UNIDAD,
 } from '../catalogos'
 import { ETIQUETA_TIPO_REUNION } from '../../domain/types'
-import { accionVencida, diasEnEtapa, propuestasDe, reunionesDe } from '../recorrido'
+import { accionVencida, citasDe, citasSinReunion, diasEnEtapa, propuestasDe, reunionesDe } from '../recorrido'
 import {
   actividadVencida, cadenaDocumento, comprado, escalaTiempo, estadoVisible, etiquetaEstado, facturado, nombreCompleto, nombreCuenta,
   nombreRegistro, pendienteCobro, registroDe,
@@ -203,7 +203,14 @@ export function OportunidadesDe({ filtro, prefill }: { filtro: (o: Oportunidad) 
 export function ResumenPotencial({ p }: { p: Potencial }) {
   const { datos } = useCrm()
   const { datos: app } = useApp()
-  const ultimaReunion = reunionesDe(app.reuniones, p.id)[0]
+  const nuestras = reunionesDe(app.reuniones, p.id)
+  // las del calendario de Outlook también cuentan, sin repetir las nuestras
+  const deOutlook = citasSinReunion(citasDe(datos.actividades, p.id), nuestras)
+  const ultimaCita = [...deOutlook].sort((a, b) => `${b.fecha}${b.hora}`.localeCompare(`${a.fecha}${a.hora}`))[0]
+  const ultimaNuestra = nuestras[0]
+  const ultimaReunion = ultimaNuestra && (!ultimaCita || ultimaNuestra.fecha.slice(0, 10) >= (ultimaCita.fecha ?? ''))
+    ? { titulo: ultimaNuestra.titulo, fecha: ultimaNuestra.fecha, tipo: ultimaNuestra.tipo }
+    : ultimaCita ? { titulo: ultimaCita.asunto, fecha: ultimaCita.fecha ?? '', tipo: undefined } : undefined
   const ultimaPropuesta = propuestasDe(datos.ofertas, p.id)[0]
   const proyecto = app.proyectos.find(x => x.id === p.proyectoId)
   const enCurso = p.estado === 'abierto'

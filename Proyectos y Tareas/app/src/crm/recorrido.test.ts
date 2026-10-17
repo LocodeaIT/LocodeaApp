@@ -4,9 +4,12 @@
  * qué cambia al pasar de etapa.
  */
 import { describe, expect, it } from 'vitest'
-import type { Oferta, Potencial } from './types'
+import type { ActividadCrm, Oferta, Potencial } from './types'
+import type { Reunion } from '../domain/types'
+import type { Propuesta } from '../propuestas/types'
 import {
-  accionVencida, conEtapa, diasEnEtapa, diasEntre, entradaDeOrigen, esPosterior, estaParado, etapaPorDefecto, propuestasDe,
+  accionVencida, citasDe, citasSinReunion, conEtapa, diasEnEtapa, diasEntre, entradaDeOrigen, esPosterior, estaParado, etapaPorDefecto,
+  propuestasComercialesDe, propuestasDe,
   siguienteVersion, tocaVolverAContactar,
 } from './recorrido'
 
@@ -90,5 +93,30 @@ describe('propuestas', () => {
   it('la siguiente versión sigue a la mayor', () => {
     expect(siguienteVersion(ofertas, 'l1')).toBe(3)
     expect(siguienteVersion(ofertas, 'nuevo')).toBe(1)
+  })
+})
+
+describe('convivencia con Propuestas de clientes y el calendario', () => {
+  const propuesta = (id: string, cambio: Partial<Propuesta> = {}): Propuesta => ({
+    id, titulo: 'Altas', cliente: 'Clínica Sonrisa', cuentaId: null, contacto: '', estado: 'conversacion', prioridad: 'media', descripcion: '',
+    importe: null, probabilidad: null, fechaPrevista: null, tecnologias: [], responsableId: null, proyectoId: null, apuntes: [], orden: 0,
+    creadoEl: '', actualizadoEl: null, ...cambio,
+  })
+  it('casa las propuestas por el nombre de la empresa o por la cuenta', () => {
+    const lista = [propuesta('a', { cliente: 'clinica sonrisa ' }), propuesta('b', { cliente: 'Otra' }), propuesta('c', { cliente: 'Otra', cuentaId: 'a1' })]
+    expect(propuestasComercialesDe(lista, potencial()).map(x => x.id)).toEqual(['a'])
+    expect(propuestasComercialesDe(lista, potencial({ cuentaId: 'a1' })).map(x => x.id)).toEqual(['a', 'c'])
+    expect(propuestasComercialesDe(lista, potencial({ empresa: '' }))).toEqual([])
+  })
+  it('no cuenta dos veces la reunión que vuelve del calendario como cita', () => {
+    const inicio = new Date(2026, 9, 20, 10, 0).toISOString()
+    const reunion = { id: 'r1', titulo: 'Auditoría', fecha: inicio, duracionMin: 60, lugar: '', estado: 'pendiente', notas: '', temas: [], asistentesIds: [], proyectoId: null, organizaId: null, eventoId: null, potencialId: 'l1', creadoEl: '' } as Reunion
+    const cita = (id: string, fecha: string, hora: string): ActividadCrm => ({
+      id, asunto: 'Auditoría', tipo: 'cita', fecha, hora, referenteTipo: 'potenciales', referenteId: 'l1', cuentaId: null, propietarioId: null,
+      prioridad: 'normal', estado: 'abierta', completadaEl: null, descripcion: '', creadoEl: '', eventoId: `ev-${id}`,
+    } as ActividadCrm)
+    const citas = citasDe([cita('x', '2026-10-20', '10:00'), cita('y', '2026-10-27', '10:00'), { ...cita('z', '2026-10-28', '10:00'), referenteId: 'otro' }], 'l1')
+    expect(citas.map(a => a.id)).toEqual(['x', 'y'])
+    expect(citasSinReunion(citas, [reunion]).map(a => a.id)).toEqual(['y'])
   })
 })

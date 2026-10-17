@@ -63,8 +63,11 @@ export interface CrmCtx {
   cambiarSeguimiento: (p: Potencial, seguimiento: SeguimientoPotencial) => Promise<void>
   /** Crea la siguiente versión de la propuesta (una oferta enlazada) y la abre. */
   nuevaPropuesta: (p: Potencial) => Promise<void>
-  /** Pasa a cuenta y contacto, enlaza su historia a la cuenta y crea el proyecto. */
-  arrancarProyecto: (p: Potencial) => Promise<void>
+  /**
+   * Pasa a cuenta y contacto, enlaza su historia a la cuenta y crea el proyecto
+   * (o usa `proyectoExistente`, el que ya creó su propuesta). Devuelve el proyecto.
+   */
+  arrancarProyecto: (p: Potencial, proyectoExistente?: string | null) => Promise<string | null>
   descartarPotencial: (p: Potencial, motivo: MotivoDescarte, detalle: string, volverContactar: string) => Promise<void>
   reactivarPotencial: (p: Potencial) => Promise<void>
   cambiarFase: (o: Oportunidad, fase: Fase) => Promise<void>

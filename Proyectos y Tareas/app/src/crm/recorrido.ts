@@ -5,7 +5,10 @@
  */
 import type { EntradaPotencial, EstadoPotencial, EtapaPotencial, Oferta, OrigenPotencial, Potencial } from './types'
 import type { Reunion } from '../domain/types'
+import type { EstadoPropuesta, Propuesta } from '../propuestas/types'
+import type { ActividadCrm } from './types'
 import { DIAS_PARADO, ETAPAS } from './catalogos'
+import { normalizar } from './formato'
 
 /** Registros de antes del recorrido: los convertidos están en proyecto; el resto, en entrada. */
 export const etapaPorDefecto = (estado: EstadoPotencial): EtapaPotencial => (estado === 'calificado' ? 'proyecto' : 'entrada')
@@ -57,3 +60,46 @@ export function conEtapa(p: Potencial, etapa: EtapaPotencial, hoy: string): Pote
     ? 'respondio' as const : p.seguimiento
   return { ...p, etapa, etapaDesde: hoy, seguimiento, proximoRecordatorio: etapa === 'entrada' ? p.proximoRecordatorio : '' }
 }
+
+// ─────────────────────────────────────────────── convivencia con Propuestas de clientes y el calendario de reuniones
+
+/**
+ * Propuestas comerciales (módulo Propuestas de clientes, `loc_propuesta`) que
+ * son de este cliente potencial: las de su cuenta, si ya la tiene, o las que
+ * llevan como cliente el nombre de su empresa. No se toca su tabla: se casan
+ * por esos dos datos.
+ */
+export function propuestasComercialesDe(propuestas: Propuesta[], p: Potencial): Propuesta[] {
+  const empresa = normalizar(p.empresa)
+  return propuestas.filter(x => (!!p.cuentaId && x.cuentaId === p.cuentaId) || (!!empresa && normalizar(x.cliente) === empresa))
+}
+
+/** Estado con el que nace en Propuestas de clientes una propuesta creada desde el cliente potencial. */
+export const ESTADO_PROPUESTA_DE_ETAPA: Record<EtapaPotencial, EstadoPropuesta> = {
+  entrada: 'conversacion', auditoria: 'planificacion', propuesta: 'enviada', proyecto: 'aceptado',
+}
+
+/** Citas que la sincronización del calendario de Outlook deja en el cliente potencial. */
+export const citasDe = (actividades: ActividadCrm[], potencialId: string): ActividadCrm[] =>
+  actividades.filter(a => a.tipo === 'cita' && !!a.eventoId && a.referenteTipo === 'potenciales' && a.referenteId === potencialId && a.estado !== 'cancelada')
+
+/** Día (YYYY-MM-DD) y hora (HH:mm) locales de un instante ISO, como los guarda la cita. */
+function diaYHora(iso: string): [string, string] {
+  const d = new Date(iso)
+  const p = (n: number) => String(n).padStart(2, '0')
+  return [`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`, `${p(d.getHours())}:${p(d.getMinutes())}`]
+}
+
+/**
+ * La cita de Outlook es la misma reunión que una de las nuestras: al crear la
+ * reunión con el cliente invitado, el calendario la trae de vuelta como cita.
+ * Se reconocen por el día y la hora de inicio.
+ */
+export function esLaMismaReunion(cita: ActividadCrm, r: Reunion): boolean {
+  const [dia, hora] = diaYHora(r.fecha)
+  return cita.fecha === dia && (!cita.hora || cita.hora === hora)
+}
+
+/** Citas de Outlook que no son ya una de nuestras reuniones (para no contarlas dos veces). */
+export const citasSinReunion = (citas: ActividadCrm[], reuniones: Reunion[]): ActividadCrm[] =>
+  citas.filter(a => !reuniones.some(r => esLaMismaReunion(a, r)))

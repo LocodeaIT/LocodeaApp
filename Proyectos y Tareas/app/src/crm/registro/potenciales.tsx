@@ -208,9 +208,9 @@ export const potenciales: Entidad<Potencial> = {
     const hayPropuesta = propuestasDe(c.datos.ofertas, l.id).length > 0
     return [
       l.etapa === 'entrada' && { texto: 'Programar auditoría', icono: CalendarPlus, tono: 'acento', accion: () => ui.mostrar(cerrar => <ModalReunionCrm p={l} tipo="auditoria" onCerrar={cerrar} />) },
-      l.etapa === 'auditoria' && { texto: 'Nueva propuesta', icono: FilePlus2, tono: 'acento', accion: () => c.nuevaPropuesta(l) },
+      l.etapa === 'auditoria' && { texto: 'Nueva oferta', icono: FilePlus2, tono: 'acento', accion: () => c.nuevaPropuesta(l) },
       l.etapa === 'propuesta' && { texto: 'Arrancar proyecto', icono: Rocket, tono: 'acento', accion: () => ui.mostrar(cerrar => <ModalArrancar p={l} onCerrar={cerrar} />) },
-      l.etapa === 'propuesta' && { texto: hayPropuesta ? 'Nueva versión' : 'Nueva propuesta', icono: FilePlus2, accion: () => c.nuevaPropuesta(l) },
+      l.etapa === 'propuesta' && { texto: hayPropuesta ? 'Nueva versión de la oferta' : 'Nueva oferta', icono: FilePlus2, accion: () => c.nuevaPropuesta(l) },
       l.etapa !== 'entrada' && { texto: 'Nueva reunión', icono: CalendarPlus, accion: () => ui.mostrar(cerrar => <ModalReunionCrm p={l} tipo={l.etapa === 'propuesta' ? 'propuesta' : 'seguimiento'} onCerrar={cerrar} />) },
       SEGUIMIENTO_ACTIVO.includes(l.seguimiento) && { texto: 'Pausar seguimiento', icono: Pause, accion: () => c.cambiarSeguimiento(l, 'pausado') },
       l.seguimiento === 'pausado' && l.etapa === 'entrada' && { texto: 'Reanudar seguimiento', icono: Play, accion: () => c.cambiarSeguimiento(l, 'contactado') },
