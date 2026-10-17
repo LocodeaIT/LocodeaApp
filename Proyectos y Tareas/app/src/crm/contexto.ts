@@ -5,8 +5,8 @@
 import { createContext, useContext } from 'react'
 import type { Miembro } from '../domain/types'
 import type {
-  ActividadCrm, ColDocumento, ColEntidad, ColReferente, CrmInstantanea, Documento, Fase, Oferta, Oportunidad, PedidoCompra,
-  PedidoVenta, Potencial, RegistroDe,
+  ActividadCrm, ColDocumento, ColEntidad, ColReferente, CrmInstantanea, Documento, EtapaPotencial, Fase, MotivoDescarte, Oferta, Oportunidad,
+  PedidoCompra, PedidoVenta, Potencial, RegistroDe, SeguimientoPotencial,
 } from './types'
 
 /** Ficha abierta: `id` es 'nuevo' mientras el registro no se ha guardado. */
@@ -25,6 +25,8 @@ export interface EstadoLista {
   orden: { clave: string; dir: 1 | -1 } | null
   pagina: number
   seleccion: string[]
+  /** Tabla o tablero (si la entidad lo tiene); sin elegir, lo que diga la entidad. */
+  modo?: 'tabla' | 'tablero'
 }
 
 export const LISTA_INICIAL: EstadoLista = { vista: null, texto: '', filtros: {}, orden: null, pagina: 0, seleccion: [] }
@@ -56,9 +58,14 @@ export interface CrmCtx {
   borrar: (col: ColEntidad, ids: string[]) => Promise<void>
   anadirNota: (texto: string, col: ColReferente, id: string) => Promise<void>
 
-  // clientes potenciales y oportunidades
-  calificarPotencial: (p: Potencial) => Promise<void>
-  descalificarPotencial: (p: Potencial, motivo: string) => Promise<void>
+  // clientes potenciales (recorrido Entrada → Auditoría → Propuesta → Proyecto en marcha) y oportunidades
+  cambiarEtapa: (p: Potencial, etapa: EtapaPotencial) => Promise<void>
+  cambiarSeguimiento: (p: Potencial, seguimiento: SeguimientoPotencial) => Promise<void>
+  /** Crea la siguiente versión de la propuesta (una oferta enlazada) y la abre. */
+  nuevaPropuesta: (p: Potencial) => Promise<void>
+  /** Pasa a cuenta y contacto, enlaza su historia a la cuenta y crea el proyecto. */
+  arrancarProyecto: (p: Potencial) => Promise<void>
+  descartarPotencial: (p: Potencial, motivo: MotivoDescarte, detalle: string, volverContactar: string) => Promise<void>
   reactivarPotencial: (p: Potencial) => Promise<void>
   cambiarFase: (o: Oportunidad, fase: Fase) => Promise<void>
   ganarOportunidad: (o: Oportunidad) => Promise<void>

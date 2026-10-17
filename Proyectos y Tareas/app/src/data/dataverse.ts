@@ -16,7 +16,7 @@ import type { Instantanea, Nuevo, Repositorio } from './repo'
 import type {
   Actividad, ApartadoProyecto, ColumnaLista, EntidadActividad, EstadoObjetivo, EstadoProyecto, EstadoTarea,
   CanalContenido, Contenido, EstadoContenido, FormatoContenido, Valoracion, EstadoRecursoIA, PlataformaIA, RecursoIA, TipoRecursoIA, EstadoReunion, FiltrosVista, ItemChecklist, Miembro, Objetivo, Prioridad, Proyecto, Rol,
-  Reunion, Semana, Tarea, TemaReunion, TipoVista, AgruparPor, OrdenarPor, Vista,
+  Reunion, Semana, Tarea, TemaReunion, TipoReunion, TipoVista, AgruparPor, OrdenarPor, Vista,
 } from '../domain/types'
 import { FILTROS_VACIOS } from '../domain/types'
 
@@ -45,6 +45,9 @@ const EST_OBJETIVO: Record<EstadoObjetivo, number> = { pendiente: 412000030, cum
 const EST_TAREA: Record<EstadoTarea, number> = { pendiente: 412000040, en_curso: 412000041, bloqueada: 412000042, revision: 412000043, hecha: 412000044 }
 const PRIORIDAD: Record<Prioridad, number> = { alta: 412000050, media: 412000051, baja: 412000052 }
 const EST_REUNION: Record<EstadoReunion, number> = { pendiente: 412000060, celebrada: 412000061, cancelada: 412000062 }
+/** Tipo de reunión con el cliente (columna del CRM, scripts/crm-esquema.mjs). */
+const TIPO_REUNION: Record<Exclude<TipoReunion, ''>, number> = { auditoria: 412000260, propuesta: 412000261, seguimiento: 412000262, arranque: 412000263, interna: 412000264 }
+const DE_TIPO_REUNION = Object.fromEntries(Object.entries(TIPO_REUNION).map(([k, v]) => [v, k])) as Record<number, TipoReunion>
 const CANAL: Record<CanalContenido, number> = { youtube: 412000070, linkedin: 412000071, instagram: 412000072, tiktok: 412000073, blog: 412000074, newsletter: 412000075, x: 412000076 }
 const EST_CONTENIDO: Record<EstadoContenido, number> = { idea: 412000080, guion: 412000081, produccion: 412000082, listo: 412000083, publicado: 412000084 }
 const VALORACION: Record<Valoracion, number> = { favorita: 412000090, gusta: 412000091, nogusta: 412000092, descartada: 412000093 }
@@ -282,6 +285,13 @@ function aReunion(f: Fila): Reunion {
     proyectoId: f._loc_proyecto_value ?? null,
     organizaId: f._loc_organiza_value ?? null,
     eventoId: txt(f.loc_eventoid) || null,
+    potencialId: f._loc_potencial_value ?? null,
+    cuentaId: f._loc_cuenta_value ?? null,
+    tipo: DE_TIPO_REUNION[f.loc_tipo] ?? '',
+    asistentesExternos: txt(f.loc_asistentesexternos),
+    enlaceTeams: txt(f.loc_enlaceteams),
+    grabacion: txt(f.loc_grabacion),
+    resumen: txt(f.loc_resumen),
     creadoEl: txt(f.createdon),
   }
 }
@@ -371,7 +381,27 @@ const deReunion = (r: Omit<Reunion, 'id' | 'creadoEl'>): Payload => ({
   loc_eventoid: r.eventoId,
   'loc_Proyecto@odata.bind': ref('loc_proyectos', r.proyectoId),
   'loc_Organiza@odata.bind': ref('loc_miembros', r.organizaId),
+  ...deReunionCrm(r),
 })
+
+/**
+ * Columnas de la reunión con el cliente (las añade scripts/crm-esquema.mjs).
+ * Solo se mandan si la reunión tiene algo del CRM: así las reuniones internas
+ * se siguen guardando en un entorno donde esas columnas aún no existen.
+ */
+function deReunionCrm(r: Omit<Reunion, 'id' | 'creadoEl'>): Payload {
+  const tieneCrm = !!(r.potencialId || r.cuentaId || r.tipo || r.asistentesExternos || r.enlaceTeams || r.grabacion || r.resumen)
+  if (!tieneCrm) return {}
+  return {
+    'loc_Potencial@odata.bind': ref('loc_potencials', r.potencialId ?? null),
+    'loc_Cuenta@odata.bind': ref('loc_cuentas', r.cuentaId ?? null),
+    loc_tipo: r.tipo ? TIPO_REUNION[r.tipo] : null,
+    loc_asistentesexternos: (r.asistentesExternos ?? '').slice(0, 1000),
+    loc_enlaceteams: (r.enlaceTeams ?? '').slice(0, 1000),
+    loc_grabacion: (r.grabacion ?? '').slice(0, 1000),
+    loc_resumen: r.resumen ?? '',
+  }
+}
 
 // ─────────────────────────────────────────────── repositorio
 

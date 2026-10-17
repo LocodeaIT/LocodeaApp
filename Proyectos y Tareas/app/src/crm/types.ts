@@ -8,7 +8,18 @@
 
 export type TipoCuenta = 'cliente' | 'proveedor' | 'ambos'
 export type EstadoActivo = 'activo' | 'inactivo'
-export type OrigenPotencial = 'web' | 'referido' | 'linkedin' | 'evento' | 'llamada' | 'partner'
+export type OrigenPotencial = 'web' | 'referido' | 'linkedin' | 'evento' | 'llamada' | 'partner' | 'correo'
+/** Etapas del recorrido comercial: Entrada → Auditoría → Propuesta → Proyecto en marcha. */
+export type EtapaPotencial = 'entrada' | 'auditoria' | 'propuesta' | 'proyecto'
+/** Quién inició el contacto. */
+export type EntradaPotencial = 'inbound' | 'outbound'
+/**
+ * Seguimiento de la entrada outbound por correo. Lo escribe la automatización
+ * de Power Automate (recordatorios a los 7 y 14 días, cierre a los 21); vacío
+ * si no hay secuencia.
+ */
+export type SeguimientoPotencial = '' | 'contactado' | 'recordatorio1' | 'recordatorio2' | 'respondio' | 'sinrespuesta' | 'emailerroneo' | 'pausado'
+export type MotivoDescarte = '' | 'sinrespuesta' | 'noencaja' | 'sinpresupuesto' | 'ahorano' | 'otroproveedor' | 'otro'
 export type Puntuacion = 'caliente' | 'templado' | 'frio'
 export type EstadoPotencial = 'abierto' | 'calificado' | 'descalificado'
 /** Fases del proceso de venta (flujo de proceso de negocio). */
@@ -160,10 +171,29 @@ export interface Potencial extends RegistroBase {
   loQueImporta: string
   /** Lo que le recomendó el formulario de la web. */
   recomendacion: string
-  /** Lo que se creó al calificarlo. */
+  /** Etapa del recorrido y día en que entró en ella (YYYY-MM-DD). */
+  etapa: EtapaPotencial
+  etapaDesde: string
+  entrada: EntradaPotencial
+  seguimiento: SeguimientoPotencial
+  /** Fechas de día YYYY-MM-DD; vacías si no hay. */
+  primerContacto: string
+  proximoRecordatorio: string
+  respondioEl: string
+  /** Hilo de Outlook del primer correo (lo guarda la automatización). */
+  conversacionId: string
+  linkedin: string
+  /** Lo que nos cuenta en la auditoría. */
+  procesosRevisar: string
+  proximaAccion: string
+  proximaAccionFecha: string
+  motivoDescarte: MotivoDescarte
+  volverContactar: string
+  /** Lo que se creó al arrancar el proyecto (la oportunidad, solo en registros anteriores). */
   cuentaId: string | null
   contactoId: string | null
   oportunidadId: string | null
+  proyectoId: string | null
 }
 
 export interface Oportunidad extends RegistroBase {
@@ -212,6 +242,17 @@ export interface DocumentoBase extends RegistroBase {
 export interface Oferta extends DocumentoBase {
   estado: EstadoOferta
   oportunidadId: string | null
+  /** Propuesta a un cliente potencial, antes de que exista la cuenta. */
+  potencialId: string | null
+  /** 1, 2… cuando se ajusta la propuesta. */
+  version: number
+  /** Qué procesos cubre, en palabras del cliente. */
+  alcance: string
+  /** Enlace al documento enviado (SharePoint). */
+  documento: string
+  /** Día en que se envió (YYYY-MM-DD). */
+  enviadaEl: string
+  motivoRechazo: string
   validaHasta: string
   pedidoId: string | null
 }

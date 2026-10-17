@@ -12,11 +12,12 @@ import { nuevoId } from '../data/repo'
 import { ahoraIso, hoy, sumarDias } from '../domain/fechas'
 import type { CrmRepositorio } from './repo'
 import type {
-  ActividadCrm, ColDocumento, ColEntidad, ColReferente, Contacto, CrmInstantanea, Cuenta, Documento, FacturaCompra,
-  FacturaVenta, Fase, Oferta, Oportunidad, PedidoCompra, PedidoVenta, Potencial, RegistroBase, RegistroDe,
+  ActividadCrm, ColDocumento, ColEntidad, ColReferente, Contacto, CrmInstantanea, Cuenta, Documento, EtapaPotencial, FacturaCompra,
+  FacturaVenta, Fase, MotivoDescarte, Oferta, Oportunidad, PedidoCompra, PedidoVenta, Potencial, RegistroBase, RegistroDe, SeguimientoPotencial,
 } from './types'
 import { CRM_VACIO } from './types'
-import { DIAS_PAGO, FASE, NOMBRE_REGISTRO, PROBABILIDAD_FASE } from './catalogos'
+import { DIAS_PAGO, ETAPA, FASE, MOTIVO_DESCARTE, NOMBRE_REGISTRO, PROBABILIDAD_FASE, SEGUIMIENTO, SEGUIMIENTO_ACTIVO } from './catalogos'
+import { conEtapa, esPosterior, propuestasDe, siguienteVersion } from './recorrido'
 import { copiarLineas, siguienteNo, siguienteNoFactura, totales } from './documentos'
 import { avisarFacturaVenta } from './eventos'
 import { FISCAL_COMPRA, FISCAL_CUENTA, FISCAL_VENTA, operacionCompraPorDefecto, operacionVentaPorDefecto } from './fiscal'
@@ -31,7 +32,7 @@ function sustituir<T extends RegistroBase>(lista: T[], o: T): T[] {
 }
 
 export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; children: ReactNode }) {
-  const { yo, datos: app, avisar, pantalla, setPantalla } = useApp()
+  const { yo, datos: app, avisar, pantalla, setPantalla, guardarProyecto } = useApp()
   const [datos, setDatos] = useState<CrmInstantanea>(CRM_VACIO)
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -190,8 +191,60 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
 
   // ─────────────────────────────────────────────── clientes potenciales
 
-  /** Calificar crea (o reutiliza) cuenta y contacto y abre una oportunidad en «Desarrollar». */
-  const calificarPotencial = useCallback(async (l: Potencial) => {
+  /** Avanza (o corrige) la etapa del recorrido. «Proyecto en marcha» solo se alcanza arrancando el proyecto. */
+  const cambiarEtapa = useCallback(async (l: Potencial, etapa: EtapaPotencial) => {
+    if (l.estado !== 'abierto' || l.etapa === etapa || etapa === 'proyecto') return
+    const r = await guardar('potenciales', conEtapa(l, etapa, hoy()))
+    await anadirNota(`Pasa a la etapa ${ETAPA[etapa]}.`, 'potenciales', r.id)
+    avisar('Etapa: ' + ETAPA[etapa])
+  }, [guardar, anadirNota, avisar])
+
+  /** Pausa o reanuda la secuencia de recordatorios de la automatización de Outlook. */
+  const cambiarSeguimiento = useCallback(async (l: Potencial, seguimiento: SeguimientoPotencial) => {
+    const reanuda = seguimiento === 'contactado' || seguimiento === 'recordatorio1' || seguimiento === 'recordatorio2'
+    await guardar('potenciales', { ...l, seguimiento, proximoRecordatorio: reanuda ? (l.proximoRecordatorio || sumarDias(hoy(), 7)) : l.proximoRecordatorio })
+    avisar('Seguimiento: ' + SEGUIMIENTO[seguimiento])
+  }, [guardar, avisar])
+
+  /** Nueva versión de la propuesta: copia las líneas y el alcance de la anterior, o los procesos de la auditoría. */
+  const nuevaPropuesta = useCallback(async (l: Potencial) => {
+    const d = actual.current
+    const anterior = propuestasDe(d.ofertas, l.id)[0]
+    const q = await guardar('ofertas', {
+      id: '', no: '', cuentaId: l.cuentaId, contactoId: l.contactoId, fecha: hoy(), propietarioId: l.propietarioId ?? yoId,
+      lineas: anterior ? copiarLineas(anterior.lineas) : [], condicionesPago: anterior?.condicionesPago ?? '30', metodoPago: anterior?.metodoPago ?? 'transferencia',
+      referencia: l.tema.slice(0, 200), notas: '', creadoEl: '', estado: 'borrador', oportunidadId: null, validaHasta: sumarDias(hoy(), 30), pedidoId: null,
+      potencialId: l.id, version: siguienteVersion(d.ofertas, l.id), alcance: anterior?.alcance || l.procesosRevisar, documento: '', enviadaEl: '', motivoRechazo: '',
+    })
+    await anadirNota(`Propuesta ${q.no} (versión ${q.version}) en borrador.`, 'potenciales', l.id)
+    avisar(`Propuesta ${q.no} creada en borrador`)
+    abrir('ofertas', q.id)
+  }, [guardar, anadirNota, avisar, abrir, yoId])
+
+  /** Lo que cambia en el cliente potencial cuando su propuesta se envía, se acepta o se rechaza. */
+  const alCambiarPropuesta = useCallback(async (q: Oferta) => {
+    const p = actual.current.potenciales.find(x => x.id === q.potencialId)
+    if (!p || p.estado !== 'abierto') return
+    const base = esPosterior('propuesta', p.etapa) ? conEtapa(p, 'propuesta', hoy()) : p
+    const siguiente = q.estado === 'enviada'
+      ? { proximaAccion: `Seguimiento de la propuesta ${q.no}`, proximaAccionFecha: sumarDias(hoy(), 5) }
+      : q.estado === 'aceptada'
+        ? { proximaAccion: 'Arrancar el proyecto', proximaAccionFecha: hoy() }
+        : q.estado === 'rechazada'
+          ? { proximaAccion: 'Decidir: nueva versión de la propuesta o descartar', proximaAccionFecha: sumarDias(hoy(), 2) }
+          : null
+    if (!siguiente) return
+    await guardar('potenciales', { ...base, ...siguiente })
+    const que = q.estado === 'enviada' ? 'enviada' : q.estado === 'aceptada' ? 'aceptada' : `rechazada${q.motivoRechazo ? ` · ${q.motivoRechazo}` : ''}`
+    await anadirNota(`Propuesta ${q.no} (versión ${q.version}) ${que}.`, 'potenciales', p.id)
+  }, [guardar, anadirNota])
+
+  /**
+   * Arrancar el proyecto: el cliente potencial pasa a cuenta y contacto (se
+   * crean o se reutilizan), su historia (propuestas, actividades y notas) se
+   * enlaza también a la cuenta y se crea el proyecto en Proyectos y Tareas.
+   */
+  const arrancarProyecto = useCallback(async (l: Potencial) => {
     if (l.estado !== 'abierto') return
     const d = actual.current
     let cuentaId = l.cuentaId || (l.empresa ? d.cuentas.find(a => normalizar(a.nombre) === normalizar(l.empresa))?.id : null) || null
@@ -207,28 +260,59 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
     if (!contactoId && (l.nombre || l.apellidos)) {
       const c: Contacto = {
         id: '', no: '', nombre: l.nombre, apellidos: l.apellidos, cuentaId, cargo: l.cargo, email: l.email, telefono: l.telefono, movil: '',
-        ciudad: l.ciudad, linkedin: '', propietarioId: l.propietarioId, estado: 'activo', notas: '', creadoEl: '',
+        ciudad: l.ciudad, linkedin: l.linkedin, propietarioId: l.propietarioId, estado: 'activo', notas: '', creadoEl: '',
       }
       contactoId = (await guardar('contactos', c)).id
     }
-    const o = await guardar('oportunidades', {
-      id: '', no: '', titulo: l.tema, cuentaId, contactoId, potencialId: l.id, importe: Number(l.importeEst) || 0, fase: 'desarrollar',
-      probabilidad: PROBABILIDAD_FASE.desarrollar, estado: 'abierta', cierrePrevisto: sumarDias(hoy(), 45), propietarioId: l.propietarioId,
-      notas: l.descripcion, motivoPerdida: '', cerradaEl: null, creadoEl: '',
-    })
-    await guardar('potenciales', { ...l, estado: 'calificado', calificadoEl: ahoraIso(), cuentaId, contactoId, oportunidadId: o.id })
-    await anadirNota(`Creada al calificar el cliente potencial ${l.no}.`, 'oportunidades', o.id)
-    avisar(`Calificado: se ha creado la oportunidad ${o.no}`)
-    abrir('oportunidades', o.id)
-  }, [guardar, anadirNota, avisar, abrir])
 
-  const descalificarPotencial = useCallback(async (l: Potencial, motivo: string) => {
-    await guardar('potenciales', { ...l, estado: 'descalificado', descalificadoEl: ahoraIso(), motivo })
-    avisar('Cliente potencial descalificado', 'info')
-  }, [guardar, avisar])
+    // la historia del cliente potencial también se ve desde la cuenta
+    if (cuentaId) {
+      for (const q of d.ofertas.filter(x => x.potencialId === l.id && !x.cuentaId)) await guardar('ofertas', { ...q, cuentaId, contactoId: q.contactoId ?? contactoId })
+      for (const a of d.actividades.filter(x => x.referenteTipo === 'potenciales' && x.referenteId === l.id && !x.cuentaId)) await guardar('actividades', { ...a, cuentaId })
+      for (const n of d.notas.filter(x => x.referenteTipo === 'potenciales' && x.referenteId === l.id && !x.cuentaId)) {
+        const r = await repo.guardar('notas', { ...n, cuentaId })
+        aplicar(x => ({ ...x, notas: sustituir(x.notas, r) }))
+      }
+    }
+
+    // el proyecto en Proyectos y Tareas, con la propuesta aceptada como referencia
+    let proyectoId = l.proyectoId
+    if (!proyectoId) {
+      const aceptada = propuestasDe(d.ofertas, l.id).find(q => q.estado === 'aceptada' || q.estado === 'convertida')
+      try {
+        const p = await guardarProyecto({
+          nombre: l.tema, cliente: l.empresa || `${l.nombre} ${l.apellidos}`.trim(), interno: false, enlaceDocumentos: '', apartados: [],
+          color: '#0F6CBD', estado: 'activo', responsableId: l.propietarioId,
+          descripcion: [aceptada ? `Propuesta ${aceptada.no} (versión ${aceptada.version}).` : '', aceptada?.alcance || l.procesosRevisar].filter(Boolean).join('\n\n'),
+          fechaInicio: hoy(), fechaFin: null, horasPresupuestadas: null,
+        })
+        proyectoId = p.id
+      } catch {
+        avisar('No se pudo crear el proyecto en Proyectos y Tareas; la cuenta y el contacto sí están creados', 'error')
+      }
+    }
+
+    const r = await guardar('potenciales', {
+      ...conEtapa(l, 'proyecto', hoy()), estado: 'calificado', calificadoEl: ahoraIso(), cuentaId, contactoId, proyectoId, proximaAccion: '', proximaAccionFecha: '',
+    })
+    await anadirNota('Proyecto en marcha: pasa a cuenta y contacto.', 'potenciales', r.id)
+    avisar(proyectoId ? 'Proyecto en marcha: cuenta, contacto y proyecto creados' : 'Proyecto en marcha: cuenta y contacto creados')
+    if (cuentaId) abrir('cuentas', cuentaId)
+  }, [guardar, anadirNota, avisar, abrir, repo, aplicar, guardarProyecto])
+
+  /** Descartar: con motivo y, si es un «ahora no», fecha para volver a contactar. La automatización deja de escribirle. */
+  const descartarPotencial = useCallback(async (l: Potencial, motivoDescarte: MotivoDescarte, detalle: string, volverContactar: string) => {
+    const seguimiento = SEGUIMIENTO_ACTIVO.includes(l.seguimiento) ? 'pausado' : l.seguimiento
+    await guardar('potenciales', {
+      ...l, estado: 'descalificado', descalificadoEl: ahoraIso(), motivoDescarte, motivo: detalle || MOTIVO_DESCARTE[motivoDescarte],
+      volverContactar, seguimiento, proximoRecordatorio: '', proximaAccion: '', proximaAccionFecha: '',
+    })
+    await anadirNota(`Descartado · ${MOTIVO_DESCARTE[motivoDescarte]}${detalle ? ` · ${detalle}` : ''}.`, 'potenciales', l.id)
+    avisar('Cliente potencial descartado', 'info')
+  }, [guardar, anadirNota, avisar])
 
   const reactivarPotencial = useCallback(async (l: Potencial) => {
-    await guardar('potenciales', { ...l, estado: 'abierto', descalificadoEl: null, motivo: '' })
+    await guardar('potenciales', { ...l, estado: 'abierto', descalificadoEl: null, motivo: '', motivoDescarte: '', volverContactar: '', etapaDesde: hoy() })
     avisar('Cliente potencial reactivado')
   }, [guardar, avisar])
 
@@ -270,13 +354,16 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
       : estado === 'registrada'
         ? { registradaEl: ahoraIso(), ...(col === 'facturasVenta' && !doc.no ? { no: siguienteNoFactura((doc as FacturaVenta).tipoFactura, actual.current.facturasVenta) } : {}) }
         : {}
-    const guardado = await guardar(col, { ...doc, estado, ...extra } as RegistroDe<typeof col>)
+    // una propuesta guarda el día en que se envió
+    const enviada = col === 'ofertas' && estado === 'enviada' && !(doc as Oferta).enviadaEl ? { enviadaEl: hoy() } : {}
+    const guardado = await guardar(col, { ...doc, estado, ...extra, ...enviada } as RegistroDe<typeof col>)
     avisar(`${NOMBRE_REGISTRO[col]}: ${etiquetaEstado(col, estado).toLowerCase()}`)
+    if (col === 'ofertas' && (guardado as Oferta).potencialId) await alCambiarPropuesta(guardado as Oferta)
     // la Gestoría crea el registro de Verifactu de la factura emitida o anulada
     if (col === 'facturasVenta' && (estado === 'registrada' || estado === 'anulada')) {
       await avisarFacturaVenta({ tipo: estado, factura: guardado as FacturaVenta })
     }
-  }, [guardar, avisar])
+  }, [guardar, avisar, alCambiarPropuesta])
 
   const ofertaAPedido = useCallback(async (q: Oferta) => {
     const aceptada = await guardar('ofertas', { ...q, estado: 'aceptada' })
@@ -359,14 +446,16 @@ export function CrmProveedor({ repo, children }: { repo: CrmRepositorio; childre
     datos, cargando, error, disponible: repo.disponible, puedeGestionarDatos: !!repo.reemplazar && !!repo.restablecer, yoId, miembros: app.miembros, nombreMiembro,
     ficha, abrir, irLista, irInicio, listas, cambiarLista,
     guardar, borrar, anadirNota,
-    calificarPotencial, descalificarPotencial, reactivarPotencial, cambiarFase, ganarOportunidad, perderOportunidad, reabrirOportunidad,
+    cambiarEtapa, cambiarSeguimiento, nuevaPropuesta, arrancarProyecto, descartarPotencial, reactivarPotencial,
+    cambiarFase, ganarOportunidad, perderOportunidad, reabrirOportunidad,
     cambiarEstadoDocumento, ofertaAPedido, pedidoAFactura, pedidoCompraAFactura,
     alternarActividad, cancelarActividad, restablecerDemo, importarDatos, borrarTodo, recargar,
   }), [
     datos, cargando, error, repo, yoId, app.miembros, nombreMiembro,
     ficha, abrir, irLista, irInicio, listas, cambiarLista,
     guardar, borrar, anadirNota,
-    calificarPotencial, descalificarPotencial, reactivarPotencial, cambiarFase, ganarOportunidad, perderOportunidad, reabrirOportunidad,
+    cambiarEtapa, cambiarSeguimiento, nuevaPropuesta, arrancarProyecto, descartarPotencial, reactivarPotencial,
+    cambiarFase, ganarOportunidad, perderOportunidad, reabrirOportunidad,
     cambiarEstadoDocumento, ofertaAPedido, pedidoAFactura, pedidoCompraAFactura,
     alternarActividad, cancelarActividad, restablecerDemo, importarDatos, borrarTodo, recargar,
   ])

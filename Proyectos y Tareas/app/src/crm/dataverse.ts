@@ -25,8 +25,10 @@ import type {
   EstadoPedidoVenta, EstadoPotencial, FacturaCompra, FacturaVenta, Fase, LineaDocumento, MetodoPago, Nota, Oferta, Oportunidad,
   OrigenPotencial, PedidoCompra, PedidoVenta, Potencial, PrioridadCrm, Producto, Puntuacion, RegimenIva, RegistroBase, RegistroDe, TipoActividad,
   TipoCuenta, TipoProducto, Unidad, TipoIdFiscal, TipoOperacionVenta, TipoOperacionCompra, TipoFactura, EstadoVerifactu, ClaveRetencion,
+  EntradaPotencial, EtapaPotencial, MotivoDescarte, SeguimientoPotencial,
 } from './types'
 import { COLECCIONES } from './types'
+import { entradaDeOrigen, etapaPorDefecto } from './recorrido'
 
 import { Loc_cuentasService } from '../generated/services/Loc_cuentasService'
 import { Loc_contactosService } from '../generated/services/Loc_contactosService'
@@ -54,7 +56,16 @@ const TIPO_CUENTA: Record<TipoCuenta, number> = { cliente: 412000100, proveedor:
 const ACTIVO: Record<EstadoActivo, number> = { activo: 412000105, inactivo: 412000106 }
 const CONDICIONES: Record<CondicionPago, number> = { contado: 412000110, '15': 412000111, '30': 412000112, '60': 412000113 }
 const METODO: Record<MetodoPago, number> = { transferencia: 412000115, domiciliacion: 412000116, tarjeta: 412000117 }
-const ORIGEN: Record<OrigenPotencial, number> = { web: 412000120, referido: 412000121, linkedin: 412000122, evento: 412000123, llamada: 412000124, partner: 412000125 }
+const ORIGEN: Record<OrigenPotencial, number> = { web: 412000120, referido: 412000121, linkedin: 412000122, evento: 412000123, llamada: 412000124, partner: 412000125, correo: 412000126 }
+// Recorrido del cliente potencial: los vacíos ('') se guardan como null
+const ETAPA: Record<EtapaPotencial, number> = { entrada: 412000230, auditoria: 412000231, propuesta: 412000232, proyecto: 412000233 }
+const ENTRADA: Record<EntradaPotencial, number> = { inbound: 412000235, outbound: 412000236 }
+const SEGUIMIENTO: Record<Exclude<SeguimientoPotencial, ''>, number> = {
+  contactado: 412000240, recordatorio1: 412000241, recordatorio2: 412000242, respondio: 412000243, sinrespuesta: 412000244, emailerroneo: 412000245, pausado: 412000246,
+}
+const MOTIVO_DESCARTE: Record<Exclude<MotivoDescarte, ''>, number> = {
+  sinrespuesta: 412000250, noencaja: 412000251, sinpresupuesto: 412000252, ahorano: 412000253, otroproveedor: 412000254, otro: 412000255,
+}
 const PUNTUACION: Record<Puntuacion, number> = { caliente: 412000130, templado: 412000131, frio: 412000132 }
 const EST_POTENCIAL: Record<EstadoPotencial, number> = { abierto: 412000135, calificado: 412000136, descalificado: 412000137 }
 const FASE: Record<Fase, number> = { calificar: 412000140, desarrollar: 412000141, proponer: 412000142, cerrar: 412000143 }
@@ -84,6 +95,7 @@ const OP_COMPRA: Record<TipoOperacionCompra, number> = { interior: 412000500, ue
 const CLAVE_RET: Record<ClaveRetencion, number> = { ninguna: 412000510, profesional: 412000511, arrendamiento: 412000512, otros: 412000513 }
 
 const DE = {
+  etapa: inverso(ETAPA), entrada: inverso(ENTRADA), seguimiento: inverso(SEGUIMIENTO), motivoDescarte: inverso(MOTIVO_DESCARTE),
   tipoCuenta: inverso(TIPO_CUENTA), activo: inverso(ACTIVO), condiciones: inverso(CONDICIONES), metodo: inverso(METODO), origen: inverso(ORIGEN),
   puntuacion: inverso(PUNTUACION), estPotencial: inverso(EST_POTENCIAL), fase: inverso(FASE), estOportunidad: inverso(EST_OPORTUNIDAD),
   estOferta: inverso(EST_OFERTA), estPedidoVenta: inverso(EST_PEDIDO_VENTA), estFacturaVenta: inverso(EST_FACTURA_VENTA),
@@ -192,7 +204,16 @@ const potenciales: Tabla<'potenciales'> = {
     descalificadoEl: nulo(f.loc_descalificadoel), motivo: txt(f.loc_motivo), direccion: txt(f.loc_direccion), cp: txt(f.loc_cp),
     pais: txt(f.loc_pais), web: txt(f.loc_web), empleados: txt(f.loc_empleados), area: txt(f.loc_area), herramientas: txt(f.loc_herramientas),
     loQueImporta: txt(f.loc_loqueimporta), recomendacion: txt(f.loc_recomendacion), cuentaId: f._loc_cuenta_value ?? null,
-    contactoId: f._loc_contacto_value ?? null, oportunidadId: f._loc_oportunidad_value ?? null,
+    contactoId: f._loc_contacto_value ?? null, oportunidadId: f._loc_oportunidad_value ?? null, proyectoId: f._loc_proyecto_value ?? null,
+    // los registros anteriores al recorrido no tienen etapa: se deduce de su estado y su origen
+    etapa: DE.etapa[f.loc_etapa] ?? etapaPorDefecto(DE.estPotencial[f.loc_estado] ?? 'abierto'),
+    etapaDesde: dia(f.loc_etapadesde) || dia(f.createdon),
+    entrada: DE.entrada[f.loc_entrada] ?? entradaDeOrigen(DE.origen[f.loc_origen] ?? 'web'),
+    seguimiento: DE.seguimiento[f.loc_seguimiento] ?? '', primerContacto: dia(f.loc_primercontacto),
+    proximoRecordatorio: dia(f.loc_proximorecordatorio), respondioEl: dia(f.loc_respondioel), conversacionId: txt(f.loc_conversacionid),
+    linkedin: txt(f.loc_linkedin), procesosRevisar: txt(f.loc_procesosrevisar), proximaAccion: txt(f.loc_proximaaccion),
+    proximaAccionFecha: dia(f.loc_proximaaccionfecha), motivoDescarte: DE.motivoDescarte[f.loc_motivodescarte] ?? '',
+    volverContactar: dia(f.loc_volvercontactar),
   }),
   escribir: l => ({
     loc_numero: l.no, loc_tema: l.tema, loc_nombre: l.nombre, loc_apellidos: l.apellidos, loc_empresa: l.empresa, loc_cargo: l.cargo,
@@ -203,6 +224,13 @@ const potenciales: Tabla<'potenciales'> = {
     loc_area: l.area, loc_herramientas: l.herramientas, loc_loqueimporta: l.loQueImporta, loc_recomendacion: l.recomendacion,
     'loc_Propietario@odata.bind': ref('loc_miembros', l.propietarioId), 'loc_Cuenta@odata.bind': ref('loc_cuentas', l.cuentaId),
     'loc_Contacto@odata.bind': ref('loc_contactos', l.contactoId), 'loc_Oportunidad@odata.bind': ref('loc_oportunidads', l.oportunidadId),
+    'loc_Proyecto@odata.bind': ref('loc_proyectos', l.proyectoId),
+    loc_etapa: ETAPA[l.etapa], loc_etapadesde: fechaONulo(l.etapaDesde), loc_entrada: ENTRADA[l.entrada],
+    loc_seguimiento: l.seguimiento ? SEGUIMIENTO[l.seguimiento] : null, loc_primercontacto: fechaONulo(l.primerContacto),
+    loc_proximorecordatorio: fechaONulo(l.proximoRecordatorio), loc_respondioel: fechaONulo(l.respondioEl),
+    loc_conversacionid: l.conversacionId.slice(0, 500), loc_linkedin: l.linkedin.slice(0, 300), loc_procesosrevisar: l.procesosRevisar,
+    loc_proximaaccion: l.proximaAccion.slice(0, 300), loc_proximaaccionfecha: fechaONulo(l.proximaAccionFecha),
+    loc_motivodescarte: l.motivoDescarte ? MOTIVO_DESCARTE[l.motivoDescarte] : null, loc_volvercontactar: fechaONulo(l.volverContactar),
   }),
 }
 
@@ -255,11 +283,16 @@ const ofertas: Tabla<'ofertas'> = {
   conjunto: 'loc_ofertas', clave: 'loc_ofertaid', servicio: Loc_ofertasService,
   leer: (f): Oferta => ({
     ...leerDocumento(f, 'loc_ofertaid'), lineas: [], estado: DE.estOferta[f.loc_estado] ?? 'borrador', oportunidadId: f._loc_oportunidad_value ?? null,
-    validaHasta: dia(f.loc_validahasta), pedidoId: f._loc_pedido_value ?? null,
+    validaHasta: dia(f.loc_validahasta), pedidoId: f._loc_pedido_value ?? null, potencialId: f._loc_potencial_value ?? null,
+    version: num(f.loc_version) || 1, alcance: txt(f.loc_alcance), documento: txt(f.loc_documento), enviadaEl: dia(f.loc_enviadael),
+    motivoRechazo: txt(f.loc_motivorechazo),
   }),
   escribir: q => ({
     ...escribirDocumento(q), loc_estado: EST_OFERTA[q.estado], loc_validahasta: fechaONulo(q.validaHasta),
+    loc_version: Math.round(num(q.version)) || 1, loc_alcance: q.alcance, loc_documento: q.documento.slice(0, 500),
+    loc_enviadael: fechaONulo(q.enviadaEl), loc_motivorechazo: q.motivoRechazo.slice(0, 500),
     'loc_Oportunidad@odata.bind': ref('loc_oportunidads', q.oportunidadId), 'loc_Pedido@odata.bind': ref('loc_pedidoventas', q.pedidoId),
+    'loc_Potencial@odata.bind': ref('loc_potencials', q.potencialId),
   }),
 }
 

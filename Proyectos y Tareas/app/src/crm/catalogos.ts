@@ -4,8 +4,8 @@
  */
 import type {
   ColEntidad, ColReferente, CondicionPago, EstadoActividad, EstadoActivo, EstadoFacturaVisible, EstadoOferta,
-  EstadoOportunidad, EstadoPedidoCompra, EstadoPedidoVenta, EstadoPotencial, Fase, MetodoPago, OrigenPotencial,
-  PrioridadCrm, Puntuacion, RegimenIva, TipoActividad, TipoCuenta, TipoProducto, Unidad,
+  EntradaPotencial, EstadoOportunidad, EstadoPedidoCompra, EstadoPedidoVenta, EstadoPotencial, EtapaPotencial, Fase, MetodoPago,
+  MotivoDescarte, OrigenPotencial, PrioridadCrm, Puntuacion, RegimenIva, SeguimientoPotencial, TipoActividad, TipoCuenta, TipoProducto, Unidad,
 } from './types'
 
 export const REGIMEN_IVA: Record<RegimenIva, string> = {
@@ -15,9 +15,27 @@ export const REGIMEN_IVA: Record<RegimenIva, string> = {
 export const TIPO_CUENTA: Record<TipoCuenta, string> = { cliente: 'Cliente', proveedor: 'Proveedor', ambos: 'Cliente y proveedor' }
 export const ESTADO_ACTIVO: Record<EstadoActivo, string> = { activo: 'Activo', inactivo: 'Inactivo' }
 export const EMPLEADOS: Record<string, string> = { '': 'Sin indicar', '1–10': '1–10', '11–50': '11–50', '51–200': '51–200', '201–500': '201–500', '500+': 'Más de 500' }
-export const ORIGEN: Record<OrigenPotencial, string> = { web: 'Sitio web', referido: 'Referido', linkedin: 'LinkedIn', evento: 'Evento', llamada: 'Llamada en frío', partner: 'Partner' }
+export const ORIGEN: Record<OrigenPotencial, string> = { web: 'Sitio web', referido: 'Referido', linkedin: 'LinkedIn', evento: 'Evento', llamada: 'Llamada en frío', partner: 'Partner', correo: 'Correo (Outlook)' }
 export const PUNTUACION: Record<Puntuacion, string> = { caliente: 'Caliente', templado: 'Templado', frio: 'Frío' }
-export const ESTADO_POTENCIAL: Record<EstadoPotencial, string> = { abierto: 'Abierto', calificado: 'Calificado', descalificado: 'Descalificado' }
+/** «Calificado» es el cliente potencial que ya arrancó proyecto y pasó a cuenta y contacto. */
+export const ESTADO_POTENCIAL: Record<EstadoPotencial, string> = { abierto: 'En curso', calificado: 'Convertido en cliente', descalificado: 'Descartado' }
+
+/** Recorrido comercial del cliente potencial. */
+export const ETAPAS: EtapaPotencial[] = ['entrada', 'auditoria', 'propuesta', 'proyecto']
+export const ETAPA: Record<EtapaPotencial, string> = { entrada: 'Entrada', auditoria: 'Auditoría', propuesta: 'Propuesta', proyecto: 'Proyecto en marcha' }
+export const ENTRADA: Record<EntradaPotencial, string> = { inbound: 'Inbound (nos contacta)', outbound: 'Outbound (le contactamos)' }
+export const SEGUIMIENTO: Record<SeguimientoPotencial, string> = {
+  '': 'Sin seguimiento', contactado: 'Contactado', recordatorio1: 'Recordatorio 1 enviado', recordatorio2: 'Recordatorio 2 enviado',
+  respondio: 'Respondió', sinrespuesta: 'Sin respuesta', emailerroneo: 'Correo erróneo', pausado: 'Pausado',
+}
+/** Seguimientos en los que la automatización todavía enviará recordatorios. */
+export const SEGUIMIENTO_ACTIVO: SeguimientoPotencial[] = ['contactado', 'recordatorio1', 'recordatorio2']
+export const MOTIVO_DESCARTE: Record<MotivoDescarte, string> = {
+  '': 'Sin indicar', sinrespuesta: 'Sin respuesta', noencaja: 'No encaja', sinpresupuesto: 'Sin presupuesto', ahorano: 'Ahora no',
+  otroproveedor: 'Eligió a otro', otro: 'Otro',
+}
+/** Días en la misma etapa a partir de los que un cliente potencial está parado. */
+export const DIAS_PARADO = 14
 
 /** Flujo de proceso de negocio de las oportunidades, con su probabilidad por fase. */
 export const FASES: Fase[] = ['calificar', 'desarrollar', 'proponer', 'cerrar']
@@ -54,6 +72,7 @@ const TONOS: Record<string, Tono> = {
   activo: 'ok', inactivo: 'apagado', abierto: 'acento', calificado: 'ok', descalificado: 'apagado', abierta: 'acento', ganada: 'ok', perdida: 'error',
   borrador: 'apagado', enviada: 'acento', aceptada: 'ok', rechazada: 'error', expirada: 'aviso', convertida: 'ok', liberado: 'acento', enviado: 'acento',
   facturado: 'ok', cancelado: 'apagado', recibido: 'acento', registrada: 'acento', pagada: 'ok', vencida: 'error', anulada: 'apagado', pendiente: 'aviso',
+  contactado: 'acento', recordatorio1: 'aviso', recordatorio2: 'aviso', respondio: 'ok', sinrespuesta: 'apagado', emailerroneo: 'error', pausado: 'apagado',
   completada: 'ok', cancelada: 'apagado', caliente: 'error', templado: 'aviso', frio: 'apagado', alta: 'error', normal: '', baja: 'apagado', si: 'ok', no: 'apagado',
 }
 export const tonoDe = (estado: string): Tono => TONOS[estado] ?? ''
