@@ -146,6 +146,7 @@ describe('calculoNuevo, normalizar e importar', () => {
     expect(i.integracion.map(x => x.id)).toEqual(['ninguna', 'api'])
     expect(i.relacion[0]).toMatchObject({ id: 'grupo1', f: 0.8, detalle: 'Contactos cercanos' })
     expect(i).toMatchObject({ precioMinimo: 500, mantenimiento: 0.03, mantenimientoMinimo: 40, puestaEnMarcha: 250, redondeo: 50 })
+    expect(i.facturacion[0]).toMatchObject({ id: 'hasta100k', f: 0.6 }) // los ids de la web pasan a los de la app
     expect(i.paises).toEqual(t.paises) // lo que no venía se queda con los valores de partida
     expect(desdeCalculadoraWeb('no es json')).toBeNull()
   })

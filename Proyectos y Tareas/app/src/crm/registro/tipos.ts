@@ -72,6 +72,8 @@ export interface Pestana<T> {
   campos?: Campo<T>[]
   /** Pestaña de líneas del documento. */
   lineas?: boolean
+  /** Las líneas salen de la calculadora de precios (ofertas y pedidos de venta). */
+  calculadora?: boolean
   /** Contenido propio en lugar de campos (listas de reuniones, propuestas…). Solo en registros guardados. */
   contenido?: (d: T, c: CrmCtx) => ReactNode
   /** Resumen de la pestaña plegada cuando tiene contenido propio. */

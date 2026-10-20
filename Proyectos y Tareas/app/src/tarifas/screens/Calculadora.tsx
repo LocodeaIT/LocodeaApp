@@ -37,7 +37,7 @@ function Segmentos({ opciones, valor, onCambio, etiqueta }: { opciones: Factor[]
   )
 }
 
-export function Calculadora({ tarifas: t, calculo: c, resultado: r, onCambio }: { tarifas: Tarifas; calculo: Calculo; resultado: Resultado; onCambio: (c: Calculo) => void }) {
+export function Calculadora({ tarifas: t, calculo: c, resultado: r, onCambio, soloLectura }: { tarifas: Tarifas; calculo: Calculo; resultado: Resultado; onCambio: (c: Calculo) => void; soloLectura?: boolean }) {
   const cambiar = (x: Partial<Calculo>) => onCambio({ ...c, ...x })
   const cambiarLinea = (i: number, x: Partial<LineaCalculo>) => cambiar({ lineas: c.lineas.map((l, j) => (j === i ? { ...l, ...x } : l)) })
   const anadir = (h: HerramientaTarifa) => cambiar({ lineas: [...c.lineas, { herramientaId: h.id, cantidad: 1, complejidad: 'media', integracion: SIN_INTEGRACION }] })
@@ -88,7 +88,8 @@ export function Calculadora({ tarifas: t, calculo: c, resultado: r, onCambio }: 
   }
 
   return (
-    <div className="tar-calculadora">
+    // un documento registrado o cerrado enseña su cálculo sin dejar cambiarlo
+    <fieldset className="tar-calculadora" disabled={soloLectura}>
       <section className="tar-bloque">
         <h3>Cliente</h3>
         <div className="tar-campos">
@@ -163,7 +164,7 @@ export function Calculadora({ tarifas: t, calculo: c, resultado: r, onCambio }: 
           {r.mantenimiento.pactada && ' Ahora se usa la pactada; borra el campo para volver a la automática.'}
         </p>
       </section>
-    </div>
+    </fieldset>
   )
 }
 

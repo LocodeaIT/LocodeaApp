@@ -108,8 +108,10 @@ pushear a continuación, antes de dar la tarea por terminada.
   plazo, relación (Grupo 1 / Grupo 2 / Externo), mínimo, redondeo y
   mantenimiento aparte. Tarifas en `loc_tarifaprecio` (JSON; una fila por
   guardado, se usa la última; solo los socios guardan). En ofertas y pedidos de
-  venta, «Calcular precio» sustituye las líneas y guarda el cálculo en
-  `loc_calculoprecio`. Esquema con `node scripts/tarifas-esquema.mjs` y después
+  venta la pestaña «Calculadora y líneas» es el carrito: cada cambio regenera
+  las líneas y guarda el cálculo en `loc_calculoprecio` (también en documentos
+  nuevos; los antiguos con líneas a mano las conservan hasta «Pasar a la
+  calculadora»). Las líneas ya no eligen producto. Esquema con `node scripts/tarifas-esquema.mjs` y después
   `npx pa app add data-source --connector dataverse --table loc_tarifaprecio`.
   **Pasar el esquema antes de publicar**: sin la columna falla el guardado de
   los documentos con cálculo. Las tarifas de la calculadora web se importan

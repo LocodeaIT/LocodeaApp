@@ -422,12 +422,13 @@ export function desdeCalculadoraWeb(texto: string): Tarifas | null {
   const integ = { none: SIN_INTEGRACION, std: 'estandar', api: 'api', legacy: 'sinapi' }
   const rel = { g1: 'grupo1', g2: 'grupo2', ext: 'externo' }
   const empleados = { e1: '1–10', e2: '11–50', e3: '51–200', e4: '201–500', e5: '500+' }
+  const facturacion = { rA: 'hasta100k', rB: '100ka500k', r1: '500ka2m', r2: '2a10m', r3: '10a50m', r4: '50a250m', r5: 'mas250m' }
   return normalizarTarifas({
     herramientas: w.tools.map((x: any) => ({ id: String(x.id), nombre: String(x.name), unidad: String(x.unit), precio: Number(x.price) || 0, color: String(x.color || '#6b6b6b'), seccion: seccion(x) })),
     complejidad: factores(w.complexity),
     integracion: factores(w.integration, integ),
     empleados: factores(w.employees, empleados)?.map(e => ({ ...e, etiqueta: e.id === '500+' ? 'Más de 500' : e.id })),
-    facturacion: factores(w.revenue),
+    facturacion: factores(w.revenue, facturacion),
     paises: factores(w.countries),
     relacion: factores(w.relation, rel),
     puestaEnMarcha: Number(w.integrationSetup),

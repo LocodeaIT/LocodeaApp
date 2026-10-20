@@ -1,11 +1,10 @@
 /**
- * Editor de líneas de un documento con selector de producto y totales
- * (subtotal, descuento, base imponible, IVA y total). En venta la línea toma
- * el precio del producto; en compra, el coste.
+ * Editor de líneas de un documento con totales (subtotal, descuento, base
+ * imponible, IVA y total). En ofertas y pedidos de venta las líneas salen de
+ * la calculadora de precios y aquí solo se enseñan; en compras y facturas se
+ * escriben a mano. Ya no se elige producto: el catálogo de precios es Tarifas.
  */
 import { Plus, X } from 'lucide-react'
-import { Select } from '../../ui/Select'
-import { useCrm } from '../contexto'
 import type { LineaDocumento } from '../types'
 import { UNIDAD } from '../catalogos'
 import { importeLinea, nuevaLinea, totales } from '../documentos'
@@ -13,14 +12,7 @@ import { eur } from '../formato'
 import { Numero } from './Campos'
 
 export function LineasDocumento({ lineas, compra, bloqueado, onCambio }: { lineas: LineaDocumento[]; compra: boolean; bloqueado: boolean; onCambio: (l: LineaDocumento[]) => void }) {
-  const { datos } = useCrm()
-  const productos = datos.productos.filter(p => p.activo).sort((a, b) => a.no.localeCompare(b.no))
-  const opciones = [{ valor: '', etiqueta: '—' }, ...productos.map(p => ({ valor: p.id, etiqueta: `${p.no} · ${p.nombre}` }))]
   const cambiar = (i: number, cambio: Partial<LineaDocumento>) => onCambio(lineas.map((l, j) => (j === i ? { ...l, ...cambio } : l)))
-  const elegirProducto = (i: number, productoId: string) => {
-    const p = datos.productos.find(x => x.id === productoId)
-    cambiar(i, p ? { productoId, descripcion: p.nombre, unidad: p.unidad, iva: p.iva ?? 21, precio: compra ? p.coste : p.precio } : { productoId })
-  }
   const t = totales({ lineas })
 
   return (
@@ -29,7 +21,7 @@ export function LineasDocumento({ lineas, compra, bloqueado, onCambio }: { linea
         <table className="crm-lineas">
           <thead>
             <tr>
-              <th style={{ width: 230 }}>Producto</th><th>Descripción</th><th className="num" style={{ width: 90 }}>Cantidad</th><th style={{ width: 70 }}>Ud.</th>
+              <th>Descripción</th><th className="num" style={{ width: 90 }}>Cantidad</th><th style={{ width: 70 }}>Ud.</th>
               <th className="num" style={{ width: 110 }}>{compra ? 'Coste' : 'Precio'}</th><th className="num" style={{ width: 76 }}>Dto. %</th><th className="num" style={{ width: 70 }}>IVA %</th>
               <th className="num" style={{ width: 120 }}>Importe</th><th style={{ width: 40 }} />
             </tr>
@@ -37,7 +29,6 @@ export function LineasDocumento({ lineas, compra, bloqueado, onCambio }: { linea
           <tbody>
             {lineas.map((l, i) => (
               <tr key={i}>
-                <td><Select valor={l.productoId} opciones={opciones} onCambio={v => elegirProducto(i, v)} sutil pequeno ancho="100%" deshabilitado={bloqueado} /></td>
                 <td><input value={l.descripcion} onChange={e => cambiar(i, { descripcion: e.target.value })} disabled={bloqueado} aria-label="Descripción" /></td>
                 <td className="num"><Numero valor={l.cantidad} onCambio={n => cambiar(i, { cantidad: n })} step={0.5} min={0} disabled={bloqueado} aria-label="Cantidad" /></td>
                 <td><span className="crm-apagado">{l.unidad ? UNIDAD[l.unidad] : ''}</span></td>
@@ -48,7 +39,7 @@ export function LineasDocumento({ lineas, compra, bloqueado, onCambio }: { linea
                 <td>{!bloqueado && <button type="button" className="btn sutil icono pequeno" aria-label="Quitar línea" onClick={() => onCambio(lineas.filter((_, j) => j !== i))}><X size={14} /></button>}</td>
               </tr>
             ))}
-            {!lineas.length && <tr><td colSpan={9} className="crm-vacio">Sin líneas.{!bloqueado && ' Añade la primera con «Nueva línea».'}</td></tr>}
+            {!lineas.length && <tr><td colSpan={8} className="crm-vacio">Sin líneas.{!bloqueado && ' Añade la primera con «Nueva línea».'}</td></tr>}
           </tbody>
         </table>
       </div>

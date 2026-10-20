@@ -19,6 +19,7 @@ import { guardarPestanas, pestanasGuardadas } from '../preferencias'
 import { CampoFicha } from './Campos'
 import { DocumentoImpreso } from './DocumentoImpreso'
 import { LineasDocumento } from './LineasDocumento'
+import { PestanaCalculadora, type DocConCalculo } from '../../tarifas/screens/PestanaCalculadora'
 import { BarraProceso } from './BarraProceso'
 import { ModalConfirmar, ModalTexto } from './ModalesCrm'
 
@@ -218,7 +219,7 @@ function PestanaFicha({ p, e, d, c, abierta, bloqueado, onAlternar, onCambiar }:
   onAlternar: () => void; onCambiar: (campo: Campo<RegistroBase> | null, clave: string, valor: unknown) => void
 }) {
   const lineas = (d as unknown as { lineas?: LineaDocumento[] }).lineas ?? []
-  const resumen = abierta ? '' : p.lineas
+  const resumen = abierta ? '' : p.lineas || p.calculadora
     ? `${lineas.length} ${lineas.length === 1 ? 'línea' : 'líneas'} · ${eur(totalDoc({ lineas }))}`
     : p.contenido
       ? p.resumenContenido?.(d, c) ?? ''
@@ -232,7 +233,10 @@ function PestanaFicha({ p, e, d, c, abierta, bloqueado, onAlternar, onCambiar }:
       </button>
       {/* siempre montado: plegado solo se oculta, así se imprime entero */}
       <div className="crm-pestana-cuerpo">
-        {p.lineas
+        {p.calculadora
+          ? <PestanaCalculadora doc={d as unknown as DocConCalculo} c={c} bloqueado={bloqueado}
+              onCambio={x => { if (x.calculo) onCambiar(null, 'calculo', x.calculo); onCambiar(null, 'lineas', x.lineas) }} />
+          : p.lineas
           ? <LineasDocumento lineas={lineas} compra={!!e.compra} bloqueado={bloqueado} onCambio={l => onCambiar(null, 'lineas', l)} />
           : p.contenido ? p.contenido(d, c) : (
             <div className="crm-campos">

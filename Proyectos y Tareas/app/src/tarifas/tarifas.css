@@ -14,7 +14,8 @@
 .tar-contador input::-webkit-inner-spin-button { -webkit-appearance: none; }
 
 /* ── calculadora */
-.tar-calculadora { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.tar-calculadora { display: flex; flex-direction: column; gap: 22px; min-width: 0; border: 0; margin: 0; padding: 0; }
+.tar-calculadora:disabled .tar-herramienta-cab .btn, .tar-calculadora:disabled .tar-linea .btn { display: none; }
 .tar-bloque h3 { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
 .tar-campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .tar-campos .completo { grid-column: 1 / -1; }
@@ -86,12 +87,14 @@
 .tar-rango b { display: block; font-size: 14px; font-variant-numeric: tabular-nums; }
 .tar-rango span { font-size: 11px; color: var(--texto-3); }
 
-/* ── ventana de ofertas y pedidos */
-.modal.ancho:has(.tar-modal) { width: min(1120px, 96vw); max-width: none; }
-.tar-modal-columnas { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
-.tar-modal-columnas > .tar-resumen { position: sticky; top: 0; }
-@media (max-width: 900px) { .tar-modal-columnas { grid-template-columns: minmax(0, 1fr); } }
-.tar-aviso-pie { margin-right: auto; font-size: 12px; color: var(--aviso); }
+/* ── calculadora dentro de la ficha de ofertas y pedidos */
+.tar-ficha { display: flex; flex-direction: column; gap: 14px; }
+.tar-ficha .tar-nota { margin-bottom: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.tar-ficha-columnas { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
+.tar-ficha-lateral { position: sticky; top: 16px; display: grid; gap: 10px; }
+@media (max-width: 1000px) { .tar-ficha-columnas { grid-template-columns: minmax(0, 1fr); } .tar-ficha-lateral { position: static; } }
+.tar-ficha-titulo { font-size: 15px; font-weight: 600; margin: 8px 0 0; }
+.tar-ficha-titulo + .tar-ayuda { margin-bottom: 0; }
 
 /* ── pantalla Tarifas */
 .tar-pagina-columnas { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }

@@ -4,9 +4,8 @@
  * pago, historial del documento y escala de tiempo.
  */
 import {
-  Ban, Calculator, Check, Euro, FilePen, Lock, LockOpen, PackageCheck, Phone, Receipt, ReceiptText, RotateCcw, Send, ShoppingCart, Target, Truck,
+  Ban, Check, Euro, FilePen, Lock, LockOpen, PackageCheck, Phone, Receipt, ReceiptText, RotateCcw, Send, ShoppingCart, Target, Truck,
 } from 'lucide-react'
-import { ModalCalculadora } from '../../tarifas/screens/ModalCalculadora'
 import type { Opcion } from '../../ui/Select'
 import type { CrmCtx } from '../contexto'
 import type {
@@ -57,6 +56,8 @@ interface Config<T extends Documento> {
   /** Validación propia antes de la común de líneas; por defecto se exige la cuenta. */
   validarParte?: (d: T) => string | null
   comandos: (d: T, c: CrmCtx, ui: UiFicha) => (Comando | null | false)[]
+  /** Documento de venta cuyo alcance sale de la calculadora de precios: la pestaña de líneas es la calculadora. */
+  calculadora?: boolean
 }
 
 /** Cliente del documento: la cuenta o, en una propuesta, la empresa del cliente potencial. */
@@ -159,7 +160,9 @@ function entidadDocumento<T extends Documento>(cfg: Config<T>): Entidad<T> {
     pestanas: [
       { clave: 'general', titulo: 'General', campos: cfg.campos },
       ...(cfg.propuesta ? [{ clave: 'propuesta', titulo: 'Propuesta', campos: cfg.propuesta }] : []),
-      { clave: 'lineas', titulo: 'Líneas', lineas: true },
+      cfg.calculadora
+        ? { clave: 'lineas', titulo: 'Calculadora y líneas', calculadora: true }
+        : { clave: 'lineas', titulo: 'Líneas', lineas: true },
       ...(cfg.fiscal ? [{ clave: 'fiscal', titulo: 'Fiscal', abierta: false, campos: cfg.fiscal }] : []),
       {
         clave: 'detalles', titulo: cfg.tituloDetalles ?? 'Detalles', abierta: false, campos: [
@@ -188,7 +191,7 @@ function conVencimiento<T extends FacturaVenta | FacturaCompra>(o: T): T {
 // ─────────────────────────────────────────────── ventas
 
 export const ofertas = entidadDocumento<Oferta>({
-  col: 'ofertas', uno: 'Oferta', muchos: 'Ofertas', fem: true, etiquetas: ESTADO_OFERTA, bloqueados: ['convertida'],
+  col: 'ofertas', uno: 'Oferta', muchos: 'Ofertas', fem: true, etiquetas: ESTADO_OFERTA, bloqueados: ['convertida'], calculadora: true,
   vistas: [
     { clave: 'activas', titulo: 'Ofertas activas', filtro: q => q.estado === 'borrador' || q.estado === 'enviada' },
     { clave: 'enviadas', titulo: 'Enviadas', filtro: q => q.estado === 'enviada' },
@@ -222,9 +225,6 @@ export const ofertas = entidadDocumento<Oferta>({
     potencialId: null, version: 1, alcance: '', documento: '', enviadaEl: '', motivoRechazo: '',
   }),
   comandos: (q, c, ui) => [
-    (q.estado === 'borrador' || q.estado === 'enviada') && {
-      texto: 'Calcular precio', icono: Calculator, accion: () => ui.mostrar(cerrar => <ModalCalculadora destino={{ col: 'ofertas', doc: q }} c={c} cerrar={cerrar} />),
-    },
     q.estado === 'borrador' && estadoCmd(c, 'ofertas', q, 'enviada', 'Enviar', Send),
     (q.estado === 'borrador' || q.estado === 'enviada') && estadoCmd(c, 'ofertas', q, 'aceptada', 'Aceptar', Check),
     (q.estado === 'borrador' || q.estado === 'enviada') && (q.potencialId
@@ -238,7 +238,7 @@ export const ofertas = entidadDocumento<Oferta>({
 })
 
 export const pedidosVenta = entidadDocumento<PedidoVenta>({
-  col: 'pedidosVenta', uno: 'Pedido de venta', muchos: 'Pedidos de venta', etiquetas: ESTADO_PEDIDO_VENTA, bloqueados: ['facturado', 'cancelado'],
+  col: 'pedidosVenta', uno: 'Pedido de venta', muchos: 'Pedidos de venta', etiquetas: ESTADO_PEDIDO_VENTA, bloqueados: ['facturado', 'cancelado'], calculadora: true,
   vistas: [
     { clave: 'abiertos', titulo: 'Pedidos de venta abiertos', filtro: o => ['abierto', 'liberado', 'enviado'].includes(o.estado) },
     { clave: 'facturar', titulo: 'Pendientes de facturar', filtro: o => o.estado === 'enviado' },
@@ -256,10 +256,7 @@ export const pedidosVenta = entidadDocumento<PedidoVenta>({
     { clave: 'ofertaId', titulo: 'Oferta de origen', mostrar: (d, c) => <Enlace col="ofertas" id={d.ofertaId} texto={c.datos.ofertas.find(q => q.id === d.ofertaId)?.no} /> },
   ],
   nuevo: b => ({ ...b, estado: 'abierto', ofertaId: null, oportunidadId: null, fechaEntrega: sumarDias(hoy(), 14), refCliente: '', facturaId: null }),
-  comandos: (o, c, ui) => [
-    (o.estado === 'abierto' || o.estado === 'liberado') && {
-      texto: 'Calcular precio', icono: Calculator, accion: () => ui.mostrar(cerrar => <ModalCalculadora destino={{ col: 'pedidosVenta', doc: o }} c={c} cerrar={cerrar} />),
-    },
+  comandos: (o, c) => [
     o.estado === 'abierto' && estadoCmd(c, 'pedidosVenta', o, 'liberado', 'Liberar', LockOpen),
     o.estado === 'liberado' && estadoCmd(c, 'pedidosVenta', o, 'enviado', 'Enviar', Truck),
     o.estado === 'enviado' && { texto: 'Crear factura', icono: Receipt, tono: 'acento', accion: () => c.pedidoAFactura(o) },
