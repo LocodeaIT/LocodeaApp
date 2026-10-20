@@ -13,7 +13,7 @@ import { Modal, confirmar } from '../../ui/basicos'
 import { fecha } from '../../crm/formato'
 import { nuevoId } from '../../data/repo'
 import {
-  SECCIONES, TARIFAS_INICIALES, calcular, desdeCalculadoraWeb, normalizarTarifas, type Calculo, type Factor, type HerramientaTarifa, type Seccion, type Tarifas,
+  SECCIONES, SIN_INTEGRACION, TARIFAS_INICIALES, calcular, desdeCalculadoraWeb, normalizarTarifas, type Calculo, type Factor, type HerramientaTarifa, type Seccion, type Tarifas,
 } from '../motor'
 import { useTarifas } from '../store'
 import { ResumenPrecio } from './Calculadora'
@@ -121,13 +121,13 @@ export default function PantallaTarifas() {
 
           <section className="tarjeta padded tar-seccion">
             <h2>Complejidad</h2>
-            <EditorFactores lista={borrador.complejidad} fijo onCambio={complejidad => cambiar({ complejidad })} etiquetaF="Multiplicador" />
+            <EditorFactores lista={borrador.complejidad} onCambio={complejidad => cambiar({ complejidad })} etiquetaF="Multiplicador" />
           </section>
 
           <section className="tarjeta padded tar-seccion">
             <h2>Integración</h2>
             <p className="tar-ayuda">Recargo sobre el precio de cada pieza de desarrollo que se conecta a un programa que el cliente ya usa (0,6 = +60 %).</p>
-            <EditorFactores lista={borrador.integracion} fijo onCambio={integracion => cambiar({ integracion })} etiquetaF="Recargo" detalle />
+            <EditorFactores lista={borrador.integracion} protegida={f => f.id === SIN_INTEGRACION} nuevoF={0.5} onCambio={integracion => cambiar({ integracion })} etiquetaF="Recargo" detalle />
             <div className="tar-reglas">
               <Regla etiqueta="Puesta en marcha por programa (€)" valor={borrador.puestaEnMarcha} onCambio={n => cambiar({ puestaEnMarcha: n })} />
             </div>
@@ -145,7 +145,7 @@ export default function PantallaTarifas() {
             <h2>Tamaño de la empresa</h2>
             <p className="tar-ayuda">El factor de tamaño es la media de los dos, con el peso de los trabajadores que pongas en Reglas.</p>
             <h3>Trabajadores</h3>
-            <EditorFactores lista={borrador.empleados} fijo onCambio={empleados => cambiar({ empleados })} etiquetaF="Coeficiente" />
+            <EditorFactores lista={borrador.empleados} onCambio={empleados => cambiar({ empleados })} etiquetaF="Coeficiente" />
             <h3>Facturación anual</h3>
             <EditorFactores lista={borrador.facturacion} onCambio={facturacion => cambiar({ facturacion })} etiquetaF="Coeficiente" />
           </section>
@@ -197,11 +197,13 @@ function Regla({ etiqueta, valor, onCambio, paso = 1 }: { etiqueta: string; valo
 }
 
 /**
- * Lista de opciones con su coeficiente. `fijo`: no se añaden ni se quitan
- * (las usan los cálculos guardados por su id). `codigo`: el id se edita (país).
+ * Lista de opciones con su coeficiente; se pueden añadir y quitar (siempre
+ * queda una). `protegida`: opción que no se quita (p. ej. «Sin integración»).
+ * `codigo`: el id se edita (país). Si se quita una opción que usaba un cálculo
+ * guardado, al recalcularlo toma la primera de la lista.
  */
-function EditorFactores({ lista, onCambio, etiquetaF, fijo, codigo, detalle }: {
-  lista: Factor[]; onCambio: (l: Factor[]) => void; etiquetaF: string; fijo?: boolean; codigo?: boolean; detalle?: boolean
+function EditorFactores({ lista, onCambio, etiquetaF, protegida, codigo, detalle, nuevoF = 1 }: {
+  lista: Factor[]; onCambio: (l: Factor[]) => void; etiquetaF: string; protegida?: (f: Factor) => boolean; codigo?: boolean; detalle?: boolean; nuevoF?: number
 }) {
   const fijar = (i: number, x: Partial<Factor>) => onCambio(lista.map((f, j) => (j === i ? { ...f, ...x } : f)))
   return (
@@ -215,16 +217,14 @@ function EditorFactores({ lista, onCambio, etiquetaF, fijo, codigo, detalle }: {
           <input value={f.etiqueta} aria-label="Nombre" onChange={e => fijar(i, { etiqueta: e.target.value })} />
           {detalle && <input value={f.detalle ?? ''} aria-label="Detalle" onChange={e => fijar(i, { detalle: e.target.value })} />}
           <input className="num" type="number" step={0.05} value={f.f} aria-label={etiquetaF} onChange={e => fijar(i, { f: num(e.target.value) })} />
-          {fijo ? <span /> : (
+          {protegida?.(f) ? <span /> : (
             <button type="button" className="btn sutil icono pequeno" aria-label={`Quitar ${f.etiqueta}`} disabled={lista.length <= 1} onClick={() => onCambio(lista.filter((_, j) => j !== i))}><X size={14} /></button>
           )}
         </div>
       ))}
-      {!fijo && (
-        <button type="button" className="btn pequeno sutil" onClick={() => onCambio([...lista, { id: codigo ? '' : nuevoId(), etiqueta: 'Nueva opción', f: 1 }])}>
-          <Plus size={14} /> Añadir
-        </button>
-      )}
+      <button type="button" className="btn pequeno sutil" onClick={() => onCambio([...lista, { id: codigo ? '' : nuevoId(), etiqueta: 'Nueva opción', f: nuevoF }])}>
+        <Plus size={14} /> Añadir
+      </button>
     </div>
   )
 }
