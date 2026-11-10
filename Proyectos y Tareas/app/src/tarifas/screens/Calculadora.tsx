@@ -143,14 +143,14 @@ export function Calculadora({ tarifas: t, calculo: c, resultado: r, onCambio, so
 
       <section className="tar-bloque">
         <h3>Mantenimiento</h3>
-        <p className="tar-ayuda">Cuota mensual después de la entrega. Va aparte del precio del proyecto. Sale sola con el % y el mínimo de Tarifas, o se pone la que se pacte.</p>
+        <p className="tar-ayuda">Cuota mensual después de la entrega. No suma al precio del proyecto: si se incluye, el presupuesto lo ofrece como soporte opcional y el cliente marca «Sí» o «No» al firmar. Sale sola con el % y el mínimo de Tarifas, o se pone la que se pacte.</p>
         <label className="tar-check">
           <input type="checkbox" checked={m.incluido} onChange={e => cambiar({ mantenimiento: { ...m, incluido: e.target.checked } })} />
-          Incluir mantenimiento en la propuesta
+          Incluir el soporte y mantenimiento opcional en el presupuesto
         </label>
         <div className={`tar-campos ${m.incluido ? '' : 'apagado'}`}>
           <div className="campo">
-            <label>Meses de contrato</label>
+            <label>Permanencia mínima (meses)</label>
             <Contador valor={m.meses} min={1} etiqueta="Meses de mantenimiento" onCambio={n => cambiar({ mantenimiento: { ...m, meses: n } })} />
           </div>
           <div className="campo">
@@ -225,10 +225,9 @@ export function ResumenPrecio({ tarifas: t, calculo: c, resultado: r, opcion = '
         {onOpcion && <p className="tar-ayuda">Elige cuál de los tres precios va al documento.</p>}
         <div className="tar-filas">
           {m.total > 0 ? <>
-            <div className="tar-fila"><span>Mantenimiento{m.pactada ? ' (pactado)' : ''}</span><span className="tar-num">{eur0(m.cuota)}/mes × {m.meses}</span></div>
-            <div className="tar-fila"><span>Total mantenimiento</span><span className="tar-num">{eur0(m.total)}</span></div>
-            <div className="tar-fila total"><span>Proyecto + mantenimiento</span><span className="tar-num">{eur0(r.precio + m.total)}</span></div>
-          </> : <div className="tar-fila"><span>Mantenimiento opcional (no incluido)</span><span className="tar-num">{eur0(m.cuota)}/mes</span></div>}
+            <div className="tar-fila"><span>Soporte opcional en el presupuesto{m.pactada ? ' (pactado)' : ''}</span><span className="tar-num">{eur0(m.cuota)}/mes</span></div>
+            <div className="tar-fila"><span>Permanencia mínima · fuera del total</span><span className="tar-num">{m.meses} meses</span></div>
+          </> : <div className="tar-fila"><span>Mantenimiento (no se ofrece)</span><span className="tar-num">{eur0(m.cuota)}/mes</span></div>}
         </div>
       </div>
     </div>

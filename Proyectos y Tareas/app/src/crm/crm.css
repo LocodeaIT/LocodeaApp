@@ -137,6 +137,7 @@
 .crm-fases td { vertical-align: top; }
 .crm-fases td > input + input { margin-top: 2px; font-size: 12.5px; color: var(--texto-2); }
 .crm-fases input.titulo { font-weight: 500; }
+.crm-fases.estrecha { min-width: 520px; }
 .crm-fila-acciones { display: inline-flex; gap: 2px; }
 .crm-presupuesto-pie { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 .crm-presupuesto-botones { display: flex; gap: 8px; flex-wrap: wrap; }

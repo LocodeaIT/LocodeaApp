@@ -361,8 +361,9 @@ export function describirLinea(t: Tarifas, l: LineaCalculo, seccion: Seccion = '
  * como «Dto. %». Si el precio mínimo o el redondeo mueven el total, los precios
  * se escalan para que la base imponible del proyecto sea el precio
  * recomendado (salvo algún céntimo), o el de la opción elegida del rango
- * (mínimo negociable o techo). El mantenimiento, si se incluye, va en una
- * línea aparte por meses y sin descuento.
+ * (mínimo negociable o techo). El mantenimiento no es una línea: si se
+ * incluye, el presupuesto lo ofrece aparte como opcional, para que el cliente
+ * lo marque al firmar (crm/screens/PresupuestoImpreso.tsx).
  */
 export function lineasDocumento(t: Tarifas, c: Calculo, r: Resultado = calcular(t, c), iva = 21, opcion: OpcionPrecio = 'recomendado'): LineaDocumento[] {
   const factor = r.fTamano * r.fPais * r.fPlazo
@@ -381,14 +382,7 @@ export function lineasDocumento(t: Tarifas, c: Calculo, r: Resultado = calcular(
   }
   const suma = crudas.reduce((s, l) => s + l.cantidad * l.precio * (1 - dto / 100), 0)
   const k = suma > 0 ? precioDeOpcion(r, opcion) / suma : 1
-  const proyecto = crudas.map(l => ({ ...l, precio: centimos(l.precio * k) }))
-  if (r.mantenimiento.total > 0) {
-    proyecto.push({
-      productoId: '', unidad: 'mes', iva, dto: 0, cantidad: r.mantenimiento.meses, precio: centimos(r.mantenimiento.cuota),
-      descripcion: `Mantenimiento mensual · ${r.mantenimiento.meses} meses`,
-    })
-  }
-  return proyecto
+  return crudas.map(l => ({ ...l, precio: centimos(l.precio * k) }))
 }
 
 /** Texto para pegar en un correo o en la propuesta. */
@@ -417,7 +411,7 @@ export function resumenTexto(t: Tarifas, c: Calculo, r: Resultado = calcular(t, 
     `PRECIO RECOMENDADO: ${eur(r.precio)} (sin IVA)`,
     `Rango: ${eur(r.minimoNegociable)} – ${eur(r.techo)}`,
     m.total > 0
-      ? `Mantenimiento: ${eur(m.cuota)}/mes × ${m.meses} meses = ${eur(m.total)}\nTOTAL PROYECTO + MANTENIMIENTO: ${eur(r.precio + m.total)}`
+      ? `Soporte y mantenimiento (opcional, fuera del total): ${eur(m.cuota)}/mes con permanencia mínima de ${m.meses} meses`
       : `Mantenimiento opcional: ${eur(m.cuota)}/mes`,
   ].join('\n')
 }

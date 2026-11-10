@@ -20,7 +20,7 @@ import { CampoFicha } from './Campos'
 import { DocumentoImpreso } from './DocumentoImpreso'
 import { PresupuestoImpreso } from './PresupuestoImpreso'
 import { ConceptosPresupuesto, type DocConPresupuesto } from './ConceptosPresupuesto'
-import { sumaFases, tituloPresupuesto } from '../presupuesto'
+import { MODOS_PRESUPUESTO, filasDe, normalizarPresupuesto, sumaFilas, tituloPresupuesto } from '../presupuesto'
 import { LineasDocumento } from './LineasDocumento'
 import { PestanaCalculadora, type DocConCalculo } from '../../tarifas/screens/PestanaCalculadora'
 import { BarraProceso } from './BarraProceso'
@@ -239,9 +239,10 @@ function PestanaFicha({ p, e, d, c, abierta, bloqueado, onAlternar, onCambiar }:
   onAlternar: () => void; onCambiar: (campo: Campo<RegistroBase> | null, clave: string, valor: unknown) => void
 }) {
   const lineas = (d as unknown as { lineas?: LineaDocumento[] }).lineas ?? []
-  const pres = (d as unknown as DocConPresupuesto).presupuesto
+  const pres = normalizarPresupuesto((d as unknown as DocConPresupuesto).presupuesto)
+  const filasPres = filasDe(pres)
   const resumen = abierta ? '' : p.presupuesto
-    ? (pres?.fases.length ? `${pres.fases.length} ${pres.fases.length === 1 ? 'fase' : 'fases'} · ${eur(sumaFases(pres))}` : 'Sin fases')
+    ? [MODOS_PRESUPUESTO.find(m => m.id === pres.modo)?.etiqueta, filasPres.length ? `${filasPres.length} ${filasPres.length === 1 ? 'fila' : 'filas'} · ${eur(sumaFilas(filasPres))}` : ''].filter(Boolean).join(' · ')
     : p.lineas || p.calculadora
     ? `${lineas.length} ${lineas.length === 1 ? 'línea' : 'líneas'} · ${eur(totalDoc({ lineas }))}`
     : p.contenido

@@ -1,24 +1,24 @@
 /**
  * Presupuesto imprimible de ofertas y pedidos de venta, con la plantilla de
  * Locodea: cabecera con número, fecha y moneda; emisor y cliente; concepto;
- * fases del proyecto con semanas, pago e importe (o solo el concepto, o las
- * líneas); base, impuestos y total; forma de pago; condiciones junto al
- * soporte y mantenimiento opcional (con «Sí / No» para marcar al firmar); y
- * firmas. Cada apartado se puede quitar desde «Conceptos del presupuesto».
+ * fases del proyecto con semanas, pago e importe (o los conceptos, o las
+ * líneas, con su importe); base, impuestos y total, sin descuentos a la vista;
+ * forma de pago; condiciones junto al soporte y mantenimiento opcional si se
+ * incluye en la calculadora (con «Sí / No» para marcar al firmar); y firmas. Cada apartado se puede quitar desde «Conceptos del presupuesto».
  * En pantalla no se ve; al imprimir la ficha (crm.css, @media print)
  * sustituye al resto de la página y desde el diálogo se guarda como PDF.
  */
 import { useMemo } from 'react'
 import { Logo } from '../../ui/Logo'
 import { useCrm } from '../contexto'
-import type { ColEntidad, Oferta, PedidoVenta } from '../types'
+import type { ColEntidad, LineaDocumento, Oferta, PedidoVenta } from '../types'
 import { useGestoria } from '../../gestoria/store'
 import { CONDICIONES_PAGO, METODO_PAGO, UNIDAD } from '../catalogos'
 import { nombreCompleto } from '../consultas'
 import { importeLinea, totales } from '../documentos'
 import { fecha } from '../formato'
-import { cuotaMantenimiento, lineasCondiciones, normalizarPresupuesto, tituloPresupuesto } from '../presupuesto'
-import { useCuotaCalculadora } from '../cuotaCalculadora'
+import { filasDe, lineasCondiciones, normalizarPresupuesto, tituloPresupuesto } from '../presupuesto'
+import { useMantenimientoCalculadora } from '../cuotaCalculadora'
 
 /** Formato de importes en la moneda del presupuesto: 3.200,00 €. */
 function formatoMoneda(moneda: string): (n: number) => string {
@@ -30,6 +30,9 @@ function formatoMoneda(moneda: string): (n: number) => string {
   return n => f.format(Number(n) || 0)
 }
 
+/** Precio unitario con el descuento ya aplicado (el impreso no enseña descuentos). */
+const precioNeto = (l: LineaDocumento) => (Number(l.precio) || 0) * (1 - (Number(l.dto) || 0) / 100)
+
 /** Texto seguro dentro de un `content: "…"` de CSS. */
 const textoCss = (s: string) => s.replace(/[\\"]/g, '\\$&').replace(/[\r\n]+/g, ' ')
 
@@ -38,7 +41,7 @@ export function PresupuestoImpreso({ col, doc }: { col: ColEntidad; doc: Oferta 
   const { perfil } = useGestoria()
   const p = useMemo(() => normalizarPresupuesto(doc.presupuesto), [doc.presupuesto])
   const dinero = useMemo(() => formatoMoneda(p.moneda), [p.moneda])
-  const cuota = cuotaMantenimiento(p, useCuotaCalculadora(doc.calculo))
+  const mant = useMantenimientoCalculadora(doc.calculo)
   const inc = p.incluir
   const oferta = col === 'ofertas' ? doc as Oferta : null
   const cuenta = datos.cuentas.find(a => a.id === doc.cuentaId)
@@ -49,14 +52,15 @@ export function PresupuestoImpreso({ col, doc }: { col: ColEntidad; doc: Oferta 
   const t = totales(doc)
   const concepto = p.concepto.trim() || oferta?.alcance?.trim() || ''
   const condiciones = inc.condiciones ? lineasCondiciones(p) : []
-  const conMantenimiento = inc.mantenimiento && cuota > 0
+  const conMantenimiento = mant.incluido
+  const { cuota, meses } = mant
   const titulo = tituloPresupuesto(col)
   const numero = doc.no || 'Borrador'
   const ubicacion = cuenta ? [[cuenta.cp, cuenta.ciudad].filter(Boolean).join(' '), cuenta.pais].filter(Boolean).join(' · ') : potencial ? [potencial.ciudad, potencial.pais].filter(Boolean).join(' · ') : ''
-  // por fases sin fases todavía: se enseñan las líneas para no imprimir un presupuesto vacío
-  const desglose = p.modo === 'fases' && !p.fases.length ? 'lineas' : p.modo
+  // filas propias del modo; sin ellas, por fases o por líneas se enseñan las de la calculadora y «solo el concepto», solo el total
+  const filas = filasDe(p)
+  const desglose = filas.length ? p.modo : p.modo === 'concepto' ? 'nada' : 'calculadora'
   const formaPago = p.formaPago.trim() || [CONDICIONES_PAGO[doc.condicionesPago], METODO_PAGO[doc.metodoPago]].filter(Boolean).join(' · ')
-  const meses = p.mantenimiento.meses
 
   return (
     <article className="crm-impreso crm-pres" aria-hidden>
@@ -102,8 +106,8 @@ export function PresupuestoImpreso({ col, doc }: { col: ColEntidad; doc: Oferta 
         </div>
       </section>
 
-      {/* en «solo el concepto», el concepto es el desglose y se imprime siempre */}
-      {concepto && (inc.concepto || desglose === 'concepto') && (
+      {/* en «solo el concepto» sin filas, el texto del concepto es el desglose y se imprime siempre */}
+      {concepto && (inc.concepto || desglose === 'nada') && (
         <section className="crm-pres-bloque">
           <h2>Concepto</h2>
           <p className="crm-pres-texto">{concepto}</p>
@@ -134,26 +138,38 @@ export function PresupuestoImpreso({ col, doc }: { col: ColEntidad; doc: Oferta 
             </tbody>
           </table>
         )}
-        {desglose === 'lineas' && (
+        {(desglose === 'concepto' || desglose === 'lineas') && (
           <table className="crm-pres-tabla">
-            <thead><tr><th>Descripción</th><th className="num" style={{ width: '11%' }}>Cantidad</th><th className="num" style={{ width: '15%' }}>Precio</th><th className="num" style={{ width: '8%' }}>Dto.</th><th className="num" style={{ width: '15%' }}>Importe</th></tr></thead>
+            <thead><tr><th>{desglose === 'concepto' ? 'Concepto' : 'Descripción'}</th><th className="num" style={{ width: '17%' }}>Importe</th></tr></thead>
+            <tbody>
+              {filas.map((f, i) => (
+                <tr key={i}>
+                  <td><b>{f.titulo}</b>{f.descripcion && <span>{f.descripcion}</span>}</td>
+                  <td className="num">{dinero(f.importe)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {/* las líneas de la calculadora, con el precio ya neto: el descuento no se enseña */}
+        {desglose === 'calculadora' && (
+          <table className="crm-pres-tabla">
+            <thead><tr><th>Descripción</th><th className="num" style={{ width: '12%' }}>Cantidad</th><th className="num" style={{ width: '16%' }}>Precio</th><th className="num" style={{ width: '17%' }}>Importe</th></tr></thead>
             <tbody>
               {doc.lineas.map((l, i) => (
                 <tr key={i}>
                   <td>{l.descripcion}</td>
                   <td className="num">{l.cantidad}{l.unidad ? ` ${UNIDAD[l.unidad] ?? ''}` : ''}</td>
-                  <td className="num">{dinero(l.precio)}</td>
-                  <td className="num">{l.dto ? `${l.dto} %` : ''}</td>
+                  <td className="num">{dinero(precioNeto(l))}</td>
                   <td className="num">{dinero(importeLinea(l))}</td>
                 </tr>
               ))}
-              {!doc.lineas.length && <tr><td colSpan={5}>Sin conceptos.</td></tr>}
+              {!doc.lineas.length && <tr><td colSpan={4}>Sin conceptos.</td></tr>}
             </tbody>
           </table>
         )}
 
-        <dl className={`crm-pres-totales ${desglose === 'concepto' ? 'sin-tabla' : ''}`}>
-          {t.descuento > 0 && desglose === 'lineas' && <><dt>Subtotal</dt><dd>{dinero(t.subtotal)}</dd><dt>Descuento</dt><dd>−{dinero(t.descuento)}</dd></>}
+        <dl className={`crm-pres-totales ${desglose === 'nada' ? 'sin-tabla' : ''}`}>
           <dt>Base imponible</dt><dd>{dinero(t.base)}</dd>
           <dt>Impuestos</dt><dd>{t.iva > 0 ? dinero(t.iva) : 'No incluidos'}</dd>
           <dt className="total">Total</dt><dd className="total">{dinero(t.total)}</dd>

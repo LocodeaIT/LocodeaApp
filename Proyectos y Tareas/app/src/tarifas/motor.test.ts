@@ -93,10 +93,11 @@ describe('lineasDocumento', () => {
     expect(lineas[6].unidad).toBe('hora')
   })
 
-  it('el mantenimiento incluido va aparte, por meses y sin descuento', () => {
+  it('el mantenimiento incluido no es una línea ni suma a la base: el presupuesto lo ofrece aparte', () => {
     const lineas = lineasDocumento(t, { ...ejemplo, mantenimiento: { incluido: true, meses: 12, cuotaPactada: null } })
-    const ultima = lineas[lineas.length - 1]
-    expect(ultima).toMatchObject({ unidad: 'mes', cantidad: 12, precio: 190, dto: 0 })
+    expect(lineas).toHaveLength(8)
+    expect(lineas.some(x => x.unidad === 'mes')).toBe(false)
+    expect(Math.abs(lineas.reduce((s, x) => s + importeLinea(x), 0) - 9550)).toBeLessThan(1)
   })
 
   it('con otra opción del rango, la base es el mínimo negociable o el techo', () => {

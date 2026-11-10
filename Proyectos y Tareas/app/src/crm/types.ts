@@ -255,7 +255,7 @@ export interface FasePresupuesto {
 
 /**
  * Cómo se desglosa el importe en el impreso: por fases, solo con el concepto
- * (sin tabla) o con las líneas de la calculadora.
+ * o con las líneas. Cada modo tiene sus filas editables con su importe.
  */
 export type ModoPresupuesto = 'fases' | 'concepto' | 'lineas'
 
@@ -267,34 +267,29 @@ export interface ApartadosPresupuesto {
   pago: boolean
   formaPago: boolean
   condiciones: boolean
-  mantenimiento: boolean
   observaciones: boolean
   firmas: boolean
 }
 
-/** Soporte y mantenimiento opcional que el cliente marca al firmar. */
-export interface MantenimientoPresupuesto {
-  /** Cuota mensual; null = la de la calculadora. */
-  cuota: number | null
-  /** Permanencia mínima en meses. */
-  meses: number
-}
-
 /**
  * Conceptos del presupuesto de ofertas y pedidos de venta: texto del
- * concepto, fases, forma de pago, condiciones y mantenimiento, y qué se
- * imprime. Va en el mismo JSON que el cálculo (loc_calculoprecio), así que no
- * necesita columna propia.
+ * concepto, filas de cada modo (fases, conceptos o líneas), forma de pago,
+ * condiciones y qué se imprime. El soporte y mantenimiento opcional sale de
+ * la calculadora. Va en el mismo JSON que el cálculo (loc_calculoprecio), así
+ * que no necesita columna propia.
  */
 export interface Presupuesto {
   modo: ModoPresupuesto
   concepto: string
   fases: FasePresupuesto[]
+  /** Filas del modo «Solo el concepto» (solo usan título, descripción e importe). */
+  conceptos: FasePresupuesto[]
+  /** Filas del modo «Líneas» (solo usan título, descripción e importe). */
+  lineas: FasePresupuesto[]
   /** Texto libre de la forma de pago. */
   formaPago: string
   /** Una condición por línea. */
   condiciones: string
-  mantenimiento: MantenimientoPresupuesto
   incluir: ApartadosPresupuesto
   /** Código de moneda que se imprime (EUR por defecto). */
   moneda: string

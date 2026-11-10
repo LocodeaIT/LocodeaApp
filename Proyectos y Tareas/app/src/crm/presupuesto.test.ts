@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  condicionesHabituales, cuadrarImportes, cuotaMantenimiento, escribirCalculoYPresupuesto, formaPagoHabitual, leerCalculoYPresupuesto, lineasCondiciones,
+  condicionesHabituales, cuadrarImportes, escribirCalculoYPresupuesto, filasDe, filasDesdeLineas, formaPagoHabitual, leerCalculoYPresupuesto, lineasCondiciones,
   normalizarPresupuesto, pagosPorFase, presupuestoConDatos, presupuestoVacio, semanasTotales, sumaFases,
 } from './presupuesto'
 import type { CalculoGuardado } from '../tarifas/motor'
@@ -39,7 +39,9 @@ describe('guardar el presupuesto con el cálculo', () => {
     expect(p.modo).toBe('fases')
     expect(p.fases[0]).toEqual({ fase: '', titulo: '', descripcion: '', semanas: '', pago: '', importe: 12.5 })
     expect(p.incluir.condiciones).toBe(true)
-    expect(p.mantenimiento).toEqual({ cuota: null, meses: 12 })
+    expect(p.conceptos).toEqual([])
+    expect(p.lineas).toEqual([])
+    expect('mantenimiento' in normalizarPresupuesto({ mantenimiento: { cuota: 250 } } as never)).toBe(false)
     expect('hitos' in p).toBe(false)
   })
 })
@@ -55,9 +57,16 @@ describe('importes', () => {
     expect(sumaFases({ ...presupuestoVacio(), fases })).toBe(10200)
   })
 
-  it('la cuota de mantenimiento pactada manda sobre la de la calculadora', () => {
-    expect(cuotaMantenimiento(presupuestoVacio(), 190)).toBe(190)
-    expect(cuotaMantenimiento({ ...presupuestoVacio(), mantenimiento: { cuota: 250, meses: 12 } }, 190)).toBe(250)
+  it('cada modo tiene sus filas', () => {
+    const p = { ...presupuestoVacio(), fases, conceptos: [{ ...fases[0], titulo: 'Proyecto' }] }
+    expect(filasDe(p)).toBe(p.fases)
+    expect(filasDe({ ...p, modo: 'concepto' })[0].titulo).toBe('Proyecto')
+    expect(filasDe({ ...p, modo: 'lineas' })).toEqual([])
+  })
+
+  it('las filas desde las líneas llevan el importe neto, sin descuento a la vista', () => {
+    const f = filasDesdeLineas([{ productoId: '', descripcion: 'Power Apps', cantidad: 2, unidad: 'ud', precio: 1000, dto: 10, iva: 21 }])
+    expect(f).toEqual([{ fase: '', titulo: 'Power Apps', descripcion: '', semanas: '', pago: '', importe: 1800 }])
   })
 })
 

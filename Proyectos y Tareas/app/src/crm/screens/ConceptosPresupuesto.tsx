@@ -1,21 +1,22 @@
 /**
  * Conceptos del presupuesto de ofertas y pedidos de venta: cómo se desglosa
- * (por fases, solo el concepto o con las líneas), el concepto, las fases del
- * proyecto (semanas, pago e importe), la forma de pago, las condiciones, el
- * mantenimiento opcional y qué apartados salen en el impreso. Es lo que la
+ * (por fases, solo el concepto o por líneas), el concepto, las filas de cada
+ * modo con su importe (las fases llevan además semanas y pago), la forma de
+ * pago, las condiciones y qué apartados salen en el impreso. El soporte y
+ * mantenimiento opcional se decide en la calculadora. Es lo que la
  * calculadora no sabe y el presupuesto impreso necesita.
  */
 import { useMemo } from 'react'
-import { ArrowDown, ArrowUp, CalendarClock, ListChecks, Plus, Scale, X } from 'lucide-react'
-import type { FasePresupuesto, LineaDocumento, MantenimientoPresupuesto, Presupuesto } from '../types'
+import { ArrowDown, ArrowUp, CalendarClock, Calculator, ListChecks, Plus, Scale, X } from 'lucide-react'
+import type { FasePresupuesto, LineaDocumento, Presupuesto } from '../types'
 import type { CalculoGuardado } from '../../tarifas/motor'
-import { useCuotaCalculadora } from '../cuotaCalculadora'
 import { totales } from '../documentos'
 import { eur } from '../formato'
 import {
-  APARTADOS, MODOS_PRESUPUESTO, condicionesHabituales, cuadrarImportes, cuotaMantenimiento, formaPagoHabitual, normalizarPresupuesto, nuevaFase,
-  pagosPorFase, sumaFases,
+  APARTADOS, CLAVE_FILAS, MODOS_PRESUPUESTO, condicionesHabituales, cuadrarImportes, filasDe, filasDesdeLineas, formaPagoHabitual,
+  normalizarPresupuesto, nuevaFase, pagosPorFase, sumaFilas,
 } from '../presupuesto'
+import { useMantenimientoCalculadora } from '../cuotaCalculadora'
 import { Numero } from './Campos'
 
 export interface DocConPresupuesto {
@@ -34,24 +35,34 @@ function mover<T>(lista: T[], i: number, d: -1 | 1): T[] {
   return copia
 }
 
+/** Textos de la tabla de filas según el modo. */
+const TEXTOS = {
+  fases: { titulo: 'Fases del proyecto', nueva: 'Nueva fase', suma: 'Suma de las fases', vacio: 'Sin fases: mientras no las haya, el presupuesto enseña las líneas de la calculadora.' },
+  concepto: { titulo: 'Conceptos', nueva: 'Nuevo concepto', suma: 'Suma de los conceptos', vacio: 'Sin conceptos: el presupuesto enseña el texto del concepto y debajo el total.' },
+  lineas: { titulo: 'Líneas del presupuesto', nueva: 'Nueva línea', suma: 'Suma de las líneas', vacio: 'Sin líneas propias: el presupuesto enseña las de la calculadora, sin descuentos.' },
+} as const
+
 export function ConceptosPresupuesto({ doc, bloqueado, onCambio }: { doc: DocConPresupuesto; bloqueado: boolean; onCambio: (p: Presupuesto) => void }) {
   const p = useMemo(() => normalizarPresupuesto(doc.presupuesto), [doc.presupuesto])
-  const cuotaCalc = useCuotaCalculadora(doc.calculo)
+  const mant = useMantenimientoCalculadora(doc.calculo)
   const base = Math.round(totales(doc).base * 100) / 100
 
   const cambiar = (cambio: Partial<Presupuesto>) => onCambio({ ...p, ...cambio })
-  const cambiarFase = (i: number, c: Partial<FasePresupuesto>) => cambiar({ fases: p.fases.map((f, j) => (j === i ? { ...f, ...c } : f)) })
-  const cambiarMant = (c: Partial<MantenimientoPresupuesto>) => cambiar({ mantenimiento: { ...p.mantenimiento, ...c } })
+  const clave = CLAVE_FILAS[p.modo]
+  const filas = filasDe(p)
+  const fijarFilas = (nuevas: FasePresupuesto[]) => cambiar({ [clave]: nuevas })
+  const cambiarFila = (i: number, c: Partial<FasePresupuesto>) => fijarFilas(filas.map((f, j) => (j === i ? { ...f, ...c } : f)))
 
-  const totalFases = sumaFases(p)
-  const difFases = Math.round((totalFases - base) * 100) / 100
   const porFases = p.modo === 'fases'
-  const cuota = cuotaMantenimiento(p, cuotaCalc)
+  const textos = TEXTOS[p.modo]
+  const total = sumaFilas(filas)
+  const dif = Math.round((total - base) * 100) / 100
+  const columnas = porFases ? 6 : 3
 
   return (
     <div className="crm-presupuesto">
       <p className="tar-ayuda">
-        Lo que sale en el presupuesto impreso además de los importes. Elige cómo se desglosa y qué apartados se imprimen.
+        Lo que sale en el presupuesto impreso además de los totales. Elige cómo se desglosa y qué apartados se imprimen.
       </p>
 
       <div className="crm-presupuesto-modo" role="radiogroup" aria-label="Cómo se desglosa el presupuesto">
@@ -79,65 +90,78 @@ export function ConceptosPresupuesto({ doc, bloqueado, onCambio }: { doc: DocCon
         </div>
       </div>
 
-      {porFases && <>
-        <h3 className="tar-ficha-titulo">Fases del proyecto</h3>
-        <div className="crm-lineas-marco">
-          <table className="crm-lineas crm-fases">
-            <thead>
-              <tr>
-                <th style={{ width: 60 }}>Fase</th><th>Título y descripción</th><th style={{ width: 96 }}>Semanas</th><th style={{ width: 150 }}>Pago</th>
-                <th className="num" style={{ width: 120 }}>Importe</th><th style={{ width: bloqueado ? 0 : 96 }} />
+      <h3 className="tar-ficha-titulo">{textos.titulo}</h3>
+      <div className="crm-lineas-marco">
+        <table className={`crm-lineas crm-fases ${porFases ? '' : 'estrecha'}`}>
+          <thead>
+            <tr>
+              {porFases && <th style={{ width: 60 }}>Fase</th>}
+              <th>{porFases ? 'Título y descripción' : 'Concepto y descripción'}</th>
+              {porFases && <><th style={{ width: 96 }}>Semanas</th><th style={{ width: 150 }}>Pago</th></>}
+              <th className="num" style={{ width: 130 }}>Importe</th><th style={{ width: bloqueado ? 0 : 96 }} />
+            </tr>
+          </thead>
+          <tbody>
+            {filas.map((f, i) => (
+              <tr key={i}>
+                {porFases && <td><input value={f.fase} onChange={e => cambiarFila(i, { fase: e.target.value })} disabled={bloqueado} aria-label="Fase" /></td>}
+                <td>
+                  <input className="titulo" value={f.titulo} onChange={e => cambiarFila(i, { titulo: e.target.value })} disabled={bloqueado} aria-label="Título" placeholder="Título" />
+                  <input value={f.descripcion} onChange={e => cambiarFila(i, { descripcion: e.target.value })} disabled={bloqueado} aria-label="Descripción" placeholder="Descripción (opcional)" />
+                </td>
+                {porFases && <>
+                  <td><input value={f.semanas} onChange={e => cambiarFila(i, { semanas: e.target.value })} disabled={bloqueado} aria-label="Semanas" placeholder="1 - 3" /></td>
+                  <td><input value={f.pago} onChange={e => cambiarFila(i, { pago: e.target.value })} disabled={bloqueado} aria-label="Pago" placeholder={i === 0 ? 'A la firma' : 'Antes de sem. 4'} /></td>
+                </>}
+                <td className="num"><Numero valor={f.importe} onCambio={n => cambiarFila(i, { importe: n })} step={0.01} min={0} disabled={bloqueado} aria-label="Importe" /></td>
+                <td>{!bloqueado && (
+                  <span className="crm-fila-acciones">
+                    <button type="button" className="btn sutil icono pequeno" aria-label="Subir" disabled={i === 0} onClick={() => fijarFilas(mover(filas, i, -1))}><ArrowUp size={14} /></button>
+                    <button type="button" className="btn sutil icono pequeno" aria-label="Bajar" disabled={i === filas.length - 1} onClick={() => fijarFilas(mover(filas, i, 1))}><ArrowDown size={14} /></button>
+                    <button type="button" className="btn sutil icono pequeno" aria-label="Quitar" onClick={() => fijarFilas(filas.filter((_, j) => j !== i))}><X size={14} /></button>
+                  </span>
+                )}</td>
               </tr>
-            </thead>
-            <tbody>
-              {p.fases.map((f, i) => (
-                <tr key={i}>
-                  <td><input value={f.fase} onChange={e => cambiarFase(i, { fase: e.target.value })} disabled={bloqueado} aria-label="Fase" /></td>
-                  <td>
-                    <input className="titulo" value={f.titulo} onChange={e => cambiarFase(i, { titulo: e.target.value })} disabled={bloqueado} aria-label="Título de la fase" placeholder="Título" />
-                    <input value={f.descripcion} onChange={e => cambiarFase(i, { descripcion: e.target.value })} disabled={bloqueado} aria-label="Descripción de la fase" placeholder="Descripción (opcional)" />
-                  </td>
-                  <td><input value={f.semanas} onChange={e => cambiarFase(i, { semanas: e.target.value })} disabled={bloqueado} aria-label="Semanas" placeholder="1 - 3" /></td>
-                  <td><input value={f.pago} onChange={e => cambiarFase(i, { pago: e.target.value })} disabled={bloqueado} aria-label="Pago" placeholder={i === 0 ? 'A la firma' : 'Antes de sem. 4'} /></td>
-                  <td className="num"><Numero valor={f.importe} onCambio={n => cambiarFase(i, { importe: n })} step={0.01} min={0} disabled={bloqueado} aria-label="Importe" /></td>
-                  <td>{!bloqueado && (
-                    <span className="crm-fila-acciones">
-                      <button type="button" className="btn sutil icono pequeno" aria-label="Subir" disabled={i === 0} onClick={() => cambiar({ fases: mover(p.fases, i, -1) })}><ArrowUp size={14} /></button>
-                      <button type="button" className="btn sutil icono pequeno" aria-label="Bajar" disabled={i === p.fases.length - 1} onClick={() => cambiar({ fases: mover(p.fases, i, 1) })}><ArrowDown size={14} /></button>
-                      <button type="button" className="btn sutil icono pequeno" aria-label="Quitar fase" onClick={() => cambiar({ fases: p.fases.filter((_, j) => j !== i) })}><X size={14} /></button>
-                    </span>
-                  )}</td>
-                </tr>
-              ))}
-              {!p.fases.length && <tr><td colSpan={6} className="crm-vacio">Sin fases: mientras no las haya, el presupuesto enseña las líneas.{!bloqueado && ' Añade la primera con «Nueva fase».'}</td></tr>}
-            </tbody>
-          </table>
-        </div>
-        <div className="crm-presupuesto-pie">
-          {!bloqueado && <div className="crm-presupuesto-botones">
-            <button type="button" className="btn pequeno" onClick={() => cambiar({ fases: [...p.fases, nuevaFase(p.fases.length)] })}><Plus size={14} /> Nueva fase</button>
-            {p.fases.length > 0 && (
-              <button type="button" className="btn pequeno" title="La primera a la firma y el resto antes de su primera semana" onClick={() => cambiar({ fases: pagosPorFase(p.fases) })}>
-                <CalendarClock size={14} /> Rellenar pagos
-              </button>
-            )}
-            {p.fases.length > 0 && difFases !== 0 && base > 0 && (
-              <button type="button" className="btn pequeno" title="Reparte la base imponible entre las fases manteniendo sus proporciones"
-                onClick={() => { const r = cuadrarImportes(p.fases.map(f => f.importe), base); cambiar({ fases: p.fases.map((f, i) => ({ ...f, importe: r[i] })) }) }}>
-                <Scale size={14} /> Cuadrar con la base imponible
-              </button>
-            )}
-          </div>}
-          {p.fases.length > 0 && (
-            <div className={`crm-cuadre ${difFases === 0 ? 'ok' : 'aviso'}`}>
-              Suma de las fases: <b>{eur(totalFases)}</b>
-              {difFases === 0 ? ' · cuadra con la base imponible' : ` · la base imponible es ${eur(base)} (${difFases > 0 ? 'sobran' : 'faltan'} ${eur(Math.abs(difFases))})`}
-            </div>
+            ))}
+            {!filas.length && <tr><td colSpan={columnas} className="crm-vacio">{textos.vacio}</td></tr>}
+          </tbody>
+        </table>
+      </div>
+      <div className="crm-presupuesto-pie">
+        {!bloqueado && <div className="crm-presupuesto-botones">
+          <button type="button" className="btn pequeno" onClick={() => fijarFilas([...filas, porFases ? nuevaFase(filas.length) : { ...nuevaFase(0), fase: '' }])}>
+            <Plus size={14} /> {textos.nueva}
+          </button>
+          {p.modo === 'lineas' && doc.lineas.length > 0 && (
+            <button type="button" className="btn pequeno" title="Copia las líneas de la calculadora con su importe neto (sustituye las de aquí)"
+              onClick={() => fijarFilas(filasDesdeLineas(doc.lineas))}>
+              <Calculator size={14} /> Traer las de la calculadora
+            </button>
           )}
-        </div>
-      </>}
-      {p.modo === 'concepto' && <div className="tar-nota">Se imprime el concepto y debajo la base imponible, los impuestos y el total, sin desglose.</div>}
-      {p.modo === 'lineas' && <div className="tar-nota">Se imprimen las líneas de la calculadora con su cantidad, precio e importe.</div>}
+          {p.modo === 'concepto' && !filas.length && base > 0 && (
+            <button type="button" className="btn pequeno" onClick={() => fijarFilas([{ ...nuevaFase(0), fase: '', titulo: 'Proyecto', importe: base }])}>
+              <ListChecks size={14} /> Un concepto por la base imponible
+            </button>
+          )}
+          {porFases && filas.length > 0 && (
+            <button type="button" className="btn pequeno" title="La primera a la firma y el resto antes de su primera semana" onClick={() => fijarFilas(pagosPorFase(filas))}>
+              <CalendarClock size={14} /> Rellenar pagos
+            </button>
+          )}
+          {filas.length > 0 && dif !== 0 && base > 0 && (
+            <button type="button" className="btn pequeno" title="Reparte la base imponible entre las filas manteniendo sus proporciones"
+              onClick={() => { const r = cuadrarImportes(filas.map(f => f.importe), base); fijarFilas(filas.map((f, i) => ({ ...f, importe: r[i] }))) }}>
+              <Scale size={14} /> Cuadrar con la base imponible
+            </button>
+          )}
+        </div>}
+        {filas.length > 0 && (
+          <div className={`crm-cuadre ${dif === 0 ? 'ok' : 'aviso'}`}>
+            {textos.suma}: <b>{eur(total)}</b>
+            {dif === 0 ? ' · cuadra con la base imponible' : ` · la base imponible es ${eur(base)} (${dif > 0 ? 'sobran' : 'faltan'} ${eur(Math.abs(dif))})`}
+          </div>
+        )}
+      </div>
 
       <div className="crm-campos">
         <TextoConPartida id="pres-formapago" titulo="Forma de pago" valor={p.formaPago} bloqueado={bloqueado}
@@ -147,25 +171,10 @@ export function ConceptosPresupuesto({ doc, bloqueado, onCambio }: { doc: DocCon
       </div>
 
       <h3 className="tar-ficha-titulo">Soporte y mantenimiento (opcional)</h3>
-      <p className="tar-ayuda">El cliente marca al firmar si lo contrata. Sale en el impreso con la cuota y la permanencia mínima.</p>
-      <div className="crm-campos">
-        <div className="crm-campo">
-          <label htmlFor="pres-cuota">Cuota mensual</label>
-          {bloqueado
-            ? <div className="crm-valor">{eur(cuota)}</div>
-            : <Numero id="pres-cuota" valor={cuota} step={10} min={0} onCambio={n => cambiarMant({ cuota: n })} />}
-          <small className="crm-presupuesto-nota">
-            {p.mantenimiento.cuota == null
-              ? `La de la calculadora${cuotaCalc ? '' : ' (sin cálculo, 0 €)'}.`
-              : <>Pactada. {!bloqueado && <button type="button" className="crm-enlace" onClick={() => cambiarMant({ cuota: null })}>Usar la de la calculadora ({eur(cuotaCalc)})</button>}</>}
-          </small>
-        </div>
-        <div className="crm-campo">
-          <label htmlFor="pres-meses">Permanencia mínima (meses)</label>
-          {bloqueado
-            ? <div className="crm-valor">{p.mantenimiento.meses}</div>
-            : <Numero id="pres-meses" valor={p.mantenimiento.meses} step={1} min={1} onCambio={n => cambiarMant({ meses: Math.max(1, Math.floor(n) || 1) })} />}
-        </div>
+      <div className="tar-nota">
+        {mant.incluido
+          ? <>Sale en el presupuesto como opcional, con «Sí / No» para que el cliente marque al firmar: <b>{eur(mant.cuota)}/mes</b> con permanencia mínima de {mant.meses} meses. No suma al total. La cuota y los meses se cambian en la calculadora.</>
+          : <>No se ofrece. Para que salga en el presupuesto, marca «Incluir el soporte y mantenimiento opcional» en la calculadora.</>}
       </div>
 
       <h3 className="tar-ficha-titulo">Qué se imprime</h3>
