@@ -130,6 +130,19 @@
 .crm-lineas input:disabled { color: var(--ink-80); }
 .crm-lineas .importe { padding-right: 10px; font-weight: 500; white-space: nowrap; }
 .crm-lineas td > .crm-apagado { padding-left: 8px; font-size: 12.5px; }
+/* conceptos del presupuesto (fases, hitos de pago y condiciones) */
+.crm-presupuesto { display: flex; flex-direction: column; gap: 12px; }
+.crm-presupuesto .tar-ayuda { margin: 0; }
+.crm-presupuesto .tar-ficha-titulo { margin-top: 8px; }
+.crm-fases td { vertical-align: top; }
+.crm-fases td > input + input { margin-top: 2px; font-size: 12.5px; color: var(--texto-2); }
+.crm-fases input.titulo { font-weight: 500; }
+.crm-fila-acciones { display: inline-flex; gap: 2px; }
+.crm-presupuesto-pie { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.crm-presupuesto-botones { display: flex; gap: 8px; flex-wrap: wrap; }
+.crm-cuadre { font-size: 13px; color: var(--texto-2); margin-left: auto; }
+.crm-cuadre b { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+.crm-cuadre.aviso { color: var(--aviso); }
 .crm-lineas-pie { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
 .crm-totales { margin: 0 0 0 auto; min-width: 280px; display: grid; grid-template-columns: 1fr auto; gap: 5px 20px; font-size: 13.5px; padding-top: 12px; border-top: 1px solid var(--line); }
 .crm-totales dt { color: var(--texto-2); }
@@ -271,6 +284,45 @@
   .crm-impreso-totales .total { font-size: 16px; font-weight: 500; border-top: 1px solid var(--ink-40); padding-top: 6px; margin-top: 4px; }
   .crm-impreso-notas { margin-top: 18px; break-inside: avoid; }
   .crm-impreso-pie { margin-top: 28px; padding-top: 10px; border-top: 1px solid var(--ink-10); color: var(--ink-65); font-size: 10.5px; }
+
+  /* presupuesto de ofertas y pedidos de venta (PresupuestoImpreso, plantilla de Locodea) */
+  .crm-con-impreso > .crm-pres { font-family: var(--font); font-size: 10.5px; line-height: 1.5; color: #1b1816; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .crm-pres h2 { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: #1b1816; margin: 0 0 6px; }
+  .crm-pres p { margin: 0; }
+  .crm-pres .suave { color: #6b645e; }
+  .crm-pres-cabecera { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-bottom: 16px; border-bottom: 1px solid #1b1816; margin-bottom: 20px; }
+  .crm-pres-logo { display: flex; align-items: center; gap: 10px; }
+  .crm-pres-logo b { font-size: 24px; font-weight: 600; letter-spacing: -.03em; }
+  .crm-pres-logo i, .crm-pres-punto { font-style: normal; color: #b07a4a; }
+  .crm-pres-marca small { display: block; margin-top: 4px; color: #6b645e; font-size: 10.5px; }
+  .crm-pres-titulo { text-align: right; }
+  .crm-pres-titulo h1 { font-size: 20px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 8px; }
+  .crm-pres-titulo dl { display: grid; grid-template-columns: auto auto; gap: 2px 18px; margin: 0; justify-content: end; }
+  .crm-pres-titulo dt { color: #6b645e; text-align: left; }
+  .crm-pres-titulo dd { margin: 0; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+  .crm-pres-partes { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 20px; break-inside: avoid; }
+  .crm-pres-partes b { font-weight: 600; }
+  .crm-pres-bloque { margin-bottom: 18px; }
+  .crm-pres-bloque > h2 { break-after: avoid; margin-bottom: 10px; }
+  .crm-pres-texto { white-space: pre-line; }
+  .crm-pres-tabla { width: 100%; border-collapse: collapse; }
+  .crm-pres-tabla th { text-align: left; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; padding: 0 8px 6px 0; border-bottom: 1px solid #1b1816; }
+  .crm-pres-tabla td { padding: 8px 8px 8px 0; border-bottom: 1px solid #e4ded6; vertical-align: top; }
+  .crm-pres-tabla tr { break-inside: avoid; }
+  .crm-pres-tabla .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; padding-right: 0; }
+  .crm-pres-tabla th.num { padding-right: 0; }
+  .crm-pres-tabla td.fase { font-weight: 600; }
+  .crm-pres-tabla td b { display: block; font-weight: 600; }
+  .crm-pres-tabla td span { display: block; color: #6b645e; margin-top: 1px; }
+  .crm-pres-totales { width: 50%; margin: 12px 0 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; break-inside: avoid; }
+  .crm-pres-totales dt { color: #6b645e; }
+  .crm-pres-totales dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  .crm-pres-totales .total { color: #1b1816; font-size: 13px; font-weight: 600; border-top: 1px solid #1b1816; padding-top: 6px; margin-top: 4px; }
+  .crm-pres-condiciones { margin: 0; padding-left: 16px; }
+  .crm-pres-condiciones li { margin-bottom: 2px; }
+  .crm-pres-condiciones li::marker { color: #b07a4a; }
+  .crm-pres-firmas { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 36px; break-inside: avoid; }
+  .crm-pres-firmas div { padding-top: 54px; border-bottom: 1px solid #1b1816; padding-bottom: 6px; color: #6b645e; font-size: 9.5px; }
 }
 
 /* ─────────────────────────────────────────────── tablero (vista de la lista por columnas) */

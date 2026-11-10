@@ -86,6 +86,10 @@
 .tar-rango .medio { border-color: var(--acento); }
 .tar-rango b { display: block; font-size: 14px; font-variant-numeric: tabular-nums; }
 .tar-rango span { font-size: 11px; color: var(--texto-3); }
+.tar-rango button { border: 1px solid var(--borde); border-radius: var(--radio-s); padding: 8px 4px; background: transparent; color: inherit; font: inherit; cursor: pointer; transition: border-color var(--rapido), background var(--rapido); }
+.tar-rango button:hover:not(.medio) { border-color: var(--texto-3); }
+.tar-rango button.medio { border-color: var(--acento); background: var(--acento-suave); cursor: default; }
+.tar-rango button:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
 
 /* ── calculadora dentro de la ficha de ofertas y pedidos */
 .tar-ficha { display: flex; flex-direction: column; gap: 14px; }

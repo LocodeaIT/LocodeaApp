@@ -8,7 +8,7 @@
 import { Minus, Plus, X } from 'lucide-react'
 import { eur0 } from '../../crm/formato'
 import {
-  SECCIONES, SIN_INTEGRACION, factorDe, type Calculo, type Factor, type HerramientaTarifa, type LineaCalculo, type Resultado, type Seccion, type Tarifas,
+  OPCIONES_PRECIO, SECCIONES, SIN_INTEGRACION, factorDe, precioDeOpcion, type Calculo, type OpcionPrecio, type Factor, type HerramientaTarifa, type LineaCalculo, type Resultado, type Seccion, type Tarifas,
 } from '../motor'
 import '../tarifas.css'
 
@@ -168,7 +168,14 @@ export function Calculadora({ tarifas: t, calculo: c, resultado: r, onCambio, so
   )
 }
 
-export function ResumenPrecio({ tarifas: t, calculo: c, resultado: r }: { tarifas: Tarifas; calculo: Calculo; resultado: Resultado }) {
+/**
+ * Resumen del precio. Con onOpcion, los tres precios del rango (mínimo
+ * negociable, recomendado y techo) se pueden elegir: el elegido es el que va
+ * al documento.
+ */
+export function ResumenPrecio({ tarifas: t, calculo: c, resultado: r, opcion = 'recomendado', onOpcion }: {
+  tarifas: Tarifas; calculo: Calculo; resultado: Resultado; opcion?: OpcionPrecio; onOpcion?: (o: OpcionPrecio) => void
+}) {
   const tono = (f: number) => (f < 1 ? 'baja' : f > 1 ? 'sube' : '')
   const ajuste = (etiqueta: string, f: number, importe: number) => (
     <div className="tar-fila"><span>{etiqueta} <em className={`tar-tag ${tono(f)}`}>{pct(f)}</em></span><span className="tar-num">{importe < 0 ? '−' : '+'}{eur0(Math.abs(importe))}</span></div>
@@ -181,8 +188,8 @@ export function ResumenPrecio({ tarifas: t, calculo: c, resultado: r }: { tarifa
   return (
     <div className="tar-resumen">
       <div className="tar-resumen-cab">
-        <span>Precio recomendado</span>
-        <b className="tar-precio">{eur0(r.precio)}</b>
+        <span>{opcion === 'recomendado' ? 'Precio recomendado' : `Precio aplicado · ${OPCIONES_PRECIO.find(o => o.id === opcion)?.etiqueta.toLowerCase()}`}</span>
+        <b className="tar-precio">{eur0(precioDeOpcion(r, opcion))}</b>
         <small>{factorDe(t.paises, c.pais).etiqueta} · {rel.etiqueta} · sin IVA</small>
       </div>
       <div className="tar-resumen-cuerpo">
@@ -205,11 +212,17 @@ export function ResumenPrecio({ tarifas: t, calculo: c, resultado: r }: { tarifa
           {r.minimoAplicado && <div className="tar-fila"><span>Ajustado al precio mínimo</span><span className="tar-num">{eur0(t.precioMinimo)}</span></div>}
           <div className="tar-fila total"><span>Total proyecto</span><span className="tar-num">{eur0(r.precio)}</span></div>
         </div>
-        <div className="tar-rango">
-          <div><b>{eur0(r.minimoNegociable)}</b><span>Mínimo negociable</span></div>
-          <div className="medio"><b>{eur0(r.precio)}</b><span>Recomendado</span></div>
-          <div><b>{eur0(r.techo)}</b><span>Techo</span></div>
+        <div className={`tar-rango ${onOpcion ? 'elegible' : ''}`} role={onOpcion ? 'radiogroup' : undefined} aria-label="Precio que va al documento">
+          {OPCIONES_PRECIO.map(o => onOpcion
+            ? (
+              <button key={o.id} type="button" role="radio" aria-checked={opcion === o.id} className={opcion === o.id ? 'medio' : ''}
+                onClick={() => onOpcion(o.id)} title={opcion === o.id ? 'Es el precio del documento' : 'Usar este precio en el documento'}>
+                <b>{eur0(precioDeOpcion(r, o.id))}</b><span>{o.etiqueta}</span>
+              </button>
+            )
+            : <div key={o.id} className={opcion === o.id ? 'medio' : ''}><b>{eur0(precioDeOpcion(r, o.id))}</b><span>{o.etiqueta}</span></div>)}
         </div>
+        {onOpcion && <p className="tar-ayuda">Elige cuál de los tres precios va al documento.</p>}
         <div className="tar-filas">
           {m.total > 0 ? <>
             <div className="tar-fila"><span>Mantenimiento{m.pactada ? ' (pactado)' : ''}</span><span className="tar-num">{eur0(m.cuota)}/mes × {m.meses}</span></div>

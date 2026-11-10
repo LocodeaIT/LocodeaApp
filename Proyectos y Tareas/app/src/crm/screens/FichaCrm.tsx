@@ -7,10 +7,10 @@
  * descarta avisando, como en Business Central.
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ChevronRight, Plus, Printer, Save, Check, Trash2, X } from 'lucide-react'
+import { ChevronRight, FileDown, Plus, Printer, Save, Check, Trash2, X } from 'lucide-react'
 import { useApp } from '../../store'
 import { useCrm, type CrmCtx } from '../contexto'
-import type { ColEntidad, Documento, Fase, LineaDocumento, RegistroBase } from '../types'
+import type { ColEntidad, Documento, Fase, LineaDocumento, Oferta, PedidoVenta, RegistroBase } from '../types'
 import { entidadDe } from '../registro'
 import type { Campo, Comando, Entidad, Pestana, UiFicha } from '../registro/tipos'
 import { totalDoc } from '../documentos'
@@ -18,6 +18,9 @@ import { eur, fecha } from '../formato'
 import { guardarPestanas, pestanasGuardadas } from '../preferencias'
 import { CampoFicha } from './Campos'
 import { DocumentoImpreso } from './DocumentoImpreso'
+import { PresupuestoImpreso } from './PresupuestoImpreso'
+import { ConceptosPresupuesto, type DocConPresupuesto } from './ConceptosPresupuesto'
+import { sumaFases, tituloPresupuesto } from '../presupuesto'
 import { LineasDocumento } from './LineasDocumento'
 import { PestanaCalculadora, type DocConCalculo } from '../../tarifas/screens/PestanaCalculadora'
 import { BarraProceso } from './BarraProceso'
@@ -136,11 +139,26 @@ export function FichaCrm({ col, id, prefill }: { col: ColEntidad; id: string; pr
     : []
   const titulo = esNuevo ? `${e.fem ? 'Nueva' : 'Nuevo'} ${e.uno.toLowerCase()}` : e.titulo(d, c)
   const proceso = e.proceso
+  // ofertas y pedidos de venta se imprimen con la plantilla de presupuesto
+  const conPresupuesto = col === 'ofertas' || col === 'pedidosVenta'
+  /** Imprime con el nombre de archivo del PDF puesto (el navegador lo toma del título de la página). */
+  const imprimirPresupuesto = () => {
+    const doc = d as unknown as Oferta
+    const cliente = c.datos.cuentas.find(a => a.id === doc.cuentaId)?.nombre
+      || (doc.potencialId ? c.datos.potenciales.find(x => x.id === doc.potencialId)?.empresa : '') || ''
+    const antes = document.title
+    document.title = [tituloPresupuesto(col), doc.no || 'borrador', cliente].filter(Boolean).join(' - ').replace(/[\\/:*?"<>|]/g, '')
+    const volver = () => { document.title = antes; window.removeEventListener('afterprint', volver) }
+    window.addEventListener('afterprint', volver)
+    window.print()
+  }
   const fase = (d as unknown as { fase?: Fase }).fase ?? 'calificar'
 
   return (
     <div className={`pagina crm ${e.imprimir && registro ? 'crm-con-impreso' : ''}`}>
-      {e.imprimir && registro && <DocumentoImpreso col={col} doc={d as unknown as Documento} compra={!!e.compra} />}
+      {e.imprimir && registro && (conPresupuesto
+        ? <PresupuestoImpreso col={col} doc={d as unknown as Oferta | PedidoVenta} />
+        : <DocumentoImpreso col={col} doc={d as unknown as Documento} compra={!!e.compra} />)}
       <Migas e={e} texto={esNuevo ? titulo : (registro?.no || titulo)} onLista={() => c.irLista(col)} />
       <div className="titulo-pagina crm-cabecera-ficha">
         <div>
@@ -165,7 +183,9 @@ export function FichaCrm({ col, id, prefill }: { col: ColEntidad; id: string; pr
             <span className="crm-separador" />
             <button className="btn sutil" onClick={() => c.abrir(col, 'nuevo')}><Plus size={15} /> Nuevo</button>
             <button className="btn sutil crm-peligro" onClick={() => setBorrar(true)}><Trash2 size={15} /> Eliminar</button>
-            {e.imprimir && <button className="btn sutil" onClick={() => window.print()}><Printer size={15} /> Imprimir</button>}
+            {e.imprimir && (conPresupuesto
+              ? <button className="btn sutil" onClick={imprimirPresupuesto} title="En el diálogo de impresión, elige «Guardar como PDF»"><FileDown size={15} /> {tituloPresupuesto(col)} en PDF</button>
+              : <button className="btn sutil" onClick={() => window.print()}><Printer size={15} /> Imprimir</button>)}
           </>}
         </div>
       </div>
@@ -219,7 +239,10 @@ function PestanaFicha({ p, e, d, c, abierta, bloqueado, onAlternar, onCambiar }:
   onAlternar: () => void; onCambiar: (campo: Campo<RegistroBase> | null, clave: string, valor: unknown) => void
 }) {
   const lineas = (d as unknown as { lineas?: LineaDocumento[] }).lineas ?? []
-  const resumen = abierta ? '' : p.lineas || p.calculadora
+  const pres = (d as unknown as DocConPresupuesto).presupuesto
+  const resumen = abierta ? '' : p.presupuesto
+    ? (pres?.fases.length ? `${pres.fases.length} ${pres.fases.length === 1 ? 'fase' : 'fases'} · ${eur(sumaFases(pres))}` : 'Sin fases')
+    : p.lineas || p.calculadora
     ? `${lineas.length} ${lineas.length === 1 ? 'línea' : 'líneas'} · ${eur(totalDoc({ lineas }))}`
     : p.contenido
       ? p.resumenContenido?.(d, c) ?? ''
@@ -233,7 +256,9 @@ function PestanaFicha({ p, e, d, c, abierta, bloqueado, onAlternar, onCambiar }:
       </button>
       {/* siempre montado: plegado solo se oculta, así se imprime entero */}
       <div className="crm-pestana-cuerpo">
-        {p.calculadora
+        {p.presupuesto
+          ? <ConceptosPresupuesto doc={d as unknown as DocConPresupuesto} bloqueado={bloqueado} onCambio={x => onCambiar(null, 'presupuesto', x)} />
+          : p.calculadora
           ? <PestanaCalculadora doc={d as unknown as DocConCalculo} c={c} bloqueado={bloqueado}
               onCambio={x => { if (x.calculo) onCambiar(null, 'calculo', x.calculo); onCambiar(null, 'lineas', x.lineas) }} />
           : p.lineas

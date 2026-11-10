@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { importeLinea } from '../crm/documentos'
 import {
-  TARIFAS_INICIALES, calcular, calculoNuevo, desdeCalculadoraWeb, lineasDocumento, normalizarCalculo, normalizarTarifas, resumenTexto,
-  type Calculo, type LineaCalculo,
+  TARIFAS_INICIALES, calcular, calculoNuevo, desdeCalculadoraWeb, lineasDocumento, normalizarCalculo, normalizarTarifas, precioDeOpcion, resumenTexto,
+  type Calculo, type OpcionPrecio, type LineaCalculo,
 } from './motor'
 
 const t = TARIFAS_INICIALES
@@ -97,6 +97,15 @@ describe('lineasDocumento', () => {
     const lineas = lineasDocumento(t, { ...ejemplo, mantenimiento: { incluido: true, meses: 12, cuotaPactada: null } })
     const ultima = lineas[lineas.length - 1]
     expect(ultima).toMatchObject({ unidad: 'mes', cantidad: 12, precio: 190, dto: 0 })
+  })
+
+  it('con otra opción del rango, la base es el mínimo negociable o el techo', () => {
+    const r = calcular(t, ejemplo)
+    const base = (o: OpcionPrecio) => lineasDocumento(t, ejemplo, r, 21, o).reduce((s, x) => s + importeLinea(x), 0)
+    expect(Math.abs(base('minimo') - r.minimoNegociable)).toBeLessThan(1)
+    expect(Math.abs(base('techo') - r.techo)).toBeLessThan(1)
+    expect(precioDeOpcion(r, 'techo')).toBe(r.techo)
+    expect(precioDeOpcion(r)).toBe(r.precio)
   })
 
   it('usa el IVA que se le pase', () => {

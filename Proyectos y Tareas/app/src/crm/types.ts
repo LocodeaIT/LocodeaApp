@@ -240,6 +240,41 @@ export interface DocumentoBase extends RegistroBase {
   notas: string
 }
 
+/** Fase del proyecto en el presupuesto impreso: lo que la calculadora no sabe. */
+export interface FasePresupuesto {
+  /** «0», «1»… o lo que se quiera poner. */
+  fase: string
+  titulo: string
+  descripcion: string
+  /** «1 - 3», «14»… */
+  semanas: string
+  importe: number
+}
+
+/** Hito de la forma de pago del presupuesto. */
+export interface HitoPago {
+  /** «Fase 0», «Fases 1 a 4»… */
+  hito: string
+  /** «A la firma del presupuesto»… */
+  vencimiento: string
+  importe: number
+}
+
+/**
+ * Conceptos del presupuesto de ofertas y pedidos de venta: texto del
+ * concepto, fases, forma de pago y condiciones. Va en el mismo JSON que el
+ * cálculo (loc_calculoprecio), así que no necesita columna propia.
+ */
+export interface Presupuesto {
+  concepto: string
+  fases: FasePresupuesto[]
+  hitos: HitoPago[]
+  /** Una condición por línea. */
+  condiciones: string
+  /** Código de moneda que se imprime (EUR por defecto). */
+  moneda: string
+}
+
 export interface Oferta extends DocumentoBase {
   estado: EstadoOferta
   oportunidadId: string | null
@@ -258,6 +293,8 @@ export interface Oferta extends DocumentoBase {
   pedidoId: string | null
   /** Lo que se eligió en la calculadora de precios y el precio aplicado (loc_calculoprecio). */
   calculo?: CalculoGuardado | null
+  /** Fases, forma de pago y condiciones para el presupuesto impreso (también en loc_calculoprecio). */
+  presupuesto?: Presupuesto | null
 }
 
 export interface PedidoVenta extends DocumentoBase {
@@ -270,6 +307,8 @@ export interface PedidoVenta extends DocumentoBase {
   facturaId: string | null
   /** Cálculo de precio: viene de la oferta o se hace en el pedido (loc_calculoprecio). */
   calculo?: CalculoGuardado | null
+  /** Fases, forma de pago y condiciones: vienen de la oferta (también en loc_calculoprecio). */
+  presupuesto?: Presupuesto | null
 }
 
 export interface FacturaVenta extends DocumentoBase {

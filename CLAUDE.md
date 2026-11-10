@@ -116,6 +116,15 @@ pushear a continuación, antes de dar la tarea por terminada.
   **Pasar el esquema antes de publicar**: sin la columna falla el guardado de
   los documentos con cálculo. Las tarifas de la calculadora web se importan
   desde la pantalla Tarifas («Importar de la calculadora web»).
+  En la ficha se elige cuál de los tres precios del rango va al documento
+  (mínimo negociable, recomendado o techo; `opcion` en el cálculo guardado).
+- Presupuesto de ofertas y pedidos de venta: la pestaña «Conceptos del
+  presupuesto» guarda concepto, fases (semanas e importe), hitos de pago y
+  condiciones (`crm/presupuesto.ts`, con pruebas) en el mismo JSON de
+  `loc_calculoprecio`, clave `presupuesto`: sin columna nueva. Pasa de la
+  oferta al pedido. «Presupuesto en PDF» imprime `PresupuestoImpreso` (la
+  plantilla de Locodea) y se guarda como PDF desde el diálogo de impresión; si
+  no hay fases, enseña las líneas.
 - Los scripts de Dataverse llaman al CLI con `npx -y @microsoft/dataverse`; en
   Windows conviene `$env:DATAVERSE_CLI=<ruta a bin/dataverse.js>` para que
   los `&` de las consultas OData no pasen por cmd.

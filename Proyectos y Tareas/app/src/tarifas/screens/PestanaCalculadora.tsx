@@ -14,7 +14,7 @@ import type { CrmCtx } from '../../crm/contexto'
 import type { LineaDocumento } from '../../crm/types'
 import { eur0 } from '../../crm/formato'
 import { LineasDocumento } from '../../crm/screens/LineasDocumento'
-import { calcular, calculoNuevo, lineasDocumento, normalizarCalculo, resumenTexto, type Calculo, type CalculoGuardado } from '../motor'
+import { calcular, calculoNuevo, lineasDocumento, normalizarCalculo, precioDeOpcion, resumenTexto, type Calculo, type CalculoGuardado, type OpcionPrecio } from '../motor'
 import { useTarifas } from '../store'
 import { Calculadora, ResumenPrecio } from './Calculadora'
 
@@ -45,11 +45,15 @@ export function PestanaCalculadora({ doc, c, bloqueado, onCambio }: {
     ? normalizarCalculo(doc.calculo.entrada, tarifas)
     : calculoNuevo(tarifas, { pais: cuenta?.codigoPais, empleados: cuenta?.empleados || potencial?.empleados })), [doc.calculo, tarifas, cuenta, potencial])
   const r = useMemo(() => calcular(tarifas, calculo), [tarifas, calculo])
+  const opcion: OpcionPrecio = doc.calculo?.opcion ?? 'recomendado'
 
-  const aplicar = (nuevo: Calculo) => {
+  const aplicar = (nuevo: Calculo, nuevaOpcion: OpcionPrecio = opcion) => {
     const res = calcular(tarifas, nuevo)
     const iva = doc.lineas[0]?.iva ?? cuenta?.iva ?? 21
-    onCambio({ calculo: { entrada: nuevo, precio: res.precio, aplicadoEl: new Date().toISOString() }, lineas: lineasDocumento(tarifas, nuevo, res, iva) })
+    onCambio({
+      calculo: { entrada: nuevo, precio: precioDeOpcion(res, nuevaOpcion), opcion: nuevaOpcion, aplicadoEl: new Date().toISOString() },
+      lineas: lineasDocumento(tarifas, nuevo, res, iva, nuevaOpcion),
+    })
   }
 
   const copiar = async () => {
@@ -74,21 +78,23 @@ export function PestanaCalculadora({ doc, c, bloqueado, onCambio }: {
   }
 
   // si las tarifas han cambiado desde que se calculó, el mismo cálculo da otro precio
-  const desfase = !!doc.calculo && doc.calculo.precio !== r.precio
+  const precioActual = precioDeOpcion(r, opcion)
+  const desfase = !!doc.calculo && doc.calculo.precio !== precioActual
 
   return (
     <div className="tar-ficha">
       {!disponible && <div className="tar-nota aviso">Las tarifas de Dataverse no están disponibles: se calcula con las tarifas de partida.</div>}
       {desfase && (
         <div className="tar-nota aviso">
-          Las tarifas han cambiado desde que se calculó: el documento está a {eur0(doc.calculo!.precio)} y con las tarifas actuales sale {eur0(r.precio)}.
+          Las tarifas han cambiado desde que se calculó: el documento está a {eur0(doc.calculo!.precio)} y con las tarifas actuales sale {eur0(precioActual)}.
           {!bloqueado && <> <button type="button" className="btn pequeno" onClick={() => aplicar(calculo)}><RefreshCw size={14} /> Recalcular</button></>}
         </div>
       )}
       <div className="tar-ficha-columnas">
         <Calculadora tarifas={tarifas} calculo={calculo} resultado={r} onCambio={aplicar} soloLectura={bloqueado} />
         <div className="tar-ficha-lateral">
-          <ResumenPrecio tarifas={tarifas} calculo={calculo} resultado={r} />
+          <ResumenPrecio tarifas={tarifas} calculo={calculo} resultado={r} opcion={opcion}
+            onOpcion={bloqueado ? undefined : o => { if (o !== opcion) aplicar(calculo, o) }} />
           <button type="button" className="btn" onClick={() => void copiar()}><Copy size={15} /> Copiar resumen</button>
         </div>
       </div>

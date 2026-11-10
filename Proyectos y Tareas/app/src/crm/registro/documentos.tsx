@@ -163,6 +163,7 @@ function entidadDocumento<T extends Documento>(cfg: Config<T>): Entidad<T> {
       cfg.calculadora
         ? { clave: 'lineas', titulo: 'Calculadora y líneas', calculadora: true }
         : { clave: 'lineas', titulo: 'Líneas', lineas: true },
+      ...(cfg.calculadora ? [{ clave: 'presupuesto', titulo: 'Conceptos del presupuesto', presupuesto: true }] : []),
       ...(cfg.fiscal ? [{ clave: 'fiscal', titulo: 'Fiscal', abierta: false, campos: cfg.fiscal }] : []),
       {
         clave: 'detalles', titulo: cfg.tituloDetalles ?? 'Detalles', abierta: false, campos: [

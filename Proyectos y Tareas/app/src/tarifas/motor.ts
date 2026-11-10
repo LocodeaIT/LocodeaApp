@@ -101,12 +101,29 @@ export interface Calculo {
   mantenimiento: MantenimientoCalculo
 }
 
+/** Cuál de los tres precios del rango se lleva al documento. */
+export type OpcionPrecio = 'minimo' | 'recomendado' | 'techo'
+
+export const OPCIONES_PRECIO: { id: OpcionPrecio; etiqueta: string }[] = [
+  { id: 'minimo', etiqueta: 'Mínimo negociable' },
+  { id: 'recomendado', etiqueta: 'Recomendado' },
+  { id: 'techo', etiqueta: 'Techo' },
+]
+
 /** Cálculo guardado en un documento: la entrada y el precio que se aplicó. */
 export interface CalculoGuardado {
   entrada: Calculo
+  /** Precio del proyecto que se aplicó (el de la opción elegida). */
   precio: number
+  /** Precio elegido del rango; sin él, el recomendado. */
+  opcion?: OpcionPrecio
   /** Instante ISO en que se aplicó. */
   aplicadoEl: string
+}
+
+/** Precio del proyecto según la opción elegida del rango. */
+export function precioDeOpcion(r: { precio: number; minimoNegociable: number; techo: number }, opcion: OpcionPrecio = 'recomendado'): number {
+  return opcion === 'minimo' ? r.minimoNegociable : opcion === 'techo' ? r.techo : r.precio
 }
 
 export const SIN_INTEGRACION = 'ninguna'
@@ -343,10 +360,11 @@ export function describirLinea(t: Tarifas, l: LineaCalculo, seccion: Seccion = '
  * unitario con tamaño, país y plazo aplicados, y el descuento de la relación
  * como «Dto. %». Si el precio mínimo o el redondeo mueven el total, los precios
  * se escalan para que la base imponible del proyecto sea el precio
- * recomendado (salvo algún céntimo). El mantenimiento, si se incluye, va en
- * una línea aparte por meses y sin descuento.
+ * recomendado (salvo algún céntimo), o el de la opción elegida del rango
+ * (mínimo negociable o techo). El mantenimiento, si se incluye, va en una
+ * línea aparte por meses y sin descuento.
  */
-export function lineasDocumento(t: Tarifas, c: Calculo, r: Resultado = calcular(t, c), iva = 21): LineaDocumento[] {
+export function lineasDocumento(t: Tarifas, c: Calculo, r: Resultado = calcular(t, c), iva = 21, opcion: OpcionPrecio = 'recomendado'): LineaDocumento[] {
   const factor = r.fTamano * r.fPais * r.fPlazo
   const dto = centimos((1 - r.fRelacion) * 100)
   const crudas: LineaDocumento[] = r.lineas.filter(l => l.cantidad > 0 && l.herramienta).map(l => ({
@@ -362,7 +380,7 @@ export function lineasDocumento(t: Tarifas, c: Calculo, r: Resultado = calcular(
     })
   }
   const suma = crudas.reduce((s, l) => s + l.cantidad * l.precio * (1 - dto / 100), 0)
-  const k = suma > 0 ? r.precio / suma : 1
+  const k = suma > 0 ? precioDeOpcion(r, opcion) / suma : 1
   const proyecto = crudas.map(l => ({ ...l, precio: centimos(l.precio * k) }))
   if (r.mantenimiento.total > 0) {
     proyecto.push({

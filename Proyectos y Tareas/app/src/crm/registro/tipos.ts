@@ -74,6 +74,8 @@ export interface Pestana<T> {
   lineas?: boolean
   /** Las líneas salen de la calculadora de precios (ofertas y pedidos de venta). */
   calculadora?: boolean
+  /** Conceptos del presupuesto impreso: fases, forma de pago y condiciones (ofertas y pedidos de venta). */
+  presupuesto?: boolean
   /** Contenido propio en lugar de campos (listas de reuniones, propuestas…). Solo en registros guardados. */
   contenido?: (d: T, c: CrmCtx) => ReactNode
   /** Resumen de la pestaña plegada cuando tiene contenido propio. */
