@@ -1,40 +1,76 @@
 /**
  * Conceptos del presupuesto de ofertas y pedidos de venta: fases del
- * proyecto, forma de pago y condiciones. Lo que la calculadora no sabe y el
- * presupuesto impreso necesita.
+ * proyecto (con semanas, cuándo se paga e importe), forma de pago,
+ * condiciones, mantenimiento opcional y qué apartados se imprimen. Lo que la
+ * calculadora no sabe y el presupuesto impreso necesita.
  *
  * Se guarda en el mismo JSON que el cálculo de precio (loc_calculoprecio), con
  * la clave «presupuesto»: no hace falta columna nueva en Dataverse.
  */
 import type { CalculoGuardado } from '../tarifas/motor'
-import type { ColEntidad, FasePresupuesto, HitoPago, Presupuesto } from './types'
+import type { ApartadosPresupuesto, ColEntidad, FasePresupuesto, ModoPresupuesto, Presupuesto } from './types'
 
 /** Título del documento impreso. */
 export const tituloPresupuesto = (col: ColEntidad) => (col === 'pedidosVenta' ? 'Pedido' : 'Presupuesto')
 
-export const presupuestoVacio = (): Presupuesto => ({ concepto: '', fases: [], hitos: [], condiciones: '', moneda: 'EUR' })
+export const MODOS_PRESUPUESTO: { id: ModoPresupuesto; etiqueta: string; detalle: string }[] = [
+  { id: 'fases', etiqueta: 'Por fases', detalle: 'Tabla de fases con semanas, pago e importe' },
+  { id: 'concepto', etiqueta: 'Solo el concepto', detalle: 'El texto del concepto y el total, sin desglose' },
+  { id: 'lineas', etiqueta: 'Líneas de la calculadora', detalle: 'Las líneas del documento' },
+]
 
-export const nuevaFase = (n: number): FasePresupuesto => ({ fase: String(n), titulo: '', descripcion: '', semanas: '', importe: 0 })
-export const nuevoHito = (): HitoPago => ({ hito: '', vencimiento: '', importe: 0 })
+export const APARTADOS: { id: keyof ApartadosPresupuesto; etiqueta: string; soloFases?: boolean }[] = [
+  { id: 'concepto', etiqueta: 'Concepto' },
+  { id: 'semanas', etiqueta: 'Columna «Semanas»', soloFases: true },
+  { id: 'pago', etiqueta: 'Columna «Pago»', soloFases: true },
+  { id: 'formaPago', etiqueta: 'Forma de pago' },
+  { id: 'condiciones', etiqueta: 'Condiciones' },
+  { id: 'mantenimiento', etiqueta: 'Soporte y mantenimiento' },
+  { id: 'observaciones', etiqueta: 'Observaciones (notas)' },
+  { id: 'firmas', etiqueta: 'Firmas' },
+]
+
+const todos = (): ApartadosPresupuesto => ({ concepto: true, semanas: true, pago: true, formaPago: true, condiciones: true, mantenimiento: true, observaciones: true, firmas: true })
+
+export const presupuestoVacio = (): Presupuesto => ({
+  modo: 'fases', concepto: '', fases: [], formaPago: '', condiciones: '', mantenimiento: { cuota: null, meses: 12 }, incluir: todos(), moneda: 'EUR',
+})
+
+export const nuevaFase = (n: number): FasePresupuesto => ({ fase: String(n), titulo: '', descripcion: '', semanas: '', pago: '', importe: 0 })
 
 const txt = (v: unknown) => (typeof v === 'string' ? v : v == null ? '' : String(v))
 const num = (v: unknown) => { const n = Number(v); return Number.isFinite(n) ? n : 0 }
 const centimos = (n: number) => Math.round(n * 100) / 100
+const MODOS = new Set<ModoPresupuesto>(['fases', 'concepto', 'lineas'])
 
 /** Completa lo que falte (JSON antiguo o a medias). */
 export function normalizarPresupuesto(p: Partial<Presupuesto> | null | undefined): Presupuesto {
   const v = p ?? {}
+  const base = presupuestoVacio()
+  const inc = (v.incluir ?? {}) as Partial<ApartadosPresupuesto>
+  const m = v.mantenimiento ?? base.mantenimiento
   return {
+    modo: MODOS.has(v.modo as ModoPresupuesto) ? v.modo as ModoPresupuesto : 'fases',
     concepto: txt(v.concepto),
-    fases: Array.isArray(v.fases) ? v.fases.map(f => ({ fase: txt(f?.fase), titulo: txt(f?.titulo), descripcion: txt(f?.descripcion), semanas: txt(f?.semanas), importe: num(f?.importe) })) : [],
-    hitos: Array.isArray(v.hitos) ? v.hitos.map(h => ({ hito: txt(h?.hito), vencimiento: txt(h?.vencimiento), importe: num(h?.importe) })) : [],
+    fases: Array.isArray(v.fases)
+      ? v.fases.map(f => ({ fase: txt(f?.fase), titulo: txt(f?.titulo), descripcion: txt(f?.descripcion), semanas: txt(f?.semanas), pago: txt(f?.pago), importe: num(f?.importe) }))
+      : [],
+    formaPago: txt(v.formaPago),
     condiciones: txt(v.condiciones),
+    mantenimiento: {
+      cuota: m.cuota == null || !Number.isFinite(Number(m.cuota)) ? null : Math.max(0, Number(m.cuota)),
+      meses: Math.max(1, Math.floor(num(m.meses)) || 12),
+    },
+    incluir: Object.fromEntries(Object.entries(base.incluir).map(([k, def]) => [k, typeof inc[k as keyof ApartadosPresupuesto] === 'boolean' ? inc[k as keyof ApartadosPresupuesto] : def])) as unknown as ApartadosPresupuesto,
     moneda: txt(v.moneda).trim() || 'EUR',
   }
 }
 
-export const presupuestoConDatos = (p: Presupuesto | null | undefined): p is Presupuesto =>
-  !!p && (!!p.concepto.trim() || p.fases.length > 0 || p.hitos.length > 0 || !!p.condiciones.trim())
+/** Si hay algo distinto del presupuesto vacío (si no, no se guarda). */
+export function presupuestoConDatos(p: Presupuesto | null | undefined): p is Presupuesto {
+  if (!p) return false
+  return JSON.stringify(normalizarPresupuesto(p)) !== JSON.stringify(presupuestoVacio())
+}
 
 /** Lee loc_calculoprecio: el cálculo (si tiene entrada) y el presupuesto (si lo hay). */
 export function leerCalculoYPresupuesto(v: unknown): { calculo: CalculoGuardado | null; presupuesto: Presupuesto | null } {
@@ -59,7 +95,6 @@ export function escribirCalculoYPresupuesto(calculo: CalculoGuardado | null | un
 }
 
 export const sumaFases = (p: Presupuesto) => centimos(p.fases.reduce((s, f) => s + num(f.importe), 0))
-export const sumaHitos = (p: Presupuesto) => centimos(p.hitos.reduce((s, h) => s + num(h.importe), 0))
 
 /**
  * Reparte un total entre unos importes manteniendo sus proporciones (o a
@@ -76,29 +111,40 @@ export function cuadrarImportes(importes: number[], total: number): number[] {
   return res
 }
 
+const primeraSemana = (semanas: string) => Number((semanas.match(/\d+/) ?? [])[0]) || 0
+
 /** Número de la última semana que aparece en las fases («6 - 10» → 10). */
 export function semanasTotales(fases: FasePresupuesto[]): number {
   return fases.reduce((m, f) => Math.max(m, ...(f.semanas.match(/\d+/g) ?? []).map(Number)), 0)
 }
 
-/** Condiciones de partida, a retocar. Sin cuota, no se menciona el mantenimiento. */
-export function condicionesHabituales(fases: FasePresupuesto[], cuotaMantenimiento: number, eur: (n: number) => string): string {
+/** Cuándo se paga cada fase: la primera a la firma y cada una de las demás antes de empezar. */
+export function pagosPorFase(fases: FasePresupuesto[]): FasePresupuesto[] {
+  return fases.map((f, i) => {
+    const sem = primeraSemana(f.semanas)
+    return { ...f, pago: i === 0 ? 'A la firma' : sem ? `Antes de sem. ${sem}` : 'Antes de empezar la fase' }
+  })
+}
+
+/** Texto de partida de la forma de pago, según el modo. */
+export function formaPagoHabitual(modo: ModoPresupuesto): string {
+  return modo === 'fases'
+    ? 'Pago por adelantado de cada fase: la fase 0 se abona a la firma del presupuesto y cada una de las siguientes antes de su inicio, según la columna «Pago». Los trabajos de cada fase comienzan una vez recibido su pago.'
+    : 'Pago por adelantado a la firma del presupuesto. Los trabajos comienzan una vez recibido el pago.'
+}
+
+/** Condiciones de partida, a retocar. */
+export function condicionesHabituales(fases: FasePresupuesto[]): string {
   const semanas = semanasTotales(fases)
   return [
     semanas > 0 ? `Plazo de ejecución estimado: ${semanas} ${semanas === 1 ? 'semana' : 'semanas'} desde la firma.` : '',
     'No incluye licencias de Microsoft (Power Apps y Power Automate Premium por usuario), que contrata el cliente.',
-    cuotaMantenimiento > 0 ? `Soporte y mantenimiento posteriores, opcionales: ${eur(cuotaMantenimiento)} al mes.` : '',
+    'Locodea AI no está incluido; se presupuestaría por separado.',
     'Cualquier cambio de alcance acordado durante el proyecto se valorará antes de ejecutarse.',
   ].filter(Boolean).join('\n')
 }
 
-/** Hitos de partida: uno por fase, a la firma el primero y al cierre de cada fase el resto. */
-export function hitosPorFase(fases: FasePresupuesto[]): HitoPago[] {
-  return fases.map((f, i) => ({
-    hito: `Fase ${f.fase || i}`,
-    vencimiento: i === 0 ? 'A la firma del presupuesto' : i === fases.length - 1 ? 'Al cierre del proyecto' : 'Al cierre y validación de la fase',
-    importe: num(f.importe),
-  }))
-}
+/** Cuota de mantenimiento que se imprime: la pactada en el presupuesto o la de la calculadora. */
+export const cuotaMantenimiento = (p: Presupuesto, cuotaCalculadora: number) => p.mantenimiento.cuota ?? cuotaCalculadora
 
 export const lineasCondiciones = (p: Presupuesto) => p.condiciones.split(/\r?\n/).map(s => s.replace(/^[\s•\-–]+/, '').trim()).filter(Boolean)

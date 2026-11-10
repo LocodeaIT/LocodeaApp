@@ -143,6 +143,17 @@
 .crm-cuadre { font-size: 13px; color: var(--texto-2); margin-left: auto; }
 .crm-cuadre b { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
 .crm-cuadre.aviso { color: var(--aviso); }
+.crm-presupuesto-modo { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+.crm-presupuesto-modo button { text-align: left; border: 1px solid var(--line); border-radius: var(--r-12); background: transparent; padding: 10px 12px; font: inherit; color: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 2px; transition: border-color var(--rapido), background var(--rapido); }
+.crm-presupuesto-modo button b { font-weight: 500; font-size: 13.5px; }
+.crm-presupuesto-modo button span { font-size: 12px; color: var(--texto-2); }
+.crm-presupuesto-modo button:hover:not(:disabled):not(.activo) { border-color: var(--texto-3); }
+.crm-presupuesto-modo button.activo { border-color: var(--bronze); background: var(--accent-soft); }
+.crm-presupuesto-modo button:disabled { cursor: default; }
+.crm-presupuesto-incluir { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.crm-presupuesto-incluir label { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; cursor: pointer; }
+.crm-presupuesto-incluir input { accent-color: var(--bronze); width: 15px; height: 15px; }
+.crm-presupuesto-nota { display: block; margin-top: 4px; font-size: 12px; color: var(--texto-2); }
 .crm-lineas-pie { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
 .crm-totales { margin: 0 0 0 auto; min-width: 280px; display: grid; grid-template-columns: 1fr auto; gap: 5px 20px; font-size: 13.5px; padding-top: 12px; border-top: 1px solid var(--line); }
 .crm-totales dt { color: var(--texto-2); }
@@ -286,43 +297,54 @@
   .crm-impreso-pie { margin-top: 28px; padding-top: 10px; border-top: 1px solid var(--ink-10); color: var(--ink-65); font-size: 10.5px; }
 
   /* presupuesto de ofertas y pedidos de venta (PresupuestoImpreso, plantilla de Locodea) */
-  .crm-con-impreso > .crm-pres { font-family: var(--font); font-size: 10.5px; line-height: 1.5; color: #1b1816; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .crm-pres h2 { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: #1b1816; margin: 0 0 6px; }
+  .crm-con-impreso > .crm-pres { --p-tinta: #1d1d1b; --p-texto: #3a3a38; --p-suave: #6b6b68; --p-tenue: #8d8d89; --p-linea: #e4e4e1; --p-bronce: #b87a4b;
+    font-family: var(--font); font-size: 10.5px; line-height: 1.5; color: var(--p-tinta); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .crm-pres h2 { font-size: 8.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: var(--p-tinta); margin: 0 0 8px; }
   .crm-pres p { margin: 0; }
-  .crm-pres .suave { color: #6b645e; }
-  .crm-pres-cabecera { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-bottom: 16px; border-bottom: 1px solid #1b1816; margin-bottom: 20px; }
+  .crm-pres .suave { color: var(--p-suave); }
+  .crm-pres-cabecera { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--p-tinta); margin-bottom: 20px; }
   .crm-pres-logo { display: flex; align-items: center; gap: 10px; }
   .crm-pres-logo b { font-size: 24px; font-weight: 600; letter-spacing: -.03em; }
-  .crm-pres-logo i, .crm-pres-punto { font-style: normal; color: #b07a4a; }
-  .crm-pres-marca small { display: block; margin-top: 4px; color: #6b645e; font-size: 10.5px; }
+  .crm-pres-logo i, .crm-pres-punto { font-style: normal; color: var(--p-bronce); }
+  .crm-pres-marca small { display: block; margin-top: 4px; color: var(--p-suave); font-size: 10.5px; }
   .crm-pres-titulo { text-align: right; }
   .crm-pres-titulo h1 { font-size: 20px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 8px; }
   .crm-pres-titulo dl { display: grid; grid-template-columns: auto auto; gap: 2px 18px; margin: 0; justify-content: end; }
-  .crm-pres-titulo dt { color: #6b645e; text-align: left; }
+  .crm-pres-titulo dt { color: var(--p-suave); text-align: left; }
   .crm-pres-titulo dd { margin: 0; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
   .crm-pres-partes { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 20px; break-inside: avoid; }
   .crm-pres-partes b { font-weight: 600; }
   .crm-pres-bloque { margin-bottom: 18px; }
-  .crm-pres-bloque > h2 { break-after: avoid; margin-bottom: 10px; }
-  .crm-pres-texto { white-space: pre-line; }
+  .crm-pres-bloque > h2 { break-after: avoid; }
+  .crm-pres-texto { white-space: pre-line; color: var(--p-texto); }
   .crm-pres-tabla { width: 100%; border-collapse: collapse; }
-  .crm-pres-tabla th { text-align: left; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; padding: 0 8px 6px 0; border-bottom: 1px solid #1b1816; }
-  .crm-pres-tabla td { padding: 8px 8px 8px 0; border-bottom: 1px solid #e4ded6; vertical-align: top; }
+  .crm-pres-tabla th { text-align: left; font-size: 8.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; padding: 0 8px 6px 0; border-bottom: 1px solid var(--p-tinta); }
+  .crm-pres-tabla td { padding: 8px 8px 8px 0; border-bottom: 1px solid var(--p-linea); vertical-align: top; }
   .crm-pres-tabla tr { break-inside: avoid; }
   .crm-pres-tabla .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; padding-right: 0; }
-  .crm-pres-tabla th.num { padding-right: 0; }
+  .crm-pres-tabla .nw { white-space: nowrap; }
   .crm-pres-tabla td.fase { font-weight: 600; }
   .crm-pres-tabla td b { display: block; font-weight: 600; }
-  .crm-pres-tabla td span { display: block; color: #6b645e; margin-top: 1px; }
-  .crm-pres-totales { width: 50%; margin: 12px 0 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; break-inside: avoid; }
-  .crm-pres-totales dt { color: #6b645e; }
-  .crm-pres-totales dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
-  .crm-pres-totales .total { color: #1b1816; font-size: 13px; font-weight: 600; border-top: 1px solid #1b1816; padding-top: 6px; margin-top: 4px; }
-  .crm-pres-condiciones { margin: 0; padding-left: 16px; }
-  .crm-pres-condiciones li { margin-bottom: 2px; }
-  .crm-pres-condiciones li::marker { color: #b07a4a; }
+  .crm-pres-tabla td span { display: block; color: var(--p-suave); margin-top: 2px; }
+  .crm-pres-totales { width: 50%; margin: 12px 0 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 4px 0; break-inside: avoid; }
+  .crm-pres-totales.sin-tabla { margin-top: 0; border-top: 1px solid var(--p-linea); padding-top: 8px; }
+  .crm-pres-totales dt { color: var(--p-suave); }
+  .crm-pres-totales dd { margin: 0; padding-left: 16px; text-align: right; font-variant-numeric: tabular-nums; }
+  .crm-pres-totales .total { color: var(--p-tinta); font-size: 13px; font-weight: 600; border-top: 1px solid var(--p-tinta); padding-top: 6px; margin-top: 4px; }
+  .crm-pres-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 18px; break-inside: avoid; }
+  .crm-pres-dos.una { grid-template-columns: 1fr; }
+  .crm-pres-condiciones { margin: 0; padding-left: 14px; color: var(--p-texto); }
+  .crm-pres-condiciones li { margin-bottom: 3px; }
+  .crm-pres-condiciones li::marker { color: var(--p-bronce); }
+  .crm-pres-mant .cuota { color: var(--p-suave); margin-bottom: 4px; }
+  .crm-pres-mant .cuota b { font-size: 13px; font-weight: 600; color: var(--p-tinta); }
+  .crm-pres-mant > .suave { margin-bottom: 10px; }
+  .crm-pres-opcion { display: flex; gap: 10px; align-items: flex-start; margin-top: 8px; }
+  .crm-pres-opcion > i { flex: none; width: 11px; height: 11px; border: 1px solid var(--p-tinta); border-radius: 2px; margin-top: 2px; }
+  .crm-pres-opcion b { display: block; font-weight: 600; }
+  .crm-pres-opcion span { display: block; color: var(--p-suave); }
   .crm-pres-firmas { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 36px; break-inside: avoid; }
-  .crm-pres-firmas div { padding-top: 54px; border-bottom: 1px solid #1b1816; padding-bottom: 6px; color: #6b645e; font-size: 9.5px; }
+  .crm-pres-firmas div { padding-top: 54px; border-bottom: 1px solid var(--p-tinta); padding-bottom: 6px; color: var(--p-suave); font-size: 9.5px; }
 }
 
 /* ─────────────────────────────────────────────── tablero (vista de la lista por columnas) */

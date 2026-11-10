@@ -119,12 +119,14 @@ pushear a continuación, antes de dar la tarea por terminada.
   En la ficha se elige cuál de los tres precios del rango va al documento
   (mínimo negociable, recomendado o techo; `opcion` en el cálculo guardado).
 - Presupuesto de ofertas y pedidos de venta: la pestaña «Conceptos del
-  presupuesto» guarda concepto, fases (semanas e importe), hitos de pago y
-  condiciones (`crm/presupuesto.ts`, con pruebas) en el mismo JSON de
-  `loc_calculoprecio`, clave `presupuesto`: sin columna nueva. Pasa de la
-  oferta al pedido. «Presupuesto en PDF» imprime `PresupuestoImpreso` (la
-  plantilla de Locodea) y se guarda como PDF desde el diálogo de impresión; si
-  no hay fases, enseña las líneas.
+  presupuesto» guarda cómo se desglosa (por fases, solo el concepto o las
+  líneas), concepto, fases (semanas, pago e importe), forma de pago, condiciones,
+  mantenimiento opcional (cuota pactada o la de la calculadora, permanencia) y
+  qué apartados se imprimen (`crm/presupuesto.ts`, con pruebas), en el mismo
+  JSON de `loc_calculoprecio`, clave `presupuesto`: sin columna nueva. Pasa de
+  la oferta al pedido. «Presupuesto en PDF» imprime `PresupuestoImpreso` (la
+  plantilla LOC-AIS de Locodea) y se guarda como PDF desde el diálogo de
+  impresión; por fases sin fases, enseña las líneas.
 - Los scripts de Dataverse llaman al CLI con `npx -y @microsoft/dataverse`; en
   Windows conviene `$env:DATAVERSE_CLI=<ruta a bin/dataverse.js>` para que
   los `&` de las consultas OData no pasen por cmd.
